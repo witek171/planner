@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlannerNet", "PlannerNet\PlannerNet.csproj", "{ABAEF549-EBD3-4640-A95A-CBC710C0D28A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABAEF549-EBD3-4640-A95A-CBC710C0D28A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABAEF549-EBD3-4640-A95A-CBC710C0D28A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABAEF549-EBD3-4640-A95A-CBC710C0D28A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABAEF549-EBD3-4640-A95A-CBC710C0D28A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3FB441D3-3AD3-4099-80F6-4BC62E55EBA0}
+	EndGlobalSection
+EndGlobal

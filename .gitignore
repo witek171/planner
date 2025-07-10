@@ -48,3 +48,38 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Visual Studio files
+.vscode/
+.vs/
+*.dbmdl
+
+# NuGet packages
+*.nupkg
+packages/
+*.snupkg
+
+# Dotnet environment files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Logs
+*.log
+
+# Others
+TestResults/

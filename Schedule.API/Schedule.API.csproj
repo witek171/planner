@@ -9,29 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="API\**"/>
-        <Compile Remove="Application\**"/>
-        <Compile Remove="Contracts\**"/>
-        <Compile Remove="Domain\**"/>
-        <Compile Remove="Infrastructure\**"/>
-        <Content Remove="API\**"/>
-        <Content Remove="Application\**"/>
-        <Content Remove="Contracts\**"/>
-        <Content Remove="Domain\**"/>
-        <Content Remove="Infrastructure\**"/>
-        <EmbeddedResource Remove="API\**"/>
-        <EmbeddedResource Remove="Application\**"/>
-        <EmbeddedResource Remove="Contracts\**"/>
-        <EmbeddedResource Remove="Domain\**"/>
-        <EmbeddedResource Remove="Infrastructure\**"/>
-        <None Remove="API\**"/>
-        <None Remove="Application\**"/>
-        <None Remove="Contracts\**"/>
-        <None Remove="Domain\**"/>
-        <None Remove="Infrastructure\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>

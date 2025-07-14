@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
+    <ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
+    <ProjectReference Include="..\Schedule.Infrastructure\Schedule.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

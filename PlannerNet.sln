@@ -15,6 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schedule.Application", "Sch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schedule.Contracts", "Schedule.Contracts\Schedule.Contracts.csproj", "{F7EFBEE5-FE32-4F97-9EE3-546BC76AD9B4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{CDFADEA1-99EB-4572-A9D0-2A952F0572D5}"
+	ProjectSection(SolutionItems) = preProject
+		Common\ProjectBase.props = Common\ProjectBase.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

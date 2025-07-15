@@ -5,11 +5,12 @@
 			"launchBrowser": true,
 			"launchUrl": "swagger",
 			"environmentVariables": {
-				"ASPNETCORE_ENVIRONMENT": "Development"
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				"ConnectionStrings__DefaultConnection": "Server=localhost;Database=ScheduleDb;Trusted_Connection=True;TrustServerCertificate=True"
 			},
 			"dotnetRunMessages": true,
 			"applicationUrl": "https://localhost:5021;http://localhost:5020"
-		},
+		}
 	},
 	"$schema": "http://json.schemastore.org/launchsettings.json",
 	"iisSettings": {

@@ -1,8 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\Common\ProjectBase.props"/>
+	<Import Project="..\Common\ProjectBase.props" />
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+	</ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
     <ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,4 @@
 ﻿using Schedule.Contracts.Dtos;
-using Schedule.Domain.Models;
 using Schedule.Infrastructure.Repositories;
 
 namespace Schedule.Application.Services;
@@ -13,53 +12,30 @@ public class StaffService : IStaffService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<StaffProfileDto>> GetAllAsync()
+    public IEnumerable<StaffProfileDto> GetAll()
     {
-        var staff = await _repository.GetAllAsync();
-        return staff.Select(s => new StaffProfileDto
-        {
-            Id = s.Id,
-            ReceptionId = s.ReceptionId,
-            UserId = s.UserId
-        });
+        return _repository.GetAll();
     }
 
-    public async Task<StaffProfileDto?> GetByIdAsync(Guid id)
+    public StaffProfileDto? GetById(Guid id)
     {
-        var s = await _repository.GetByIdAsync(id);
-        if (s == null) return null;
-
-        return new StaffProfileDto
-        {
-            Id = s.Id,
-            ReceptionId = s.ReceptionId,
-            UserId = s.UserId
-        };
+        return _repository.GetById(id);
     }
 
-    public async Task CreateAsync(StaffProfileDto dto)
+    public void Create(StaffProfileDto profile)
     {
-        var staff = new StaffProfile
-        {
-            Id = Guid.NewGuid(),
-            ReceptionId = dto.ReceptionId,
-            UserId = dto.UserId
-        };
-
-        await _repository.AddAsync(staff);
+        // Możesz tu dodać walidacje lub logikę biznesową
+        _repository.Create(profile);
     }
 
-    public async Task UpdateAsync(StaffProfileDto dto)
+    public void Update(StaffProfileDto profile)
     {
-        var staff = new StaffProfile
-        {
-            Id = dto.Id,
-            ReceptionId = dto.ReceptionId,
-            UserId = dto.UserId
-        };
-
-        await _repository.UpdateAsync(staff);
+        // Tu też możesz dodać dodatkowe sprawdzenia itp.
+        _repository.Update(profile);
     }
 
-    public async Task DeleteAsync(Guid id) => await _repository.DeleteAsync(id);
+    public void Delete(Guid id)
+    {
+        _repository.Delete(id);
+    }
 }

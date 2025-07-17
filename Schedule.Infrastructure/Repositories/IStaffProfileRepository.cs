@@ -1,12 +1,12 @@
-﻿using Schedule.Domain.Models;
+﻿using Schedule.Contracts.Dtos;
 
 namespace Schedule.Infrastructure.Repositories;
 
 public interface IStaffProfileRepository
 {
-    Task<IEnumerable<StaffProfile>> GetAllAsync();
-    Task<StaffProfile?> GetByIdAsync(Guid id);
-    Task AddAsync(StaffProfile staff);
-    Task UpdateAsync(StaffProfile staff);
-    Task DeleteAsync(Guid id);
+    IEnumerable<StaffProfileDto> GetAll();
+    StaffProfileDto? GetById(Guid id);
+    void Create(StaffProfileDto profile);
+    void Update(StaffProfileDto profile);
+    void Delete(Guid id);
 }

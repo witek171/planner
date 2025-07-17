@@ -16,37 +16,55 @@ public class StaffController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _staffService.GetAllAsync());
+    public ActionResult<IEnumerable<StaffProfileDto>> GetAll()
+    {
+        var profiles = _staffService.GetAll();
+        return Ok(profiles);
+    }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(Guid id)
+    public ActionResult<StaffProfileDto> GetById(Guid id)
     {
-        var result = await _staffService.GetByIdAsync(id);
-        return result is null ? NotFound() : Ok(result);
+        var profile = _staffService.GetById(id);
+        if (profile == null)
+            return NotFound();
+
+        return Ok(profile);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] StaffProfileDto dto)
+    public ActionResult Create([FromBody] StaffProfileDto profile)
     {
-        await _staffService.CreateAsync(dto);
-        return CreatedAtAction(nameof(Get), new { id = dto.Id }, dto);
+        // Jeśli Id jest guidem i nie ustawiony, można ustawić tutaj
+        if (profile.Id == Guid.Empty)
+            profile.Id = Guid.NewGuid();
+
+        _staffService.Create(profile);
+        return CreatedAtAction(nameof(GetById), new { id = profile.Id }, profile);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] StaffProfileDto dto)
+    public ActionResult Update(Guid id, [FromBody] StaffProfileDto profile)
     {
-        if (id != dto.Id)
-            return BadRequest();
+        if (id != profile.Id)
+            return BadRequest("ID mismatch");
 
-        await _staffService.UpdateAsync(dto);
+        var existing = _staffService.GetById(id);
+        if (existing == null)
+            return NotFound();
+
+        _staffService.Update(profile);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public ActionResult Delete(Guid id)
     {
-        await _staffService.DeleteAsync(id);
+        var existing = _staffService.GetById(id);
+        if (existing == null)
+            return NotFound();
+
+        _staffService.Delete(id);
         return NoContent();
     }
 }

@@ -13,22 +13,22 @@ namespace PlannerNet
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddScoped<IDbConnection>(sp =>
-            new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var connectionString = config.GetConnectionString("DefaultConnection");
+                return new SqlConnection(connectionString);
+            });
 
             builder.Services.AddScoped<IStaffProfileRepository, StaffProfileRepository>();
             builder.Services.AddScoped<IStaffService, StaffService>();
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -36,12 +36,8 @@ namespace PlannerNet
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

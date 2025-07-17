@@ -15,17 +15,17 @@ namespace PlannerNet.Controllers
         }
 
         [HttpGet("application")]
-        public IActionResult GetApplicationHealth()
+        public IActionResult GetApplicationStatus()
         {
-            var health = _healthCheckService.GetApplicationHealth();
+            var health = _healthCheckService.GetApplicationStatus();
 
             return StatusCode(health.Status == "Healthy" ? 200 : 503, health);
         }
 
         [HttpGet("database")]
-        public async Task<IActionResult> GetDatabaseHealthAsync()
+        public async Task<IActionResult> GetDatabaseStatusAsync()
         {
-            var health = await _healthCheckService.GetDatabaseHealthAsync();
+            var health = await _healthCheckService.GetDatabaseStatusAsync();
 
             return StatusCode(health.Status == "Healthy" ? 200 : 503, health);
         }

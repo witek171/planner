@@ -1,33 +1,38 @@
-﻿using Common.Application.Services;
+﻿using Schedule.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Schedule.Application.Interfaces.Services;
+using Schedule.Domain.Dtos;
 
-namespace PlannerNet.Controllers
+namespace PlannerNet.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class HealthCheckController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class HealthCheckController : ControllerBase
-    {
-        private readonly IHealthCheckService _healthCheckService;
+	private readonly IHealthCheckService _healthCheckService;
 
-        public HealthCheckController(IHealthCheckService healthCheckService)
-        {
-            _healthCheckService = healthCheckService;
-        }
+	public HealthCheckController(IHealthCheckService healthCheckService)
+	{
+		_healthCheckService = healthCheckService;
+	}
 
-        [HttpGet("application")]
-        public IActionResult GetApplicationStatus()
-        {
-            var health = _healthCheckService.GetApplicationStatus();
+	[HttpGet("application")]
+	public ActionResult<ApplicationHealthStatusDto> GetApplicationStatus()
+	{
+		ApplicationHealthStatus health = _healthCheckService.GetApplicationStatus();
+        
+		ApplicationHealthStatusDto dto = new ApplicationHealthStatusDto(health);
 
-            return StatusCode(health.Status == "Healthy" ? 200 : 503, health);
-        }
+		return health.Status == "Healthy" ? Ok(dto) : StatusCode(503, dto);
+	}
 
-        [HttpGet("database")]
-        public async Task<IActionResult> GetDatabaseStatusAsync()
-        {
-            var health = await _healthCheckService.GetDatabaseStatusAsync();
+	[HttpGet("database")]
+	public async Task<ActionResult<DatabaseHealthStatusDto>> GetDatabaseStatusAsync()
+	{
+		DatabaseHealthStatus health = await _healthCheckService.GetDatabaseStatusAsync();
+        
+		DatabaseHealthStatusDto dto = new DatabaseHealthStatusDto(health);
 
-            return StatusCode(health.Status == "Healthy" ? 200 : 503, health);
-        }
-    }
+		return health.Status == "Healthy" ? Ok(dto) : StatusCode(503, dto);
+	}
 }

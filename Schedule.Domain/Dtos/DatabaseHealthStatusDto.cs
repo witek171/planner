@@ -1,16 +1,12 @@
 ﻿namespace Schedule.Domain.Dtos;
 
-public class DatabaseHealthStatusDto : HealthStatusDto
+public sealed record DatabaseHealthStatusDto(
+	string ConnectionString,
+	TimeSpan ResponseTime,
+	string DatabaseName,
+	string Status,
+	DateTime Timestamp,
+	Dictionary<string, object> Details
+)
 {
-	public DatabaseHealthStatusDto(Models.DatabaseHealthStatus health) : 
-		base(health.Status, health.Timestamp, health.Details)
-	{
-		ConnectionString = health.ConnectionString;
-		ResponseTime = health.ResponseTime;
-		DatabaseName = health.DatabaseName;
-	}
-
-	public string ConnectionString { get; set; }
-	public TimeSpan ResponseTime { get; set; }
-	public string DatabaseName { get; set; }
 }

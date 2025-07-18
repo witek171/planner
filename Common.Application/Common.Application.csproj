@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="..\Common\ProjectBase.props"/>
+  <Import Project="..\Common\ProjectBase.props"/>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Common.Domain\Common.Domain.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Domain\Common.Domain.csproj"/>
+  </ItemGroup>
 
 </Project>

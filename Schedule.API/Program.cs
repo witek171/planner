@@ -1,50 +1,49 @@
-using Microsoft.Data.SqlClient;
 using System.Data;
-using Common.Application.Services;
-using Common.Application.Utils;
-using Common.Infrastructure.Services;
-using Common.Infrastructure.Utils;
+using Schedule.Infrastructure.Services;
+using Schedule.Infrastructure.Utils;
+using Microsoft.Data.SqlClient;
+using Schedule.Application.Interfaces.Services;
+using Schedule.Application.Interfaces.Utils;
 
-namespace PlannerNet
+namespace PlannerNet;
+
+public class Program
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
-            
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            
-            // Add services to the container.
+	public static void Main(string[] args)
+	{
+		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IDbConnection>(sp =>
-                new SqlConnection(connectionString));
+		string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            builder.Services.AddControllers();
-            builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
-            builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+		// Add services to the container.
 
-            var app = builder.Build();
+		builder.Services.AddScoped<IDbConnection>(sp =>
+			new SqlConnection(connectionString));
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+		builder.Services.AddControllers();
+		builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
+		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
 
-            app.UseHttpsRedirection();
+		WebApplication app = builder.Build();
 
-            app.UseAuthorization();
+		// Configure the HTTP request pipeline.
+		if (app.Environment.IsDevelopment())
+		{
+			app.UseDeveloperExceptionPage();
+			app.UseSwagger();
+			app.UseSwaggerUI();
+		}
+
+		app.UseHttpsRedirection();
+
+		app.UseAuthorization();
 
 
-            app.MapControllers();
+		app.MapControllers();
 
-            app.Run();
-        }
-    }
+		app.Run();
+	}
 }

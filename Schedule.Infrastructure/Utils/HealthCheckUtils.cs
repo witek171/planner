@@ -35,7 +35,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 			                            $"Check configuration key '{configKey}' or environment variable '{envKey}'";
 
 			_logger.LogError("Configuration error: {ErrorMessage}", errorMessage);
-			throw new InvalidOperationException(errorMessage);
+			return string.Empty;
 		}
 
 		_logger.LogDebug("Connection string loaded successfully from configuration");

@@ -23,155 +23,133 @@ public class HealthCheckService : IHealthCheckService
 
 	public ApplicationHealthStatus GetApplicationStatus()
 	{
+		_logger.LogInformation("Checking application health");
+
 		string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+		string status = "Healthy";
+		Dictionary<string, object> details = new Dictionary<string, object>();
+		string version = _healthCheckUtils.GetAssemblyVersion();
+		TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
+		long memoryUsage = _healthCheckUtils.GetMemoryUsage();
 
 		try
 		{
-			_logger.LogInformation("Checking application health");
-			
-			string version = _healthCheckUtils.GetAssemblyVersion();
-			TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
-			long memoryUsage = _healthCheckUtils.GetMemoryUsage();
-
-			Dictionary<string, object> details = new Dictionary<string, object>
-			{
-				["machineName"] = Environment.MachineName,
-				["processorCount"] = Environment.ProcessorCount,
-				["osVersion"] = Environment.OSVersion.ToString(),
-				["workingDirectory"] = Environment.CurrentDirectory,
-				["assemblyLocation"] = System.Reflection.Assembly
-					.GetExecutingAssembly().Location ?? "Unknown",
-				["dotnetVersion"] = Environment.Version.ToString(),
-				["is64BitProcess"] = Environment.Is64BitProcess,
-				["totalMemory"] = GC.GetTotalMemory(false)
-			};
-
-			return new ApplicationHealthStatus(
-				version,
-				environment,
-				uptime,
-				memoryUsage,
-				"Healthy",
-				DateTime.UtcNow,
-				details
-			);
+			details["machineName"] = Environment.MachineName;
+			details["processorCount"] = Environment.ProcessorCount;
+			details["osVersion"] = Environment.OSVersion.ToString();
+			details["workingDirectory"] = Environment.CurrentDirectory;
+			details["assemblyLocation"] = System.Reflection.Assembly
+				.GetExecutingAssembly().Location ?? "Unknown";
+			details["dotnetVersion"] = Environment.Version.ToString();
+			details["is64BitProcess"] = Environment.Is64BitProcess;
+			details["totalMemory"] = GC.GetTotalMemory(false);
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Error while checking application health");
-			
-			string version = _healthCheckUtils.GetAssemblyVersion();
-			TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
-			long memoryUsage = _healthCheckUtils.GetMemoryUsage();
 
-			Dictionary<string, object> errorDetails = new Dictionary<string, object>
-			{
-				["error"] = ex.Message,
-				["errorType"] = ex.GetType().Name
-			};
-
-			return new ApplicationHealthStatus(
-				version,
-				environment,
-				uptime,
-				memoryUsage,
-				"Unhealthy",
-				DateTime.UtcNow,
-				errorDetails
-			);
+			status = "Degraded";
+			details["error"] = ex.Message;
+			details["errorType"] = ex.GetType().Name;
 		}
+
+		if (version == "Unknown" || uptime == TimeSpan.Zero || memoryUsage == 0)
+		{
+			status = status == "Healthy" ? "Degraded" : status;
+			details["dataQuality"] = "Some metrics unavailable";
+		}
+
+		return new ApplicationHealthStatus(
+			version,
+			environment,
+			uptime,
+			memoryUsage,
+			status,
+			DateTime.UtcNow,
+			details
+		);
 	}
 
 	public async Task<DatabaseHealthStatus> GetDatabaseStatusAsync()
 	{
+		_logger.LogInformation("Checking database health");
+
 		Stopwatch stopwatch = Stopwatch.StartNew();
-		string connectionString = _healthCheckUtils.GetConnectionString();
+		string maskedConnectionString = string.Empty;
+		string databaseName = "Unknown";
+		string status = "Healthy";
+		Dictionary<string, object> details = new Dictionary<string, object>();
 
 		try
 		{
-			_logger.LogInformation("Checking database health");
-			
-			string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
+			string connectionString = _healthCheckUtils.GetConnectionString();
+			maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
 			if (string.IsNullOrWhiteSpace(connectionString))
-				throw new ArgumentException("Connection string cannot be null or empty", nameof(connectionString));
-
-			TimeSpan databaseTimeout = TimeSpan.FromSeconds(10);
-			using CancellationTokenSource timeoutCts = new CancellationTokenSource(databaseTimeout);
-
-			await using SqlConnection connection = new SqlConnection(connectionString);
-			await connection.OpenAsync(timeoutCts.Token);
-
-			await using SqlCommand testCommand = new SqlCommand("SELECT 1", connection);
-			await testCommand.ExecuteScalarAsync(timeoutCts.Token);
-
-			string databaseName = connection.Database ?? "Unknown";
-			string serverVersion = connection.ServerVersion ?? "Unknown";
-
-			var details = new Dictionary<string, object>
 			{
-				["serverVersion"] = serverVersion,
-				["connectionTimeout"] = connection.ConnectionTimeout,
-				["state"] = connection.State.ToString(),
-				["serverProcessId"] = connection.ServerProcessId.ToString(),
-				["clientConnectionId"] = connection.ClientConnectionId.ToString(),
-			};
+				status = "Unhealthy";
+				details["error"] = "Connection string is null or empty";
+				details["errorType"] = "ConfigurationError";
+			}
+			else
+			{
+				const int timeoutSeconds = 10;
+				TimeSpan databaseTimeout = TimeSpan.FromSeconds(timeoutSeconds);
+				using CancellationTokenSource timeoutCts = new CancellationTokenSource(databaseTimeout);
 
-			return new DatabaseHealthStatus(
-				maskedConnectionString,
-				stopwatch.Elapsed,
-				databaseName,
-				"Healthy",
-				DateTime.UtcNow,
-				details
-			);
+				await using SqlConnection connection = new SqlConnection(connectionString);
+				await connection.OpenAsync(timeoutCts.Token);
+
+				await using SqlCommand testCommand = new SqlCommand("SELECT 1", connection);
+				await testCommand.ExecuteScalarAsync(timeoutCts.Token);
+
+				databaseName = connection.Database ?? "Unknown";
+				string serverVersion = connection.ServerVersion ?? "Unknown";
+
+				details["serverVersion"] = serverVersion;
+				details["connectionTimeout"] = connection.ConnectionTimeout;
+				details["state"] = connection.State.ToString();
+				details["serverProcessId"] = connection.ServerProcessId.ToString();
+				details["clientConnectionId"] = connection.ClientConnectionId.ToString();
+			}
 		}
 		catch (SqlException sqlEx)
 		{
-			stopwatch.Stop();
 			_logger.LogError(sqlEx, "SQL error while checking database health");
-			
-			string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
-			Dictionary<string, object> errorDetails = new Dictionary<string, object>
-			{
-				["error"] = sqlEx.Message,
-				["errorType"] = sqlEx.GetType().Name,
-				["sqlErrorNumber"] = sqlEx.Number,
-				["severity"] = sqlEx.Class,
-				["state"] = sqlEx.State
-			};
-
-			return new DatabaseHealthStatus(
-				maskedConnectionString,
-				stopwatch.Elapsed,
-				"Unknown",
-				"Unhealthy",
-				DateTime.UtcNow,
-				errorDetails
-			);
+			status = "Unhealthy";
+			details["error"] = sqlEx.Message;
+			details["errorType"] = sqlEx.GetType().Name;
+			details["sqlErrorNumber"] = sqlEx.Number;
+			details["severity"] = sqlEx.Class;
+			details["state"] = sqlEx.State;
 		}
 		catch (Exception ex)
 		{
-			stopwatch.Stop();
 			_logger.LogError(ex, "General error while checking database health");
-			
-			string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
-			Dictionary<string, object> errorDetails = new Dictionary<string, object>
-			{
-				["error"] = ex.Message,
-				["errorType"] = ex.GetType().Name
-			};
-
-			return new DatabaseHealthStatus(
-				maskedConnectionString,
-				stopwatch.Elapsed,
-				"Unknown",
-				"Unhealthy",
-				DateTime.UtcNow,
-				errorDetails
-			);
+			status = "Unhealthy";
+			details["error"] = ex.Message;
+			details["errorType"] = ex.GetType().Name;
 		}
+		finally
+		{
+			stopwatch.Stop();
+		}
+
+		if (databaseName == "Unknown" || stopwatch.Elapsed == TimeSpan.Zero)
+		{
+			status = status == "Healthy" ? "Degraded" : status;
+			details["dataQuality"] = "Some metrics unavailable";
+		}
+
+		return new DatabaseHealthStatus(
+			maskedConnectionString,
+			stopwatch.Elapsed,
+			databaseName,
+			status,
+			DateTime.UtcNow,
+			details
+		);
 	}
 }

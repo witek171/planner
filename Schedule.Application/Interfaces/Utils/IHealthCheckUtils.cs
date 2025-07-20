@@ -5,4 +5,6 @@ public interface IHealthCheckUtils
 	string GetConnectionString();
 	string GetAssemblyVersion();
 	string MaskConnectionString(string connectionString);
+	TimeSpan GetApplicationUptime();
+	long GetMemoryUsage();
 }

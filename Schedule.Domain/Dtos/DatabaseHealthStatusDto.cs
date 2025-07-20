@@ -1,6 +1,6 @@
 ﻿namespace Schedule.Domain.Dtos;
 
-public sealed record DatabaseHealthStatusDto(
+public record DatabaseHealthStatusDto(
 	string ConnectionString,
 	TimeSpan ResponseTime,
 	string DatabaseName,

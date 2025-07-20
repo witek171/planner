@@ -23,24 +23,15 @@ public class HealthCheckService : IHealthCheckService
 
 	public ApplicationHealthStatus GetApplicationStatus()
 	{
-		string version = _healthCheckUtils.GetAssemblyVersion();
 		string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
-		Process? process = null;
-		TimeSpan uptime = TimeSpan.Zero;
-		try
-		{
-			process = Process.GetCurrentProcess();
-			uptime = DateTime.UtcNow - process.StartTime.ToUniversalTime();
-		}
-		catch (Exception uptimeEx)
-		{
-			_logger.LogWarning(uptimeEx, "Unable to calculate application uptime");
-		}
 
 		try
 		{
 			_logger.LogInformation("Checking application health");
-			long memoryUsage = process?.WorkingSet64 ?? 0;
+			
+			string version = _healthCheckUtils.GetAssemblyVersion();
+			TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
+			long memoryUsage = _healthCheckUtils.GetMemoryUsage();
 
 			Dictionary<string, object> details = new Dictionary<string, object>
 			{
@@ -49,7 +40,10 @@ public class HealthCheckService : IHealthCheckService
 				["osVersion"] = Environment.OSVersion.ToString(),
 				["workingDirectory"] = Environment.CurrentDirectory,
 				["assemblyLocation"] = System.Reflection.Assembly
-					.GetExecutingAssembly().Location ?? "Unknown"
+					.GetExecutingAssembly().Location ?? "Unknown",
+				["dotnetVersion"] = Environment.Version.ToString(),
+				["is64BitProcess"] = Environment.Is64BitProcess,
+				["totalMemory"] = GC.GetTotalMemory(false)
 			};
 
 			return new ApplicationHealthStatus(
@@ -65,8 +59,12 @@ public class HealthCheckService : IHealthCheckService
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Error while checking application health");
+			
+			string version = _healthCheckUtils.GetAssemblyVersion();
+			TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
+			long memoryUsage = _healthCheckUtils.GetMemoryUsage();
 
-			Dictionary<string, object> details = new Dictionary<string, object>
+			Dictionary<string, object> errorDetails = new Dictionary<string, object>
 			{
 				["error"] = ex.Message,
 				["errorType"] = ex.GetType().Name
@@ -76,10 +74,10 @@ public class HealthCheckService : IHealthCheckService
 				version,
 				environment,
 				uptime,
-				0,
+				memoryUsage,
 				"Unhealthy",
 				DateTime.UtcNow,
-				details
+				errorDetails
 			);
 		}
 	}
@@ -88,33 +86,35 @@ public class HealthCheckService : IHealthCheckService
 	{
 		Stopwatch stopwatch = Stopwatch.StartNew();
 		string connectionString = _healthCheckUtils.GetConnectionString();
-		string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
 		try
 		{
 			_logger.LogInformation("Checking database health");
+			
+			string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
-			if (string.IsNullOrEmpty(connectionString))
-				throw new InvalidOperationException("Connection string not configured");
+			if (string.IsNullOrWhiteSpace(connectionString))
+				throw new ArgumentException("Connection string cannot be null or empty", nameof(connectionString));
+
+			TimeSpan databaseTimeout = TimeSpan.FromSeconds(10);
+			using CancellationTokenSource timeoutCts = new CancellationTokenSource(databaseTimeout);
 
 			await using SqlConnection connection = new SqlConnection(connectionString);
-			await connection.OpenAsync();
+			await connection.OpenAsync(timeoutCts.Token);
 
 			await using SqlCommand testCommand = new SqlCommand("SELECT 1", connection);
-			await testCommand.ExecuteScalarAsync();
-
-			stopwatch.Stop();
+			await testCommand.ExecuteScalarAsync(timeoutCts.Token);
 
 			string databaseName = connection.Database ?? "Unknown";
 			string serverVersion = connection.ServerVersion ?? "Unknown";
 
-			_logger.LogInformation("Database connection successful: {DatabaseName}", databaseName);
-
-			Dictionary<string, object> details = new Dictionary<string, object>
+			var details = new Dictionary<string, object>
 			{
 				["serverVersion"] = serverVersion,
 				["connectionTimeout"] = connection.ConnectionTimeout,
-				["state"] = connection.State.ToString()
+				["state"] = connection.State.ToString(),
+				["serverProcessId"] = connection.ServerProcessId.ToString(),
+				["clientConnectionId"] = connection.ClientConnectionId.ToString(),
 			};
 
 			return new DatabaseHealthStatus(
@@ -130,12 +130,16 @@ public class HealthCheckService : IHealthCheckService
 		{
 			stopwatch.Stop();
 			_logger.LogError(sqlEx, "SQL error while checking database health");
+			
+			string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
-			Dictionary<string, object> details = new Dictionary<string, object>
+			Dictionary<string, object> errorDetails = new Dictionary<string, object>
 			{
 				["error"] = sqlEx.Message,
 				["errorType"] = sqlEx.GetType().Name,
-				["sqlErrorNumber"] = sqlEx.Number
+				["sqlErrorNumber"] = sqlEx.Number,
+				["severity"] = sqlEx.Class,
+				["state"] = sqlEx.State
 			};
 
 			return new DatabaseHealthStatus(
@@ -144,15 +148,17 @@ public class HealthCheckService : IHealthCheckService
 				"Unknown",
 				"Unhealthy",
 				DateTime.UtcNow,
-				details
+				errorDetails
 			);
 		}
 		catch (Exception ex)
 		{
 			stopwatch.Stop();
 			_logger.LogError(ex, "General error while checking database health");
+			
+			string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
-			Dictionary<string, object> details = new Dictionary<string, object>
+			Dictionary<string, object> errorDetails = new Dictionary<string, object>
 			{
 				["error"] = ex.Message,
 				["errorType"] = ex.GetType().Name
@@ -164,7 +170,7 @@ public class HealthCheckService : IHealthCheckService
 				"Unknown",
 				"Unhealthy",
 				DateTime.UtcNow,
-				details
+				errorDetails
 			);
 		}
 	}

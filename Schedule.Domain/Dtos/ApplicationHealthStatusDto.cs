@@ -1,6 +1,6 @@
 ﻿namespace Schedule.Domain.Dtos;
 
-public sealed record ApplicationHealthStatusDto(
+public record ApplicationHealthStatusDto(
 	string Version,
 	string Environment,
 	TimeSpan Uptime,

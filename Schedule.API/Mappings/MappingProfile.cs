@@ -16,7 +16,7 @@ public class MappingProfile : Profile
 					src.MemoryUsage,
 					src.Status,
 					src.Timestamp,
-					src.Details ?? new Dictionary<string, object>()
+					src.Details
 				)
 			);
 
@@ -27,7 +27,7 @@ public class MappingProfile : Profile
 					src.DatabaseName,
 					src.Status,
 					src.Timestamp,
-					src.Details ?? new Dictionary<string, object>()
+					src.Details
 				)
 			);
 	}

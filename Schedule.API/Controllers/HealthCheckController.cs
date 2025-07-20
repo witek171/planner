@@ -29,7 +29,12 @@ public class HealthCheckController : ControllerBase
 
 		ApplicationHealthStatusDto dto = _mapper.Map<ApplicationHealthStatusDto>(health);
 
-		return health.Status == "Healthy" ? Ok(dto) : StatusCode(503, dto);
+		return health.Status switch
+		{
+			"Healthy" => Ok(dto),
+			"Degraded" => StatusCode(207, dto),
+			"Unhealthy" => StatusCode(503, dto)
+		};
 	}
 
 	[HttpGet("database")]
@@ -39,6 +44,11 @@ public class HealthCheckController : ControllerBase
 
 		DatabaseHealthStatusDto dto = _mapper.Map<DatabaseHealthStatusDto>(health);
 
-		return health.Status == "Healthy" ? Ok(dto) : StatusCode(503, dto);
+		return health.Status switch
+		{
+			"Healthy" => Ok(dto),
+			"Degraded" => StatusCode(207, dto),
+			"Unhealthy" => StatusCode(503, dto)
+		};
 	}
 }

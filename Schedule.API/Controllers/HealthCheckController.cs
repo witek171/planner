@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Schedule.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Domain.Dtos;
+using Schedule.Domain.Models;
 
 namespace PlannerNet.Controllers;
 
@@ -27,7 +27,7 @@ public class HealthCheckController : ControllerBase
 	{
 		ApplicationHealthStatus health = _healthCheckService.GetApplicationStatus();
 
-		ApplicationHealthStatusDto dto = _mapper.Map<ApplicationHealthStatusDto>(health);
+		ApplicationHealthStatusDto? dto = _mapper.Map<ApplicationHealthStatusDto>(health);
 
 		return health.Status switch
 		{
@@ -42,7 +42,7 @@ public class HealthCheckController : ControllerBase
 	{
 		DatabaseHealthStatus health = await _healthCheckService.GetDatabaseStatusAsync();
 
-		DatabaseHealthStatusDto dto = _mapper.Map<DatabaseHealthStatusDto>(health);
+		DatabaseHealthStatusDto? dto = _mapper.Map<DatabaseHealthStatusDto>(health);
 
 		return health.Status switch
 		{

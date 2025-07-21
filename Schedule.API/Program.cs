@@ -1,10 +1,10 @@
 using System.Data;
-using Schedule.Infrastructure.Services;
-using Schedule.Infrastructure.Utils;
 using Microsoft.Data.SqlClient;
 using PlannerNet.Mappings;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
+using Schedule.Infrastructure.Services;
+using Schedule.Infrastructure.Utils;
 
 namespace PlannerNet;
 

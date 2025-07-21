@@ -49,7 +49,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 
 		try
 		{
-			SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+			SqlConnectionStringBuilder builder = new(connectionString);
 
 			if (!string.IsNullOrEmpty(builder.Password))
 				builder.Password = "***";

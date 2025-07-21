@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
-using Schedule.Domain.Models;
+using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
+using Schedule.Domain.Models;
 
 namespace Schedule.Infrastructure.Services;
 
@@ -27,7 +28,7 @@ public class HealthCheckService : IHealthCheckService
 
 		string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
 		string status = "Healthy";
-		Dictionary<string, object> details = new Dictionary<string, object>();
+		Dictionary<string, object> details = new();
 		string version = _healthCheckUtils.GetAssemblyVersion();
 		TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
 		long memoryUsage = _healthCheckUtils.GetMemoryUsage();
@@ -38,7 +39,7 @@ public class HealthCheckService : IHealthCheckService
 			details["processorCount"] = Environment.ProcessorCount;
 			details["osVersion"] = Environment.OSVersion.ToString();
 			details["workingDirectory"] = Environment.CurrentDirectory;
-			details["assemblyLocation"] = System.Reflection.Assembly
+			details["assemblyLocation"] = Assembly
 				.GetExecutingAssembly().Location ?? "Unknown";
 			details["dotnetVersion"] = Environment.Version.ToString();
 			details["is64BitProcess"] = Environment.Is64BitProcess;
@@ -78,7 +79,7 @@ public class HealthCheckService : IHealthCheckService
 		string maskedConnectionString = string.Empty;
 		string databaseName = "Unknown";
 		string status = "Healthy";
-		Dictionary<string, object> details = new Dictionary<string, object>();
+		Dictionary<string, object> details = new();
 
 		try
 		{
@@ -95,12 +96,12 @@ public class HealthCheckService : IHealthCheckService
 			{
 				const int timeoutSeconds = 10;
 				TimeSpan databaseTimeout = TimeSpan.FromSeconds(timeoutSeconds);
-				using CancellationTokenSource timeoutCts = new CancellationTokenSource(databaseTimeout);
+				using CancellationTokenSource timeoutCts = new(databaseTimeout);
 
-				await using SqlConnection connection = new SqlConnection(connectionString);
+				await using SqlConnection connection = new(connectionString);
 				await connection.OpenAsync(timeoutCts.Token);
 
-				await using SqlCommand testCommand = new SqlCommand("SELECT 1", connection);
+				await using SqlCommand testCommand = new("SELECT 1", connection);
 				await testCommand.ExecuteScalarAsync(timeoutCts.Token);
 
 				databaseName = connection.Database ?? "Unknown";

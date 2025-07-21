@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using System.Security;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Schedule.Application.Interfaces.Services;
@@ -49,7 +50,14 @@ public class HealthCheckService : IHealthCheckService
 		{
 			_logger.LogError(ex, "Error while checking application health");
 
-			status = "Degraded";
+			if (ex is SecurityException or UnauthorizedAccessException or OutOfMemoryException)
+			{
+				status = "Unhealthy";
+				_logger.LogCritical(ex, "Critical system error detected");
+			}
+			else
+				status = "Degraded";
+
 			details["error"] = ex.Message;
 			details["errorType"] = ex.GetType().Name;
 		}

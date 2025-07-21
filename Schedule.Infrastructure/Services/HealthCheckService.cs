@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using System.Security;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Schedule.Application.Interfaces.Services;
@@ -34,33 +33,22 @@ public class HealthCheckService : IHealthCheckService
 		TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
 		long memoryUsage = _healthCheckUtils.GetMemoryUsage();
 
-		try
-		{
-			details["machineName"] = Environment.MachineName;
-			details["processorCount"] = Environment.ProcessorCount;
-			details["osVersion"] = Environment.OSVersion.ToString();
-			details["workingDirectory"] = Environment.CurrentDirectory;
-			details["assemblyLocation"] = Assembly
-				.GetExecutingAssembly().Location ?? "Unknown";
-			details["dotnetVersion"] = Environment.Version.ToString();
-			details["is64BitProcess"] = Environment.Is64BitProcess;
-			details["totalMemory"] = GC.GetTotalMemory(false);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error while checking application health");
-
-			if (ex is SecurityException or UnauthorizedAccessException or OutOfMemoryException)
-			{
-				status = "Unhealthy";
-				_logger.LogCritical(ex, "Critical system error detected");
-			}
-			else
-				status = "Degraded";
-
-			details["error"] = ex.Message;
-			details["errorType"] = ex.GetType().Name;
-		}
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "machineName",
+			() => Environment.MachineName, _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "processorCount",
+			() => Environment.ProcessorCount, _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "osVersion",
+			() => Environment.OSVersion.ToString(), _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "workingDirectory",
+			() => Environment.CurrentDirectory, _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "assemblyLocation",
+			() => Assembly.GetExecutingAssembly().Location ?? "Unknown", _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "dotnetVersion",
+			() => Environment.Version.ToString(), _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "is64BitProcess",
+			() => Environment.Is64BitProcess, _logger);
+		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "totalMemory",
+			() => GC.GetTotalMemory(false), _logger);
 
 		if (version == "Unknown" || uptime == TimeSpan.Zero || memoryUsage == 0)
 		{

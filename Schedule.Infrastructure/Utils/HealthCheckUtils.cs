@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using System.Security;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -111,6 +112,35 @@ public class HealthCheckUtils : IHealthCheckUtils
 		{
 			_logger.LogWarning(ex, "Unable to get memory usage");
 			return 0;
+		}
+	}
+
+	public void AddDetailsOrLogError(
+		Dictionary<string, object> details,
+		ref string status,
+		string key,
+		Func<object> func,
+		ILogger logger
+	)
+	{
+		try
+		{
+			details[key] = func() ?? "null";
+		}
+		catch (Exception ex)
+		{
+			details[$"{key}_error"] = ex.Message;
+
+			if (ex is SecurityException or UnauthorizedAccessException or OutOfMemoryException)
+			{
+				status = "Unhealthy";
+				logger.LogCritical(ex, $"Critical error while retrieving '{key}'");
+			}
+			else if (status != "Unhealthy")
+			{
+				status = "Degraded";
+				logger.LogWarning(ex, $"Non-critical error while retrieving '{key}'");
+			}
 		}
 	}
 }

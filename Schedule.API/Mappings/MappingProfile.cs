@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Schedule.Domain.Dtos;
+using Schedule.Contracts.Dtos;
 using Schedule.Domain.Models;
 
 namespace PlannerNet.Mappings;

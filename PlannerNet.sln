@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{CDFADE
 		Common\ProjectBase.props = Common\ProjectBase.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schedule.Contracts", "Schedule.Contracts\Schedule.Contracts.csproj", "{BD77FF3E-371C-4CF0-BCB3-9BD5B6D24CB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{9A507125-16CB-49F9-A8FF-807C4CEEE677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A507125-16CB-49F9-A8FF-807C4CEEE677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A507125-16CB-49F9-A8FF-807C4CEEE677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD77FF3E-371C-4CF0-BCB3-9BD5B6D24CB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD77FF3E-371C-4CF0-BCB3-9BD5B6D24CB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD77FF3E-371C-4CF0-BCB3-9BD5B6D24CB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD77FF3E-371C-4CF0-BCB3-9BD5B6D24CB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +55,7 @@ Global
 		{3DA221CE-E8E7-4D1B-9D98-CE13E087D837} = {A5414071-4863-437D-B25C-76A379C6AAC0}
 		{78AC69A2-2206-4C74-9E8A-D6FBDFF6A70C} = {A5414071-4863-437D-B25C-76A379C6AAC0}
 		{9A507125-16CB-49F9-A8FF-807C4CEEE677} = {A5414071-4863-437D-B25C-76A379C6AAC0}
+		{BD77FF3E-371C-4CF0-BCB3-9BD5B6D24CB0} = {A5414071-4863-437D-B25C-76A379C6AAC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FB441D3-3AD3-4099-80F6-4BC62E55EBA0}

@@ -1,4 +1,4 @@
-﻿namespace Schedule.Domain.Dtos;
+﻿namespace Schedule.Contracts.Dtos;
 
 public record ApplicationHealthStatusDto(
 	string Version,

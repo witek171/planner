@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
-using Schedule.Domain.Dtos;
+using Schedule.Contracts.Dtos;
 using Schedule.Domain.Models;
 
 namespace PlannerNet.Controllers;

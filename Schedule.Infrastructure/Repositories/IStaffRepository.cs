@@ -1,8 +1,8 @@
 ﻿using Schedule.Contracts.Dtos;
 
-namespace Schedule.Application.Services;
+namespace Schedule.Infrastructure.Repositories;
 
-public interface IStaffService
+public interface IStaffRepository
 {
     IEnumerable<StaffDto> GetAll();
     StaffDto? GetById(Guid id);

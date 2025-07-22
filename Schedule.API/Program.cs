@@ -20,8 +20,9 @@ namespace PlannerNet
                 return new SqlConnection(connectionString);
             });
 
-            builder.Services.AddScoped<IStaffProfileRepository, StaffProfileRepository>();
+            builder.Services.AddScoped<IStaffRepository, StaffRepository>();
             builder.Services.AddScoped<IStaffService, StaffService>();
+            builder.Services.AddScoped<IStaffSpecializationRepository, StaffSpecializationRepository>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

@@ -16,52 +16,44 @@ public class StaffController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<StaffProfileDto>> GetAll()
-    {
-        var profiles = _staffService.GetAll();
-        return Ok(profiles);
-    }
+    public IActionResult GetAll() => Ok(_staffService.GetAll());
 
     [HttpGet("{id}")]
-    public ActionResult<StaffProfileDto> GetById(Guid id)
+    public IActionResult GetById(Guid id)
     {
-        var profile = _staffService.GetById(id);
-        if (profile == null)
-            return NotFound();
-
-        return Ok(profile);
+        var staff = _staffService.GetById(id);
+        return staff == null ? NotFound() : Ok(staff);
     }
 
     [HttpPost]
-    public ActionResult Create([FromBody] StaffProfileDto profile)
+    public IActionResult Create([FromBody] StaffDto staff)
     {
-        // Jeśli Id jest guidem i nie ustawiony, można ustawić tutaj
-        if (profile.Id == Guid.Empty)
-            profile.Id = Guid.NewGuid();
-
-        _staffService.Create(profile);
-        return CreatedAtAction(nameof(GetById), new { id = profile.Id }, profile);
+        if (staff.Id == Guid.Empty)
+        {
+            staff.Id = Guid.NewGuid();
+            staff.CreatedAt = DateTime.UtcNow;
+        }
+        _staffService.Create(staff);
+        return CreatedAtAction(nameof(GetById), new { id = staff.Id }, staff);
     }
 
     [HttpPut("{id}")]
-    public ActionResult Update(Guid id, [FromBody] StaffProfileDto profile)
+    public IActionResult Update(Guid id, [FromBody] StaffDto staff)
     {
-        if (id != profile.Id)
+        if (id != staff.Id)
             return BadRequest("ID mismatch");
 
-        var existing = _staffService.GetById(id);
-        if (existing == null)
+        if (_staffService.GetById(id) == null)
             return NotFound();
 
-        _staffService.Update(profile);
+        _staffService.Update(staff);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public ActionResult Delete(Guid id)
+    public IActionResult Delete(Guid id)
     {
-        var existing = _staffService.GetById(id);
-        if (existing == null)
+        if (_staffService.GetById(id) == null)
             return NotFound();
 
         _staffService.Delete(id);

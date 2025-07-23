@@ -9,9 +9,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		<PackageReference Include="AutoMapper" Version="12.0.1"/>
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2"/>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1"/>
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Schedule.Application\Schedule.Application.csproj"/>
+		<ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
+		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj"/>
+		<ProjectReference Include="..\Schedule.Infrastructure\Schedule.Infrastructure.csproj"/>
 	</ItemGroup>
 
 </Project>

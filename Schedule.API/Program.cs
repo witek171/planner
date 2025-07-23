@@ -1,42 +1,51 @@
-
-using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.Data.SqlClient;
+using PlannerNet.Mappings;
+using Schedule.Application.Interfaces.Services;
+using Schedule.Application.Interfaces.Utils;
+using Schedule.Infrastructure.Services;
+using Schedule.Infrastructure.Utils;
 
-namespace PlannerNet
+namespace PlannerNet;
+
+public class Program
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+	public static void Main(string[] args)
+	{
+		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+		string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            builder.Services.AddScoped<IDbConnection>(sp =>
-            new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+		// Add services to the container.
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+		builder.Services.AddScoped<IDbConnection>(sp =>
+			new SqlConnection(connectionString));
 
-            var app = builder.Build();
+		builder.Services.AddControllers();
+		builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
+		builder.Services.AddAutoMapper(typeof(MappingProfile));
+		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+		WebApplication app = builder.Build();
 
-            app.UseHttpsRedirection();
+		// Configure the HTTP request pipeline.
+		if (app.Environment.IsDevelopment())
+		{
+			app.UseDeveloperExceptionPage();
+			app.UseSwagger();
+			app.UseSwaggerUI();
+		}
 
-            app.UseAuthorization();
+		app.UseHttpsRedirection();
+
+		app.UseAuthorization();
 
 
-            app.MapControllers();
+		app.MapControllers();
 
-            app.Run();
-        }
-    }
+		app.Run();
+	}
 }

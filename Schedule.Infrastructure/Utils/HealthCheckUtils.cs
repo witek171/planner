@@ -182,7 +182,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 
 	public bool IsCriticalSqlError(SqlException sqlEx)
 	{
-		var criticalErrors = new[]
+		int[] criticalErrors = new[]
 		{
 			18456,
 			4060,

@@ -1,20 +1,32 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace Schedule.Application.Interfaces.Utils;
 
 public interface IHealthCheckUtils
 {
 	string GetConnectionString();
-	string GetAssemblyVersion();
 	string MaskConnectionString(string connectionString);
-	TimeSpan GetApplicationUptime();
-	long GetMemoryUsage();
+	string GetAssemblyVersion(ref string status);
+	TimeSpan GetApplicationUptime(ref string status);
+	long GetMemoryUsage(ref string status);
 
-	void AddDetailsOrLogError(
+	void AddDetailOrLogError(
 		Dictionary<string, object> details,
 		ref string status,
 		string key,
 		Func<object> func,
 		ILogger logger
 	);
+
+	void HandleDatabaseError(
+		Exception ex, 
+		string message, 
+		bool isCritical, 
+		ref string status, 
+		Dictionary<string, object> details,
+		ILogger logger
+	);
+
+	bool IsCriticalSqlError(SqlException sqlEx);
 }

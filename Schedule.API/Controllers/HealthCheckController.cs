@@ -23,32 +23,30 @@ public class HealthCheckController : ControllerBase
 	}
 
 	[HttpGet("application")]
-	public ActionResult<ApplicationHealthStatusDto> GetApplicationStatus()
+	public ActionResult<ApplicationHealthStatusResponse> GetApplicationStatus()
 	{
 		ApplicationHealthStatus health = _healthCheckService.GetApplicationStatus();
 
-		ApplicationHealthStatusDto dto = _mapper.Map<ApplicationHealthStatusDto>(health);
+		ApplicationHealthStatusResponse response = _mapper.Map<ApplicationHealthStatusResponse>(health);
 
 		return health.Status switch
 		{
-			"Healthy" => Ok(dto),
-			"Degraded" => StatusCode(207, dto),
-			"Unhealthy" => StatusCode(503, dto)
+			"Healthy" or "Degraded" => Ok(response),
+			"Unhealthy" => StatusCode(503, response)
 		};
 	}
 
 	[HttpGet("database")]
-	public async Task<ActionResult<DatabaseHealthStatusDto>> GetDatabaseStatusAsync()
+	public async Task<ActionResult<DatabaseHealthStatusResponse>> GetDatabaseStatusAsync()
 	{
 		DatabaseHealthStatus health = await _healthCheckService.GetDatabaseStatusAsync();
 
-		DatabaseHealthStatusDto dto = _mapper.Map<DatabaseHealthStatusDto>(health);
+		DatabaseHealthStatusResponse response = _mapper.Map<DatabaseHealthStatusResponse>(health);
 
 		return health.Status switch
 		{
-			"Healthy" => Ok(dto),
-			"Degraded" => StatusCode(207, dto),
-			"Unhealthy" => StatusCode(503, dto)
+			"Healthy" or "Degraded" => Ok(response),
+			"Unhealthy" => StatusCode(503, response)
 		};
 	}
 }

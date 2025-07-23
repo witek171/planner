@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using System.Security;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -60,14 +59,13 @@ public class HealthCheckUtils : IHealthCheckUtils
 
 			return builder.ConnectionString;
 		}
-		catch (ArgumentException ex)
-		{
-			_logger.LogWarning(ex, "Invalid connection string format during masking");
-			return "Invalid connection string format";
-		}
 		catch (Exception ex)
 		{
-			_logger.LogWarning(ex, "Cannot mask connection string");
+			string message = ex is ArgumentException
+				? "Invalid connection string format during masking"
+				: "Cannot mask connection string";
+
+			_logger.LogWarning(ex, message);
 			return "Invalid connection string format";
 		}
 	}
@@ -79,16 +77,19 @@ public class HealthCheckUtils : IHealthCheckUtils
 			Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
 			return assembly.GetName().Version?.ToString() ?? "Unknown";
 		}
-		catch (Exception ex) when (IsSystemCriticalError(ex))
-		{
-			status = "Unhealthy";
-			_logger.LogCritical(ex, "Critical error while retrieving assembly version");
-			return "Unknown";
-		}
 		catch (Exception ex)
 		{
-			if (status != "Unhealthy") status = "Degraded";
-			_logger.LogWarning(ex, "Error while retrieving assembly version");
+			if (IsSystemCriticalError(ex))
+			{
+				status = "Unhealthy";
+				_logger.LogCritical(ex, "Critical error while retrieving assembly version");
+			}
+			else if (status != "Unhealthy")
+			{
+				status = "Degraded";
+				_logger.LogWarning(ex, "Error while retrieving assembly version");
+			}
+
 			return "Unknown";
 		}
 	}
@@ -100,16 +101,19 @@ public class HealthCheckUtils : IHealthCheckUtils
 			using Process process = Process.GetCurrentProcess();
 			return DateTime.UtcNow - process.StartTime.ToUniversalTime();
 		}
-		catch (Exception ex) when (IsSystemCriticalError(ex))
-		{
-			status = "Unhealthy";
-			_logger.LogCritical(ex, "Critical error while calculating uptime");
-			return TimeSpan.Zero;
-		}
 		catch (Exception ex)
 		{
-			if (status != "Unhealthy") status = "Degraded";
-			_logger.LogWarning(ex, "Unable to calculate application uptime");
+			if (IsSystemCriticalError(ex))
+			{
+				status = "Unhealthy";
+				_logger.LogCritical(ex, "Critical error while calculating uptime");
+			}
+			else if (status != "Unhealthy")
+			{
+				status = "Degraded";
+				_logger.LogWarning(ex, "Unable to calculate application uptime");
+			}
+
 			return TimeSpan.Zero;
 		}
 	}
@@ -121,16 +125,19 @@ public class HealthCheckUtils : IHealthCheckUtils
 			using Process process = Process.GetCurrentProcess();
 			return process.WorkingSet64;
 		}
-		catch (Exception ex) when (IsSystemCriticalError(ex))
-		{
-			status = "Unhealthy";
-			_logger.LogCritical(ex, "Critical error while retrieving memory usage");
-			return 0;
-		}
 		catch (Exception ex)
 		{
-			if (status != "Unhealthy") status = "Degraded";
-			_logger.LogWarning(ex, "Unable to get memory usage");
+			if (IsSystemCriticalError(ex))
+			{
+				status = "Unhealthy";
+				_logger.LogCritical(ex, "Critical error while retrieving memory usage");
+			}
+			else if (status != "Unhealthy")
+			{
+				status = "Degraded";
+				_logger.LogWarning(ex, "Unable to get memory usage");
+			}
+
 			return 0;
 		}
 	}
@@ -145,7 +152,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 	{
 		try
 		{
-			details[key] = func() ?? "null";
+			details[key] = func() ?? "Unknown";
 		}
 		catch (Exception ex)
 		{
@@ -184,14 +191,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 	{
 		int[] criticalErrors = new[]
 		{
-			18456,
-			4060,
-			18452,
-			233,
-			-2,
-			53,
-			2,
-			11001
+			18456, 4060, 18452, 233, -2, 53, 2, 11001
 		};
 
 		return criticalErrors.Contains(sqlEx.Number) || sqlEx.Class >= 20;
@@ -199,12 +199,8 @@ public class HealthCheckUtils : IHealthCheckUtils
 
 	private bool IsSystemCriticalError(Exception ex)
 	{
-		return ex is OutOfMemoryException
-			or SecurityException
-			or ThreadAbortException
-			or AppDomainUnloadedException
-			or BadImageFormatException
-			or InvalidProgramException
-			or AccessViolationException;
+		return ex
+			is BadImageFormatException
+			or InvalidProgramException;
 	}
 }

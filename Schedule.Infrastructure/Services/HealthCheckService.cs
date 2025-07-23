@@ -29,32 +29,29 @@ public class HealthCheckService : IHealthCheckService
 		string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
 		string status = "Healthy";
 		Dictionary<string, object> details = new();
-		string version = _healthCheckUtils.GetAssemblyVersion();
-		TimeSpan uptime = _healthCheckUtils.GetApplicationUptime();
-		long memoryUsage = _healthCheckUtils.GetMemoryUsage();
+		string version = _healthCheckUtils.GetAssemblyVersion(ref status);
+		TimeSpan uptime = _healthCheckUtils.GetApplicationUptime(ref status);
+		long memoryUsage = _healthCheckUtils.GetMemoryUsage(ref status);
 
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "machineName",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "machineName",
 			() => Environment.MachineName, _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "processorCount",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "processorCount",
 			() => Environment.ProcessorCount, _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "osVersion",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "osVersion",
 			() => Environment.OSVersion.ToString(), _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "workingDirectory",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "workingDirectory",
 			() => Environment.CurrentDirectory, _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "assemblyLocation",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "assemblyLocation",
 			() => Assembly.GetExecutingAssembly().Location ?? "Unknown", _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "dotnetVersion",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "dotnetVersion",
 			() => Environment.Version.ToString(), _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "is64BitProcess",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "is64BitProcess",
 			() => Environment.Is64BitProcess, _logger);
-		_healthCheckUtils.AddDetailsOrLogError(details, ref status, "totalMemory",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "totalMemory",
 			() => GC.GetTotalMemory(false), _logger);
 
-		if (version == "Unknown" || uptime == TimeSpan.Zero || memoryUsage == 0)
-		{
-			status = status == "Healthy" ? "Degraded" : status;
+		if (status == "Degraded")
 			details["dataQuality"] = "Some metrics unavailable";
-		}
 
 		return new ApplicationHealthStatus(
 			version,
@@ -110,34 +107,33 @@ public class HealthCheckService : IHealthCheckService
 				details["clientConnectionId"] = connection.ClientConnectionId.ToString();
 			}
 		}
+		catch (OperationCanceledException opEx)
+		{
+			_healthCheckUtils.HandleDatabaseError(opEx, "Database connection timeout", true,
+				ref status, details, _logger);
+		}
 		catch (SqlException sqlEx)
 		{
-			_logger.LogError(sqlEx, "SQL error while checking database health");
+			_healthCheckUtils.HandleDatabaseError(sqlEx, sqlEx.Message, _healthCheckUtils.IsCriticalSqlError(sqlEx),
+				ref status, details, _logger);
 
-			status = "Unhealthy";
-			details["error"] = sqlEx.Message;
-			details["errorType"] = sqlEx.GetType().Name;
 			details["sqlErrorNumber"] = sqlEx.Number;
 			details["severity"] = sqlEx.Class;
 			details["state"] = sqlEx.State;
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "General error while checking database health");
-
-			status = "Unhealthy";
-			details["error"] = ex.Message;
-			details["errorType"] = ex.GetType().Name;
+			_healthCheckUtils.HandleDatabaseError(ex, ex.Message, true, ref status, details, _logger);
 		}
 		finally
 		{
 			stopwatch.Stop();
 		}
 
-		if (databaseName == "Unknown" || stopwatch.Elapsed == TimeSpan.Zero)
+		if (databaseName == "Unknown" || stopwatch.Elapsed > TimeSpan.FromSeconds(5))
 		{
 			status = status == "Healthy" ? "Degraded" : status;
-			details["dataQuality"] = "Some metrics unavailable";
+			details["dataQuality"] = "Performance or metadata issues";
 		}
 
 		return new DatabaseHealthStatus(

@@ -72,50 +72,70 @@ public class HealthCheckUtils : IHealthCheckUtils
 		}
 	}
 
-	public string GetAssemblyVersion()
+	public string GetAssemblyVersion(ref string status)
 	{
 		try
 		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			Version? version = assembly.GetName().Version;
-			return version?.ToString() ?? "Unknown";
+			Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+			return assembly.GetName().Version?.ToString() ?? "Unknown";
+		}
+		catch (Exception ex) when (IsSystemCriticalError(ex))
+		{
+			status = "Unhealthy";
+			_logger.LogCritical(ex, "Critical error while retrieving assembly version");
+			return "Unknown";
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "Error while retrieving assembly version");
+			if (status != "Unhealthy") status = "Degraded";
+			_logger.LogWarning(ex, "Error while retrieving assembly version");
 			return "Unknown";
 		}
 	}
 
-	public TimeSpan GetApplicationUptime()
+	public TimeSpan GetApplicationUptime(ref string status)
 	{
 		try
 		{
 			using Process process = Process.GetCurrentProcess();
 			return DateTime.UtcNow - process.StartTime.ToUniversalTime();
 		}
+		catch (Exception ex) when (IsSystemCriticalError(ex))
+		{
+			status = "Unhealthy";
+			_logger.LogCritical(ex, "Critical error while calculating uptime");
+			return TimeSpan.Zero;
+		}
 		catch (Exception ex)
 		{
+			if (status != "Unhealthy") status = "Degraded";
 			_logger.LogWarning(ex, "Unable to calculate application uptime");
 			return TimeSpan.Zero;
 		}
 	}
 
-	public long GetMemoryUsage()
+	public long GetMemoryUsage(ref string status)
 	{
 		try
 		{
 			using Process process = Process.GetCurrentProcess();
 			return process.WorkingSet64;
 		}
+		catch (Exception ex) when (IsSystemCriticalError(ex))
+		{
+			status = "Unhealthy";
+			_logger.LogCritical(ex, "Critical error while retrieving memory usage");
+			return 0;
+		}
 		catch (Exception ex)
 		{
+			if (status != "Unhealthy") status = "Degraded";
 			_logger.LogWarning(ex, "Unable to get memory usage");
 			return 0;
 		}
 	}
 
-	public void AddDetailsOrLogError(
+	public void AddDetailOrLogError(
 		Dictionary<string, object> details,
 		ref string status,
 		string key,
@@ -131,7 +151,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 		{
 			details[$"{key}_error"] = ex.Message;
 
-			if (ex is SecurityException or UnauthorizedAccessException or OutOfMemoryException)
+			if (IsSystemCriticalError(ex))
 			{
 				status = "Unhealthy";
 				logger.LogCritical(ex, $"Critical error while retrieving '{key}'");
@@ -142,5 +162,49 @@ public class HealthCheckUtils : IHealthCheckUtils
 				logger.LogWarning(ex, $"Non-critical error while retrieving '{key}'");
 			}
 		}
+	}
+
+	public void HandleDatabaseError(
+		Exception ex,
+		string message,
+		bool isCritical,
+		ref string status,
+		Dictionary<string, object> details,
+		ILogger logger
+	)
+	{
+		logger.LogError(ex, "Database health check failed: {Message}", message);
+
+		status = isCritical ? "Unhealthy" : "Degraded";
+		details["error"] = message;
+		details["errorType"] = ex.GetType().Name;
+	}
+
+	public bool IsCriticalSqlError(SqlException sqlEx)
+	{
+		var criticalErrors = new[]
+		{
+			18456,
+			4060,
+			18452,
+			233,
+			-2,
+			53,
+			2,
+			11001
+		};
+
+		return criticalErrors.Contains(sqlEx.Number) || sqlEx.Class >= 20;
+	}
+
+	private bool IsSystemCriticalError(Exception ex)
+	{
+		return ex is OutOfMemoryException
+			or SecurityException
+			or ThreadAbortException
+			or AppDomainUnloadedException
+			or BadImageFormatException
+			or InvalidProgramException
+			or AccessViolationException;
 	}
 }

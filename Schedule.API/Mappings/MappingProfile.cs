@@ -8,8 +8,8 @@ public class MappingProfile : Profile
 {
 	public MappingProfile()
 	{
-		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusDto>()
-			.ConstructUsing(src => new ApplicationHealthStatusDto(
+		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusResponse>()
+			.ConstructUsing(src => new ApplicationHealthStatusResponse(
 					src.Version,
 					src.Environment,
 					src.Uptime,
@@ -20,8 +20,8 @@ public class MappingProfile : Profile
 				)
 			);
 
-		CreateMap<DatabaseHealthStatus, DatabaseHealthStatusDto>()
-			.ConstructUsing(src => new DatabaseHealthStatusDto(
+		CreateMap<DatabaseHealthStatus, DatabaseHealthStatusResponse>()
+			.ConstructUsing(src => new DatabaseHealthStatusResponse(
 					src.ConnectionString,
 					src.ResponseTime,
 					src.DatabaseName,

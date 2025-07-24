@@ -12,14 +12,17 @@ public class HealthCheckService : IHealthCheckService
 {
 	private readonly IHealthCheckUtils _healthCheckUtils;
 	private readonly ILogger<HealthCheckService> _logger;
+	private readonly string _connectionString;
 
 	public HealthCheckService(
 		IHealthCheckUtils healthCheckUtils,
-		ILogger<HealthCheckService> logger
+		ILogger<HealthCheckService> logger,
+		string connectionString
 	)
 	{
 		_healthCheckUtils = healthCheckUtils;
 		_logger = logger;
+		_connectionString = connectionString;
 	}
 
 	public ApplicationHealthStatus GetApplicationStatus()
@@ -69,16 +72,14 @@ public class HealthCheckService : IHealthCheckService
 		_logger.LogInformation("Checking database health");
 
 		Stopwatch stopwatch = Stopwatch.StartNew();
-		string maskedConnectionString = string.Empty;
 		string databaseName = "Unknown";
 		string status = "Healthy";
 		Dictionary<string, object> details = new();
+		string connectionString = _connectionString;
+		string maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
 
 		try
 		{
-			string connectionString = _healthCheckUtils.GetConnectionString();
-			maskedConnectionString = _healthCheckUtils.MaskConnectionString(connectionString);
-
 			if (string.IsNullOrWhiteSpace(connectionString))
 			{
 				status = "Unhealthy";

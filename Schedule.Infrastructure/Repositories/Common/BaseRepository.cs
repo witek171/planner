@@ -1,12 +1,13 @@
-﻿using System.Data;
+﻿using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Schedule.Infrastructure.Repositories.Common;
 
 public abstract class BaseRepository
 {
-    protected readonly IDbConnection _connection;
+    protected readonly SqlConnection _connection;
 
-    protected BaseRepository(IDbConnection connection)
+    protected BaseRepository(SqlConnection connection)
     {
         _connection = connection;
     }

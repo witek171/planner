@@ -1,4 +1,5 @@
-﻿using Schedule.Contracts.Dtos;
+﻿using Schedule.Application.Interfaces;
+using Schedule.Contracts.Dtos;
 using Schedule.Infrastructure.Repositories;
 
 namespace Schedule.Application.Services;

@@ -5,7 +5,6 @@ namespace Schedule.Application.Interfaces.Utils;
 
 public interface IHealthCheckUtils
 {
-	string GetConnectionString();
 	string MaskConnectionString(string connectionString);
 	string GetAssemblyVersion(ref string status);
 	TimeSpan GetApplicationUptime(ref string status);
@@ -20,10 +19,10 @@ public interface IHealthCheckUtils
 	);
 
 	void HandleDatabaseError(
-		Exception ex, 
-		string message, 
-		bool isCritical, 
-		ref string status, 
+		Exception ex,
+		string message,
+		bool isCritical,
+		ref string status,
 		Dictionary<string, object> details,
 		ILogger logger
 	);

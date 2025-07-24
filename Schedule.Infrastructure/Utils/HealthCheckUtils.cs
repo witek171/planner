@@ -9,37 +9,11 @@ namespace Schedule.Infrastructure.Utils;
 
 public class HealthCheckUtils : IHealthCheckUtils
 {
-	private readonly IConfiguration _configuration;
 	private readonly ILogger<HealthCheckUtils> _logger;
 
-	public HealthCheckUtils(
-		IConfiguration configuration,
-		ILogger<HealthCheckUtils> logger
-	)
+	public HealthCheckUtils(ILogger<HealthCheckUtils> logger)
 	{
-		_configuration = configuration;
 		_logger = logger;
-	}
-
-	public string GetConnectionString()
-	{
-		const string configKey = "DefaultConnection";
-		const string envKey = "ConnectionStrings__DefaultConnection";
-
-		string? connectionString = _configuration.GetConnectionString(configKey)
-		                           ?? Environment.GetEnvironmentVariable(envKey);
-
-		if (string.IsNullOrWhiteSpace(connectionString))
-		{
-			const string errorMessage = $"Database connection string not found. " +
-			                            $"Check configuration key '{configKey}' or environment variable '{envKey}'";
-
-			_logger.LogError("Configuration error: {ErrorMessage}", errorMessage);
-			return string.Empty;
-		}
-
-		_logger.LogDebug("Connection string loaded successfully from configuration");
-		return connectionString;
 	}
 
 	public string MaskConnectionString(string connectionString)

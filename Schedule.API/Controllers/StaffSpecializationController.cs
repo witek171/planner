@@ -8,31 +8,31 @@ namespace PlannerNet.Controllers;
 [Route("api/staff-specializations")]
 public class StaffSpecializationController : ControllerBase
 {
-    private readonly IStaffSpecializationRepository _repo;
+	private readonly IStaffSpecializationRepository _repo;
 
-    public StaffSpecializationController(IStaffSpecializationRepository repo)
-    {
-        _repo = repo;
-    }
+	public StaffSpecializationController(IStaffSpecializationRepository repo)
+	{
+		_repo = repo;
+	}
 
-    [HttpPost]
-    public IActionResult Create([FromBody] StaffSpecializationDto dto)
-    {
-        _repo.Create(dto);
-        return Ok();
-    }
+	[HttpPost]
+	public IActionResult Create([FromBody] StaffSpecializationDto dto)
+	{
+		_repo.Create(dto);
+		return Ok();
+	}
 
-    [HttpGet("{staffId}")]
-    public IActionResult GetByStaffId(Guid staffId)
-    {
-        var items = _repo.GetByStaffId(staffId);
-        return Ok(items);
-    }
+	[HttpGet("{staffId}")]
+	public IActionResult GetByStaffId(Guid staffId)
+	{
+		var items = _repo.GetByStaffId(staffId);
+		return Ok(items);
+	}
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
-    {
-        _repo.Delete(id);
-        return NoContent();
-    }
+	[HttpDelete("{id}")]
+	public IActionResult Delete(Guid id)
+	{
+		_repo.Delete(id);
+		return NoContent();
+	}
 }

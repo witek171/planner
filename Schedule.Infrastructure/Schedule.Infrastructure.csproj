@@ -7,8 +7,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
-    <ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
+	<ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
+	<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
   </ItemGroup>
 
 </Project>

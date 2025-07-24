@@ -1,12 +1,14 @@
 ﻿using Schedule.Contracts.Dtos;
+using Schedule.Contracts.Dtos.Staff.Requests;
+using Schedule.Contracts.Dtos.Staff.Responses;
 
 namespace Schedule.Application.Services;
 
 public interface IStaffService
 {
-    IEnumerable<StaffDto> GetAll();
-    StaffDto? GetById(Guid id);
-    void Create(StaffDto staff);
-    void Update(StaffDto staff);
-    void Delete(Guid id);
+    Task<List<StaffResponse>> GetAllAsync();
+    Task<StaffResponse?> GetByIdAsync(Guid id);
+    Task<Guid> CreateAsync(CreateStaffRequest request);
+    Task UpdateAsync(Guid id, UpdateStaffRequest request);
+    Task DeleteAsync(Guid id);
 }

@@ -80,33 +80,24 @@ public class HealthCheckService : IHealthCheckService
 
 		try
 		{
-			if (string.IsNullOrWhiteSpace(connectionString))
-			{
-				status = "Unhealthy";
-				details["error"] = "Connection string is null or empty";
-				details["errorType"] = "ConfigurationError";
-			}
-			else
-			{
-				const int timeoutSeconds = 10;
-				TimeSpan databaseTimeout = TimeSpan.FromSeconds(timeoutSeconds);
-				using CancellationTokenSource timeoutCts = new(databaseTimeout);
+			const int timeoutSeconds = 10;
+			TimeSpan databaseTimeout = TimeSpan.FromSeconds(timeoutSeconds);
+			using CancellationTokenSource timeoutCts = new(databaseTimeout);
 
-				await using SqlConnection connection = new(connectionString);
-				await connection.OpenAsync(timeoutCts.Token);
+			await using SqlConnection connection = new(connectionString);
+			await connection.OpenAsync(timeoutCts.Token);
 
-				await using SqlCommand testCommand = new("SELECT 1", connection);
-				await testCommand.ExecuteScalarAsync(timeoutCts.Token);
+			await using SqlCommand testCommand = new("SELECT 1", connection);
+			await testCommand.ExecuteScalarAsync(timeoutCts.Token);
 
-				databaseName = connection.Database ?? "Unknown";
-				string serverVersion = connection.ServerVersion ?? "Unknown";
+			databaseName = connection.Database ?? "Unknown";
+			string serverVersion = connection.ServerVersion ?? "Unknown";
 
-				details["serverVersion"] = serverVersion;
-				details["connectionTimeout"] = connection.ConnectionTimeout;
-				details["state"] = connection.State.ToString();
-				details["serverProcessId"] = connection.ServerProcessId.ToString();
-				details["clientConnectionId"] = connection.ClientConnectionId.ToString();
-			}
+			details["serverVersion"] = serverVersion;
+			details["connectionTimeout"] = connection.ConnectionTimeout;
+			details["state"] = connection.State.ToString();
+			details["serverProcessId"] = connection.ServerProcessId.ToString();
+			details["clientConnectionId"] = connection.ClientConnectionId.ToString();
 		}
 		catch (OperationCanceledException opEx)
 		{

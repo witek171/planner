@@ -1,5 +1,3 @@
-using System.Data;
-using Microsoft.Data.SqlClient;
 using PlannerNet.Mappings;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
@@ -14,15 +12,17 @@ public class Program
 	{
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-		string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 		// Add services to the container.
 
-		builder.Services.AddScoped<IDbConnection>(sp =>
-			new SqlConnection(connectionString));
-
 		builder.Services.AddControllers();
-		builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+		builder.Services.AddScoped<IHealthCheckService>(provider =>
+		{
+			IHealthCheckUtils healthCheckUtils = provider.GetRequiredService<IHealthCheckUtils>();
+			ILogger<HealthCheckService> logger = provider.GetRequiredService<ILogger<HealthCheckService>>();
+			string connectionString = EnvironmentService.SqlConnectionString;
+
+			return new HealthCheckService(healthCheckUtils, logger, connectionString);
+		});
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 		builder.Services.AddAutoMapper(typeof(MappingProfile));
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

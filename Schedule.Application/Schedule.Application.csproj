@@ -13,11 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Interfaces\"/>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj"/>
+		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

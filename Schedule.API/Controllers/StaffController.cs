@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Schedule.Application.Interfaces;
+using Schedule.Application.Interfaces.Services;
 using Schedule.Contracts.Dtos;
 
 namespace Schedule.API.Controllers;

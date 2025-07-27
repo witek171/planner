@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Schedule.Application.Interfaces;
 using Schedule.Contracts.Dtos.Staff.Responses;
 using Schedule.Contracts.Dtos.Staff.Requests;
 using Schedule.Domain.Models;
 using Schedule.Infrastructure.Repositories;
+using Schedule.Application.Interfaces.Services;
 
 namespace Schedule.Application.Services;
 

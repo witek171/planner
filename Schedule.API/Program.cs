@@ -5,9 +5,6 @@ using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
 using Schedule.Infrastructure.Services;
 using Schedule.Infrastructure.Utils;
-using Schedule.Application.Services;
-using Schedule.Infrastructure.Repositories;
-using Schedule.Application.Interfaces;
 using Schedule.Application.Mappings;
 
 namespace PlannerNet;

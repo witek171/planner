@@ -12,4 +12,17 @@
 		<ProjectReference Include="..\Schedule.Infrastructure\Schedule.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Folder Include="Interfaces\"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj"/>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
+	</ItemGroup>
+
 </Project>

@@ -1,3 +1,7 @@
+-- Przełącz się na bazę danych
+USE PlannerDB;
+GO
+
 -- =============================================
 -- WYPEŁNIANIE BAZY DANYCH PRZYKŁADOWYMI DANYMI 
 -- =============================================

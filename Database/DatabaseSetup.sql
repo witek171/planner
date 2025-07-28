@@ -1,4 +1,23 @@
 -- =============================================
+-- TWORZENIE BAZY DANYCH
+-- =============================================
+
+-- Sprawdź czy baza danych istnieje i usuń ją jeśli tak
+IF EXISTS (SELECT name FROM sys.databases WHERE name = 'PlannerDB')
+BEGIN
+    ALTER DATABASE PlannerDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE PlannerDB;
+END
+
+-- Utwórz nową bazę danych
+CREATE DATABASE PlannerDB;
+GO
+
+-- Przełącz się na nową bazę danych
+USE PlannerDB;
+GO
+
+-- =============================================
 -- USUWANIE WSZYSTKICH TABEL (w odpowiedniej kolejności)
 -- =============================================
 

@@ -1,5 +1,5 @@
-﻿using Schedule.Contracts.Dtos.Staff.Requests;
-using Schedule.Contracts.Dtos.Staff.Responses;
+﻿using Schedule.Contracts.Dtos.StaffRelated.Staff.Requests;
+using Schedule.Contracts.Dtos.StaffRelated.Staff.Responses;
 
 namespace Schedule.Application.Interfaces.Services;
 

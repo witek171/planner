@@ -1,137 +1,131 @@
 ﻿using Microsoft.Data.SqlClient;
-using Schedule.Domain.Models;
+using Schedule.Domain.Models.StaffRelated;
 using Schedule.Infrastructure.Repositories.Common;
-using System.Data;
+using Schedule.Infrastructure.Services;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffRepository : BaseRepository, IStaffRepository
+public class StaffRepository : BaseRepository
 {
-    public StaffRepository(SqlConnection connection) : base(connection) { }
+	public StaffRepository() : base(new SqlConnection(EnvironmentService.SqlConnectionString)) { }
 
-    public async Task<Guid> CreateAsync(Staff staff)
-    {
-        var id = Guid.NewGuid();
+	public List<Staff> GetAll()
+	{
+		var result = new List<Staff>();
 
-        using var command = _connection.CreateCommand();
-        command.CommandText = @"
-                INSERT INTO Staff (Id, ReceptionId, Role, Email, PasswordHash, FirstName, LastName, Phone)
-                VALUES (@Id, @ReceptionId, @Role, @Email, @PasswordHash, @FirstName, @LastName, @Phone);";
+		using var command = _connection.CreateCommand();
+		command.CommandText = "SELECT * FROM Staff";
 
-        AddParameter(command, "@Id", id);
-        AddParameter(command, "@ReceptionId", staff.ReceptionId);
-        AddParameter(command, "@Role", staff.Role);
-        AddParameter(command, "@Email", staff.Email);
-        AddParameter(command, "@PasswordHash", staff.PasswordHash);
-        AddParameter(command, "@FirstName", staff.FirstName);
-        AddParameter(command, "@LastName", staff.LastName);
-        AddParameter(command, "@Phone", staff.Phone);
+		_connection.Open();
+		using var reader = command.ExecuteReader();
+		while (reader.Read())
+		{
+			result.Add(new Staff
+			{
+				Id = reader.GetGuid(0),
+				ReceptionId = reader.GetGuid(1),
+				Role = reader.GetString(2),
+				Email = reader.GetString(3),
+				PasswordHash = reader.GetString(4),
+				FirstName = reader.GetString(5),
+				LastName = reader.GetString(6),
+				Phone = reader.GetString(7),
+			});
+		}
+		_connection.Close();
 
-        await _connection.OpenAsync();
-        await command.ExecuteNonQueryAsync();
-        await _connection.CloseAsync();
+		return result;
+	}
 
-        return id;
-    }
+	public Staff? GetById(Guid id)
+	{
+		using var command = _connection.CreateCommand();
+		command.CommandText = "SELECT * FROM Staff WHERE Id = @Id";
+		AddParameter(command, "@Id", id);
 
-    public async Task UpdateAsync(Staff staff)
-    {
-        using var command = _connection.CreateCommand();
-        command.CommandText = @"
-                UPDATE Staff SET 
-                    ReceptionId = @ReceptionId,
-                    Role = @Role,
-                    Email = @Email,
-                    PasswordHash = @PasswordHash,
-                    FirstName = @FirstName,
-                    LastName = @LastName,
-                    Phone = @Phone
-                WHERE Id = @Id";
+		_connection.Open();
+		using var reader = command.ExecuteReader();
+		if (reader.Read())
+		{
+			var staff = new Staff
+			{
+				Id = reader.GetGuid(0),
+				ReceptionId = reader.GetGuid(1),
+				Role = reader.GetString(2),
+				Email = reader.GetString(3),
+				PasswordHash = reader.GetString(4),
+				FirstName = reader.GetString(5),
+				LastName = reader.GetString(6),
+				Phone = reader.GetString(7),
+			};
+			_connection.Close();
+			return staff;
+		}
+		_connection.Close();
+		return null;
+	}
 
-        AddParameter(command, "@Id", staff.Id);
-        AddParameter(command, "@ReceptionId", staff.ReceptionId);
-        AddParameter(command, "@Role", staff.Role);
-        AddParameter(command, "@Email", staff.Email);
-        AddParameter(command, "@PasswordHash", staff.PasswordHash);
-        AddParameter(command, "@FirstName", staff.FirstName);
-        AddParameter(command, "@LastName", staff.LastName);
-        AddParameter(command, "@Phone", staff.Phone);
+	public Guid Create(Staff staff)
+	{
+		using var command = _connection.CreateCommand();
+		command.CommandText = @"
+			INSERT INTO Staff (Id, ReceptionId, Role, Email, PasswordHash, FirstName, LastName, Phone)
+			VALUES (@Id, @ReceptionId, @Role, @Email, @PasswordHash, @FirstName, @LastName, @Phone)";
 
-        await _connection.OpenAsync();
-        await command.ExecuteNonQueryAsync();
-        await _connection.CloseAsync();
-    }
+		staff.Id = Guid.NewGuid();
 
-    public async Task DeleteAsync(Guid id)
-    {
-        using var command = _connection.CreateCommand();
-        command.CommandText = "DELETE FROM Staff WHERE Id = @Id";
-        AddParameter(command, "@Id", id);
+		AddParameter(command, "@Id", staff.Id);
+		AddParameter(command, "@ReceptionId", staff.ReceptionId);
+		AddParameter(command, "@Role", staff.Role);
+		AddParameter(command, "@Email", staff.Email);
+		AddParameter(command, "@PasswordHash", staff.PasswordHash);
+		AddParameter(command, "@FirstName", staff.FirstName);
+		AddParameter(command, "@LastName", staff.LastName);
+		AddParameter(command, "@Phone", staff.Phone);
 
-        await _connection.OpenAsync();
-        await command.ExecuteNonQueryAsync();
-        await _connection.CloseAsync();
-    }
+		_connection.Open();
+		command.ExecuteNonQuery();
+		_connection.Close();
 
-    public async Task<Staff?> GetByIdAsync(Guid id)
-    {
-        using var command = _connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Staff WHERE Id = @Id";
-        AddParameter(command, "@Id", id);
+		return staff.Id;
+	}
 
-        await _connection.OpenAsync();
-        using var reader = await command.ExecuteReaderAsync();
+	public void Update(Staff staff)
+	{
+		using var command = _connection.CreateCommand();
+		command.CommandText = @"
+			UPDATE Staff SET
+				ReceptionId = @ReceptionId,
+				Role = @Role,
+				Email = @Email,
+				PasswordHash = @PasswordHash,
+				FirstName = @FirstName,
+				LastName = @LastName,
+				Phone = @Phone
+			WHERE Id = @Id";
 
-        if (await reader.ReadAsync())
-        {
-            var staff = new Staff
-            {
-                Id = reader.GetGuid(0),
-                ReceptionId = reader.GetGuid(1),
-                Role = reader.GetString(2),
-                Email = reader.GetString(3),
-                PasswordHash = reader.GetString(4),
-                FirstName = reader.GetString(5),
-                LastName = reader.GetString(6),
-                Phone = reader.GetString(7)
-            };
+		AddParameter(command, "@Id", staff.Id);
+		AddParameter(command, "@ReceptionId", staff.ReceptionId);
+		AddParameter(command, "@Role", staff.Role);
+		AddParameter(command, "@Email", staff.Email);
+		AddParameter(command, "@PasswordHash", staff.PasswordHash);
+		AddParameter(command, "@FirstName", staff.FirstName);
+		AddParameter(command, "@LastName", staff.LastName);
+		AddParameter(command, "@Phone", staff.Phone);
 
-            await _connection.CloseAsync();
-            return staff;
-        }
+		_connection.Open();
+		command.ExecuteNonQuery();
+		_connection.Close();
+	}
 
-        await _connection.CloseAsync();
-        return null;
-    }
+	public void Delete(Guid id)
+	{
+		using var command = _connection.CreateCommand();
+		command.CommandText = "DELETE FROM Staff WHERE Id = @Id";
+		AddParameter(command, "@Id", id);
 
-    public async Task<List<Staff>> GetAllAsync()
-    {
-        var result = new List<Staff>();
-
-        using var command = _connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Staff";
-
-        await _connection.OpenAsync();
-        using var reader = await command.ExecuteReaderAsync();
-
-        while (await reader.ReadAsync())
-        {
-            var staff = new Staff
-            {
-                Id = reader.GetGuid(0),
-                ReceptionId = reader.GetGuid(1),
-                Role = reader.GetString(2),
-                Email = reader.GetString(3),
-                PasswordHash = reader.GetString(4),
-                FirstName = reader.GetString(5),
-                LastName = reader.GetString(6),
-                Phone = reader.GetString(7)
-            };
-
-            result.Add(staff);
-        }
-
-        await _connection.CloseAsync();
-        return result;
-    }
+		_connection.Open();
+		command.ExecuteNonQuery();
+		_connection.Close();
+	}
 }

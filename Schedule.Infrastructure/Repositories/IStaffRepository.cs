@@ -1,5 +1,4 @@
-﻿using Schedule.Contracts.Dtos;
-using Schedule.Domain.Models;
+﻿using Schedule.Domain.Models.StaffRelated;
 
 namespace Schedule.Infrastructure.Repositories;
 

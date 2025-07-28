@@ -1,62 +1,63 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Schedule.Application.Interfaces.Services;
-using Schedule.Contracts.Dtos;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Schedule.Application.Services;
+using Schedule.Contracts.Dtos.StaffRelated.Staff.Requests;
+using Schedule.Contracts.Dtos.StaffRelated.Staff.Responses;
+using Schedule.Domain.Models.Staff;
 
-namespace Schedule.API.Controllers;
+namespace Schedule.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class StaffController : ControllerBase
 {
-	private readonly IStaffService _staffService;
+    private readonly StaffService _service;
+    private readonly IMapper _mapper;
 
-	public StaffController(IStaffService staffService)
-	{
-		_staffService = staffService;
-	}
+    public StaffController(StaffService service, IMapper mapper)
+    {
+        _service = service;
+        _mapper = mapper;
+    }
 
-	[HttpGet]
-	public IActionResult GetAll() => Ok(_staffService.GetAll());
+    [HttpGet]
+    public ActionResult<IEnumerable<StaffResponse>> GetAll()
+    {
+        var staffList = _service.GetAll();
+        var response = _mapper.Map<IEnumerable<StaffResponse>>(staffList);
+        return Ok(response);
+    }
 
-	[HttpGet("{id}")]
-	public IActionResult GetById(Guid id)
-	{
-		var staff = _staffService.GetById(id);
-		return staff == null ? NotFound() : Ok(staff);
-	}
+    [HttpGet("{id}")]
+    public ActionResult<StaffResponse> GetById(Guid id)
+    {
+        var staff = _service.GetById(id);
+        if (staff is null) return NotFound();
+        var response = _mapper.Map<StaffResponse>(staff);
+        return Ok(response);
+    }
 
-	[HttpPost]
-	public IActionResult Create([FromBody] StaffDto staff)
-	{
-		if (staff.Id == Guid.Empty)
-		{
-			staff.Id = Guid.NewGuid();
-			staff.CreatedAt = DateTime.UtcNow;
-		}
-		_staffService.Create(staff);
-		return CreatedAtAction(nameof(GetById), new { id = staff.Id }, staff);
-	}
+    [HttpPost]
+    public ActionResult<Guid> Create([FromBody] CreateStaffRequest request)
+    {
+        var staff = _mapper.Map<Staff>(request);
+        var id = _service.Create(staff);
+        return CreatedAtAction(nameof(GetById), new { id }, id);
+    }
 
-	[HttpPut("{id}")]
-	public IActionResult Update(Guid id, [FromBody] StaffDto staff)
-	{
-		if (id != staff.Id)
-			return BadRequest("ID mismatch");
+    [HttpPut("{id}")]
+    public IActionResult Update(Guid id, [FromBody] UpdateStaffRequest request)
+    {
+        var staff = _mapper.Map<Staff>(request);
+        staff.Id = id;
+        _service.Update(staff);
+        return NoContent();
+    }
 
-		if (_staffService.GetById(id) == null)
-			return NotFound();
-
-		_staffService.Update(staff);
-		return NoContent();
-	}
-
-	[HttpDelete("{id}")]
-	public IActionResult Delete(Guid id)
-	{
-		if (_staffService.GetById(id) == null)
-			return NotFound();
-
-		_staffService.Delete(id);
-		return NoContent();
-	}
+    [HttpDelete("{id}")]
+    public IActionResult Delete(Guid id)
+    {
+        _service.Delete(id);
+        return NoContent();
+    }
 }

@@ -1,0 +1,88 @@
+﻿using Microsoft.Data.SqlClient;
+using Schedule.Application.Interfaces.Repositories;
+using Schedule.Domain.Models;
+
+namespace Schedule.Infrastructure.Repositories;
+
+public class ParticipantRepository : IParticipantRepository
+{
+	private readonly string _connectionString;
+
+	public ParticipantRepository(string connectionString)
+	{
+		_connectionString = connectionString;
+	}
+
+	public async Task<Guid> CreateAsync(Participant participant)
+	{
+		const string sql = @"
+            INSERT INTO Participants (Id, ReceptionId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt)
+            VALUES (@Id, @ReceptionId, @Email, @FirstName, @LastName, @Phone, @GdprConsent, @CreatedAt);";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", participant.Id);
+		command.Parameters.AddWithValue("@ReceptionId", participant.ReceptionId);
+		command.Parameters.AddWithValue("@Email", participant.Email);
+		command.Parameters.AddWithValue("@FirstName", participant.FirstName);
+		command.Parameters.AddWithValue("@LastName", participant.LastName);
+		command.Parameters.AddWithValue("@Phone", participant.Phone);
+		command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
+		command.Parameters.AddWithValue("@CreatedAt", participant.CreatedAt);
+
+		await command.ExecuteNonQueryAsync();
+
+		return participant.Id;
+	}
+
+	public async Task<Participant?> GetByEmailAsync(Guid receptionId, string email)
+	{
+		const string sql = @"
+            SELECT Id, ReceptionId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+            FROM Participants 
+            WHERE ReceptionId = @ReceptionId AND Email = @Email";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@ReceptionId", receptionId);
+		command.Parameters.AddWithValue("@Email", email);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		if (!await reader.ReadAsync())
+			return null;
+
+		return new Participant(
+			reader.GetGuid(reader.GetOrdinal("Id")),
+			reader.GetGuid(reader.GetOrdinal("ReceptionId")),
+			reader.GetString(reader.GetOrdinal("Email")),
+			reader.GetString(reader.GetOrdinal("FirstName")),
+			reader.GetString(reader.GetOrdinal("LastName")),
+			reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString(reader.GetOrdinal("Phone")),
+			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
+			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
+		);
+	}
+
+	public async Task<bool> ExistsAsync(Guid receptionId, string email)
+	{
+		const string sql = @"
+            SELECT COUNT(1) 
+            FROM Participants 
+            WHERE ReceptionId = @ReceptionId AND Email = @Email";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@ReceptionId", receptionId);
+		command.Parameters.AddWithValue("@Email", email);
+
+		int count = (int)await command.ExecuteScalarAsync();
+		return count > 0;
+	}
+}

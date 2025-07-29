@@ -30,5 +30,18 @@ public class MappingProfile : Profile
 					src.Details
 				)
 			);
+		
+		CreateMap<ParticipantCreateRequest, Participant>()
+			.ConstructUsing(src => new Participant(
+					Guid.NewGuid(),
+					src.ReceptionId,
+					src.Email,
+					src.FirstName,
+					src.LastName,
+					src.Phone,
+					src.GdprConsent,
+					DateTime.UtcNow
+				)
+			);
 	}
 }

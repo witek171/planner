@@ -16,15 +16,15 @@ public class ParticipantRepository : IParticipantRepository
 	public async Task<Guid> CreateAsync(Participant participant)
 	{
 		const string sql = @"
-            INSERT INTO Participants (Id, ReceptionId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt)
-            VALUES (@Id, @ReceptionId, @Email, @FirstName, @LastName, @Phone, @GdprConsent, @CreatedAt);";
+            INSERT INTO Participants (Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt)
+            VALUES (@Id, @CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent, @CreatedAt);";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", participant.Id);
-		command.Parameters.AddWithValue("@ReceptionId", participant.ReceptionId);
+		command.Parameters.AddWithValue("@CompanyId", participant.CompanyId);
 		command.Parameters.AddWithValue("@Email", participant.Email);
 		command.Parameters.AddWithValue("@FirstName", participant.FirstName);
 		command.Parameters.AddWithValue("@LastName", participant.LastName);
@@ -37,18 +37,21 @@ public class ParticipantRepository : IParticipantRepository
 		return participant.Id;
 	}
 
-	public async Task<Participant?> GetByEmailAsync(Guid receptionId, string email)
+	public async Task<Participant?> GetByEmailAsync(
+		Guid companyId,
+		string email
+	)
 	{
 		const string sql = @"
-            SELECT Id, ReceptionId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+            SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
             FROM Participants 
-            WHERE ReceptionId = @ReceptionId AND Email = @Email";
+            WHERE CompanyId = @CompanyId AND Email = @Email";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@ReceptionId", receptionId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@Email", email);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -58,7 +61,7 @@ public class ParticipantRepository : IParticipantRepository
 
 		return new Participant(
 			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("ReceptionId")),
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
 			reader.GetString(reader.GetOrdinal("Email")),
 			reader.GetString(reader.GetOrdinal("FirstName")),
 			reader.GetString(reader.GetOrdinal("LastName")),
@@ -68,18 +71,21 @@ public class ParticipantRepository : IParticipantRepository
 		);
 	}
 
-	public async Task<bool> ExistsAsync(Guid receptionId, string email)
+	public async Task<bool> EmailExistsAsync(
+		Guid companyId,
+		string email
+	)
 	{
 		const string sql = @"
             SELECT COUNT(1) 
             FROM Participants 
-            WHERE ReceptionId = @ReceptionId AND Email = @Email";
+            WHERE CompanyId = @CompanyId AND Email = @Email";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@ReceptionId", receptionId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@Email", email);
 
 		int count = (int)await command.ExecuteScalarAsync();

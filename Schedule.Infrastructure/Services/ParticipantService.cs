@@ -15,11 +15,11 @@ public class ParticipantService : IParticipantService
 
 	public async Task CreateAsync(Participant participant)
 	{
-		bool exists = await _repository.ExistsAsync(participant.ReceptionId, participant.Email);
-		if (exists)
+		bool emailExists = await _repository.EmailExistsAsync(participant.CompanyId, participant.Email);
+		if (emailExists)
 			throw new InvalidOperationException(
 				$"Participant with email {participant.Email} " +
-				$"already exists in reception {participant.ReceptionId}");
+				$"already exists in reception {participant.CompanyId}");
 
 		if (!participant.GdprConsent)
 			throw new InvalidOperationException("GDPR consent is required");

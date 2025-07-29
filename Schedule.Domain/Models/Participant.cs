@@ -3,7 +3,7 @@
 public class Participant
 {
 	public Guid Id { get; set; }
-	public Guid ReceptionId { get; set; }
+	public Guid CompanyId { get; set; }
 	public string Email { get; set; }
 	public string FirstName { get; set; }
 	public string LastName { get; set; }
@@ -23,7 +23,7 @@ public class Participant
 	)
 	{
 		Id = id;
-		ReceptionId = receptionId;
+		CompanyId = receptionId;
 		Email = email;
 		FirstName = firstName;
 		LastName = lastName;

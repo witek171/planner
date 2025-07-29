@@ -4,7 +4,7 @@ namespace Schedule.Contracts.Dtos;
 
 public class ParticipantCreateRequest
 {
-	[Required] public Guid ReceptionId { get; set; }
+	[Required] public Guid CompanyId { get; set; }
 
 	[Required] [EmailAddress] public string Email { get; set; }
 
@@ -25,7 +25,7 @@ public class ParticipantCreateRequest
 		bool gdprConsent
 	)
 	{
-		ReceptionId = receptionId;
+		CompanyId = receptionId;
 		Email = email;
 		FirstName = firstName;
 		LastName = lastName;

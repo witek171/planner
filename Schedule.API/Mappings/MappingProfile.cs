@@ -34,7 +34,7 @@ public class MappingProfile : Profile
 		CreateMap<ParticipantCreateRequest, Participant>()
 			.ConstructUsing(src => new Participant(
 					Guid.NewGuid(),
-					src.ReceptionId,
+					src.CompanyId,
 					src.Email,
 					src.FirstName,
 					src.LastName,

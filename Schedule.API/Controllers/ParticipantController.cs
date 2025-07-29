@@ -23,24 +23,17 @@ public class ParticipantController : ControllerBase
 		_mapper = mapper;
 	}
 
-	[HttpPost("{receptionId:guid}")]
+	[HttpPost("{companyId:guid}")]
 	public async Task<ActionResult> Create(
-		Guid receptionId,
+		Guid companyId,
 		[FromBody] ParticipantCreateRequest request
 	)
 	{
-		try
-		{
-			request.ReceptionId = receptionId;
+		request.CompanyId = companyId;
 
-			Participant participant = _mapper.Map<Participant>(request);
+		Participant participant = _mapper.Map<Participant>(request);
 
-			await _participantService.CreateAsync(participant);
-			return Created();
-		}
-		catch (Exception e)
-		{
-			return BadRequest(e.Message);
-		}
+		await _participantService.CreateAsync(participant);
+		return Created();
 	}
 }

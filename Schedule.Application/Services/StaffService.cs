@@ -1,24 +1,40 @@
-﻿using Schedule.Domain.Models.StaffRelated;
+﻿using Schedule.Application.Interfaces.Services;
+using Schedule.Domain.Models.StaffRelated;
 using Schedule.Infrastructure.Repositories;
 
 namespace Schedule.Application.Services;
 
-public class StaffService
+public class StaffService : IStaffService
 {
-	private readonly StaffRepository _repository;
+	private readonly IStaffRepository _repository;
 
-	public StaffService(StaffRepository repository)
+	public StaffService(IStaffRepository repository)
 	{
 		_repository = repository;
 	}
 
-	public List<Staff> GetAll() => _repository.GetAll();
+	public async Task<List<Staff>> GetAllAsync()
+	{
+		return await _repository.GetAllAsync();
+	}
 
-	public Staff? GetById(Guid id) => _repository.GetById(id);
+	public async Task<Staff?> GetByIdAsync(Guid id)
+	{
+		return await _repository.GetByIdAsync(id);
+	}
 
-	public Guid Create(Staff staff) => _repository.Create(staff);
+	public async Task<Guid> CreateAsync(Staff staff)
+	{
+		return await _repository.CreateAsync(staff);
+	}
 
-	public void Update(Staff staff) => _repository.Update(staff);
+	public async Task UpdateAsync(Staff staff)
+	{
+		await _repository.UpdateAsync(staff);
+	}
 
-	public void Delete(Guid id) => _repository.Delete(id);
+	public async Task DeleteAsync(Guid id)
+	{
+		await _repository.DeleteAsync(id);
+	}
 }

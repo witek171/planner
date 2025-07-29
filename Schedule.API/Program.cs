@@ -1,6 +1,9 @@
 using PlannerNet.Mappings;
+using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
+using Schedule.Application.Services;
+using Schedule.Infrastructure.Repositories;
 using Schedule.Infrastructure.Services;
 using Schedule.Infrastructure.Utils;
 
@@ -28,6 +31,18 @@ public class Program
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen();
+
+		// Repositories
+		builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+		builder.Services.AddScoped<IStaffSpecializationRepository, StaffSpecializationRepository>();
+		builder.Services.AddScoped<IStaffAvailabilityRepository, StaffAvailabilityRepository>();
+		builder.Services.AddScoped<IEventScheduleStaffRepository, EventScheduleStaffRepository>();
+
+		// Services
+		builder.Services.AddScoped<IStaffService, StaffService>();
+		builder.Services.AddScoped<IStaffSpecializationService, StaffSpecializationService>();
+		builder.Services.AddScoped<IStaffAvailabilityService, StaffAvailabilityService>();
+		builder.Services.AddScoped<IEventScheduleStaffService, EventScheduleStaffService>();
 
 		WebApplication app = builder.Build();
 

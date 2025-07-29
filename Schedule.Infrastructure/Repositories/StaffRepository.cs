@@ -5,20 +5,20 @@ using Schedule.Infrastructure.Services;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffRepository : BaseRepository
+public class StaffRepository : BaseRepository, IStaffRepository
 {
 	public StaffRepository() : base(new SqlConnection(EnvironmentService.SqlConnectionString)) { }
 
-	public List<Staff> GetAll()
+	public async Task<List<Staff>> GetAllAsync()
 	{
 		var result = new List<Staff>();
 
 		using var command = _connection.CreateCommand();
 		command.CommandText = "SELECT * FROM Staff";
 
-		_connection.Open();
-		using var reader = command.ExecuteReader();
-		while (reader.Read())
+		await _connection.OpenAsync();
+		using var reader = await command.ExecuteReaderAsync();
+		while (await reader.ReadAsync())
 		{
 			result.Add(new Staff
 			{
@@ -32,20 +32,20 @@ public class StaffRepository : BaseRepository
 				Phone = reader.GetString(7),
 			});
 		}
-		_connection.Close();
+		await _connection.CloseAsync();
 
 		return result;
 	}
 
-	public Staff? GetById(Guid id)
+	public async Task<Staff?> GetByIdAsync(Guid id)
 	{
 		using var command = _connection.CreateCommand();
 		command.CommandText = "SELECT * FROM Staff WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 
-		_connection.Open();
-		using var reader = command.ExecuteReader();
-		if (reader.Read())
+		await _connection.OpenAsync();
+		using var reader = await command.ExecuteReaderAsync();
+		if (await reader.ReadAsync())
 		{
 			var staff = new Staff
 			{
@@ -58,14 +58,14 @@ public class StaffRepository : BaseRepository
 				LastName = reader.GetString(6),
 				Phone = reader.GetString(7),
 			};
-			_connection.Close();
+			await _connection.CloseAsync();
 			return staff;
 		}
-		_connection.Close();
+		await _connection.CloseAsync();
 		return null;
 	}
 
-	public Guid Create(Staff staff)
+	public async Task<Guid> CreateAsync(Staff staff)
 	{
 		using var command = _connection.CreateCommand();
 		command.CommandText = @"
@@ -83,14 +83,14 @@ public class StaffRepository : BaseRepository
 		AddParameter(command, "@LastName", staff.LastName);
 		AddParameter(command, "@Phone", staff.Phone);
 
-		_connection.Open();
-		command.ExecuteNonQuery();
-		_connection.Close();
+		await _connection.OpenAsync();
+		await command.ExecuteNonQueryAsync();
+		await _connection.CloseAsync();
 
 		return staff.Id;
 	}
 
-	public void Update(Staff staff)
+	public async Task UpdateAsync(Staff staff)
 	{
 		using var command = _connection.CreateCommand();
 		command.CommandText = @"
@@ -113,19 +113,19 @@ public class StaffRepository : BaseRepository
 		AddParameter(command, "@LastName", staff.LastName);
 		AddParameter(command, "@Phone", staff.Phone);
 
-		_connection.Open();
-		command.ExecuteNonQuery();
-		_connection.Close();
+		await _connection.OpenAsync();
+		await command.ExecuteNonQueryAsync();
+		await _connection.CloseAsync();
 	}
 
-	public void Delete(Guid id)
+	public async Task DeleteAsync(Guid id)
 	{
 		using var command = _connection.CreateCommand();
 		command.CommandText = "DELETE FROM Staff WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 
-		_connection.Open();
-		command.ExecuteNonQuery();
-		_connection.Close();
+		await _connection.OpenAsync();
+		await command.ExecuteNonQueryAsync();
+		await _connection.CloseAsync();
 	}
 }

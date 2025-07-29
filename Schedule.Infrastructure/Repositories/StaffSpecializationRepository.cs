@@ -1,16 +1,17 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
+using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models.StaffRelated;
 using Schedule.Infrastructure.Repositories.Common;
 using Schedule.Infrastructure.Services;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffSpecializationRepository : BaseRepository
+public class StaffSpecializationRepository : BaseRepository, IStaffSpecializationRepository
 {
 	public StaffSpecializationRepository() : base(new SqlConnection(EnvironmentService.SqlConnectionString)) { }
 
-    public List<StaffSpecialization> GetByStaffId(Guid staffId)
+	public async Task<List<StaffSpecialization>> GetByStaffIdAsync(Guid staffId)
 	{
 		var result = new List<StaffSpecialization>();
 
@@ -22,8 +23,9 @@ public class StaffSpecializationRepository : BaseRepository
 		""";
 		AddParameter(command, "@StaffId", staffId);
 
-		using var reader = command.ExecuteReader();
-		while (reader.Read())
+		await _connection.OpenAsync();
+		using var reader = await command.ExecuteReaderAsync();
+		while (await reader.ReadAsync())
 		{
 			result.Add(new StaffSpecialization
 			{
@@ -33,11 +35,12 @@ public class StaffSpecializationRepository : BaseRepository
 				SpecializationId = reader.GetGuid(3)
 			});
 		}
+		await _connection.CloseAsync();
 
 		return result;
 	}
 
-	public Guid Create(StaffSpecialization specialization)
+	public async Task<Guid> CreateAsync(StaffSpecialization specialization)
 	{
 		using var command = _connection.CreateCommand();
 		command.CommandText = """
@@ -52,7 +55,21 @@ public class StaffSpecializationRepository : BaseRepository
 		AddParameter(command, "@StaffId", specialization.StaffId);
 		AddParameter(command, "@SpecializationId", specialization.SpecializationId);
 
-		command.ExecuteNonQuery();
+		await _connection.OpenAsync();
+		await command.ExecuteNonQueryAsync();
+		await _connection.CloseAsync();
+
 		return specialization.Id;
+	}
+
+	public async Task DeleteAsync(Guid id)
+	{
+		using var command = _connection.CreateCommand();
+		command.CommandText = "DELETE FROM StaffSpecializations WHERE Id = @Id";
+		AddParameter(command, "@Id", id);
+
+		await _connection.OpenAsync();
+		await command.ExecuteNonQueryAsync();
+		await _connection.CloseAsync();
 	}
 }

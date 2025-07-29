@@ -3,16 +3,7 @@
 	<Import Project="..\Common\ProjectBase.props" />
 
 	<ItemGroup>
-	  <PackageReference Include="AutoMapper" Version="15.0.1" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
-		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
-		<ProjectReference Include="..\Schedule.Infrastructure\Schedule.Infrastructure.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
 	</ItemGroup>
 

@@ -52,7 +52,7 @@ CREATE TABLE Companies
 (
     Id           UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     Name         NVARCHAR(255) NOT NULL UNIQUE,
-    TaxCode      NCHAR(20)     NOT NULL UNIQUE,
+    TaxCode      NCHAR(20)     NOT NULL,
     Street       NVARCHAR(255) NOT NULL,
     City         NVARCHAR(100) NOT NULL,
     PostalCode   NCHAR(10)     NOT NULL,

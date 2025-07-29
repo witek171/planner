@@ -4,7 +4,26 @@ namespace Schedule.Application.Interfaces.Repositories;
 
 public interface IParticipantRepository
 {
-	Task<Participant?> GetByEmailAsync(Guid receptionId, string email);
-	Task<Guid> CreateAsync(Participant participant);
-	Task<bool> EmailExistsAsync(Guid receptionId, string email);
+	Task CreateAsync(Participant participant);
+	Task<bool> UpdateAsync(Participant participant);
+
+	Task<bool> DeleteByEmailAsync(
+		string email,
+		Guid companyId
+	);
+
+	Task<Participant?> GetByEmailAsync(
+		string email,
+		Guid companyId
+	);
+
+	Task<bool> EmailExistsAsync(
+		string email,
+		Guid companyId
+	);
+
+	Task<bool> PhoneExistsAsync(
+		string phone,
+		Guid companyId
+	);
 }

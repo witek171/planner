@@ -13,7 +13,7 @@ public class ParticipantRepository : IParticipantRepository
 		_connectionString = connectionString;
 	}
 
-	public async Task<Guid> CreateAsync(Participant participant)
+	public async Task CreateAsync(Participant participant)
 	{
 		const string sql = @"
             INSERT INTO Participants (Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt)
@@ -33,13 +33,58 @@ public class ParticipantRepository : IParticipantRepository
 		command.Parameters.AddWithValue("@CreatedAt", participant.CreatedAt);
 
 		await command.ExecuteNonQueryAsync();
+	}
 
-		return participant.Id;
+	public async Task<bool> UpdateAsync(Participant participant)
+	{
+		const string sql = @"
+            UPDATE Participants 
+            SET Email = @Email, 
+                FirstName = @FirstName, 
+                LastName = @LastName, 
+                Phone = @Phone, 
+                GdprConsent = @GdprConsent
+            WHERE Id = @Id AND CompanyId = @CompanyId";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", participant.Id);
+		command.Parameters.AddWithValue("@CompanyId", participant.CompanyId);
+		command.Parameters.AddWithValue("@Email", participant.Email);
+		command.Parameters.AddWithValue("@FirstName", participant.FirstName);
+		command.Parameters.AddWithValue("@LastName", participant.LastName);
+		command.Parameters.AddWithValue("@Phone", participant.Phone ?? (object)DBNull.Value);
+		command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
+
+	public async Task<bool> DeleteByEmailAsync(
+		string email,
+		Guid companyId
+	)
+	{
+		const string sql = @"
+        DELETE FROM Participants 
+        WHERE CompanyId = @CompanyId AND Email = @Email";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Email", email);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
 	}
 
 	public async Task<Participant?> GetByEmailAsync(
-		Guid companyId,
-		string email
+		string email,
+		Guid companyId
 	)
 	{
 		const string sql = @"
@@ -72,8 +117,8 @@ public class ParticipantRepository : IParticipantRepository
 	}
 
 	public async Task<bool> EmailExistsAsync(
-		Guid companyId,
-		string email
+		string email,
+		Guid companyId
 	)
 	{
 		const string sql = @"
@@ -87,6 +132,27 @@ public class ParticipantRepository : IParticipantRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@Email", email);
+
+		int count = (int)await command.ExecuteScalarAsync();
+		return count > 0;
+	}
+
+	public async Task<bool> PhoneExistsAsync(
+		string phone,
+		Guid companyId
+	)
+	{
+		const string sql = @"
+            SELECT COUNT(1) 
+            FROM Participants 
+            WHERE CompanyId = @CompanyId AND Phone = @Phone";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Phone", phone);
 
 		int count = (int)await command.ExecuteScalarAsync();
 		return count > 0;

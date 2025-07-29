@@ -96,10 +96,10 @@ CREATE TABLE Participants
 (
     Id          UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId   UNIQUEIDENTIFIER NOT NULL,
-    Email       NVARCHAR(255)    NOT NULL UNIQUE,
+    Email       NVARCHAR(255)    NOT NULL,
     FirstName   NVARCHAR(100)    NOT NULL,
     LastName    NVARCHAR(100)    NOT NULL,
-    Phone       NVARCHAR(30)     NOT NULL UNIQUE,
+    Phone       NVARCHAR(30)     NOT NULL,
     GdprConsent BIT              NOT NULL,
     CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
     CONSTRAINT fk_participants_company FOREIGN KEY (CompanyId)

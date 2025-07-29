@@ -52,11 +52,12 @@ CREATE TABLE Companies
 (
     Id           UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     Name         NVARCHAR(255) NOT NULL UNIQUE,
-    TaxCode      NCHAR(20)     NOT NULL,
+    TaxCode      NCHAR(20)     NOT NULL UNIQUE,
     Street       NVARCHAR(255) NOT NULL,
     City         NVARCHAR(100) NOT NULL,
     PostalCode   NCHAR(10)     NOT NULL,
-    Phone        NCHAR(20)     NOT NULL,
+    Phone        NCHAR(20)     NOT NULL UNIQUE,
+    Email        NVARCHAR(255) NOT NULL UNIQUE,
     IsParentNode BIT                          DEFAULT 0,
     IsReception  BIT                          DEFAULT 0,
     CreatedAt    DATETIME                     DEFAULT GETUTCDATE()
@@ -76,15 +77,15 @@ CREATE TABLE CompanyHierarchy
 -- Tabela Staff (personel)
 CREATE TABLE Staff
 (
-    Id           UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CompanyId    UNIQUEIDENTIFIER NOT NULL,
-    Role         NVARCHAR(50)     NOT NULL,
-    Email        NVARCHAR(255)    NOT NULL UNIQUE,
-    PasswordHash NVARCHAR(255)    NOT NULL,
-    FirstName    NVARCHAR(100)    NOT NULL,
-    LastName     NVARCHAR(100)    NOT NULL,
-    Phone        NVARCHAR(30)     NOT NULL UNIQUE,
-    CreatedAt    DATETIME                     DEFAULT GETUTCDATE(),
+    Id        UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CompanyId UNIQUEIDENTIFIER NOT NULL,
+    Role      NVARCHAR(50)     NOT NULL,
+    Email     NVARCHAR(255)    NOT NULL UNIQUE,
+    Password  NVARCHAR(255)    NOT NULL,
+    FirstName NVARCHAR(100)    NOT NULL,
+    LastName  NVARCHAR(100)    NOT NULL,
+    Phone     NVARCHAR(30)     NOT NULL UNIQUE,
+    CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
     CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT chk_staff_role CHECK (Role IN ('ReceptionEmployee', 'Trainer', 'Manager'))

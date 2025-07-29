@@ -57,41 +57,58 @@ DECLARE
 DECLARE
 @FlexYoga1Id UNIQUEIDENTIFIER = NEWID();
 
-INSERT INTO Companies (Id, Name, TaxCode, Street, City, PostalCode, Phone, IsParentNode, IsReception)
+INSERT INTO Companies (Id, Name, TaxCode, Street, City, PostalCode, Phone, Email, IsParentNode, IsReception)
 VALUES
     -- SportFit Group - firma główna (nie jest recepcją)
-    (@MainCompanyId, 'SportFit Group', 'PL1234567890', 'Sportowa 1', 'Warszawa', '00-001', '+48123456789', 1, 0),
+    (@MainCompanyId, 'SportFit Group', 'PL1234567890', 'Sportowa 1', 'Warszawa', '00-001', '+48123456789',
+     'contact@sportfitgroup.pl', 1, 0),
     -- SportFit - recepcje (są recepcjami)
-    (@Branch1Id, 'SportFit Centrum', 'PL2345678901', 'Centralna 10', 'Warszawa', '00-002', '+48234567890', 0, 1),
-    (@Branch2Id, 'SportFit Południe', 'PL3456789012', 'Południowa 20', 'Kraków', '30-001', '+48345678901', 0, 1),
-    (@Branch3Id, 'SportFit Północ', 'PL4567890123', 'Północna 30', 'Gdańsk', '80-001', '+48456789012', 0, 1),
-    (@Branch4Id, 'SportFit Wschód', 'PL5678901234', 'Wschodnia 40', 'Lublin', '20-001', '+48567890123', 0, 1),
-    (@Branch5Id, 'SportFit Zachód', 'PL6789012345', 'Zachodnia 50', 'Wrocław', '50-001', '+48678901234', 0, 1),
+    (@Branch1Id, 'SportFit Centrum', 'PL2345678901', 'Centralna 10', 'Warszawa', '00-002', '+48234567890',
+     'centrum@sportfit.pl', 0, 1),
+    (@Branch2Id, 'SportFit Południe', 'PL3456789012', 'Południowa 20', 'Kraków', '30-001', '+48345678901',
+     'poludnie@sportfit.pl', 0, 1),
+    (@Branch3Id, 'SportFit Północ', 'PL4567890123', 'Północna 30', 'Gdańsk', '80-001', '+48456789012',
+     'polnoc@sportfit.pl', 0, 1),
+    (@Branch4Id, 'SportFit Wschód', 'PL5678901234', 'Wschodnia 40', 'Lublin', '20-001', '+48567890123',
+     'wschod@sportfit.pl', 0, 1),
+    (@Branch5Id, 'SportFit Zachód', 'PL6789012345', 'Zachodnia 50', 'Wrocław', '50-001', '+48678901234',
+     'zachod@sportfit.pl', 0, 1),
 
     -- FitZone Network - firma główna (nie jest recepcją)
-    (@FitZoneMainId, 'FitZone Network', 'PL7890123456', 'Fitness 5', 'Warszawa', '02-001', '+48789012345', 1, 0),
+    (@FitZoneMainId, 'FitZone Network', 'PL7890123456', 'Fitness 5', 'Warszawa', '02-001', '+48789012345',
+     'contact@fitzonenetwork.pl', 1, 0),
     -- FitZone - recepcje (są recepcjami)
-    (@FitZone1Id, 'FitZone Mokotów', 'PL8901234567', 'Mokotowska 15', 'Warszawa', '02-002', '+48890123456', 0, 1),
-    (@FitZone2Id, 'FitZone Katowice', 'PL9012345678', 'Śląska 25', 'Katowice', '40-001', '+48901234567', 0, 1),
-    (@FitZone3Id, 'FitZone Poznań', 'PL0123456789', 'Wielkopolska 35', 'Poznań', '60-001', '+48012345678', 0, 1),
+    (@FitZone1Id, 'FitZone Mokotów', 'PL8901234567', 'Mokotowska 15', 'Warszawa', '02-002', '+48890123456',
+     'mokotow@fitzone.pl', 0, 1),
+    (@FitZone2Id, 'FitZone Katowice', 'PL9012345678', 'Śląska 25', 'Katowice', '40-001', '+48901234567',
+     'katowice@fitzone.pl', 0, 1),
+    (@FitZone3Id, 'FitZone Poznań', 'PL0123456789', 'Wielkopolska 35', 'Poznań', '60-001', '+48012345678',
+     'poznan@fitzone.pl', 0, 1),
 
     -- AquaFit Centers - firma główna (nie jest recepcją)
-    (@AquaFitMainId, 'AquaFit Centers', 'PL1357924680', 'Wodna 8', 'Gdynia', '81-001', '+48135792468', 1, 0),
+    (@AquaFitMainId, 'AquaFit Centers', 'PL1357924680', 'Wodna 8', 'Gdynia', '81-001', '+48135792468',
+     'contact@aquafitcenters.pl', 1, 0),
     -- AquaFit - recepcje (są recepcjami)
-    (@AquaFit1Id, 'AquaFit Marina', 'PL2468135790', 'Portowa 12', 'Gdynia', '81-002', '+48246813579', 0, 1),
-    (@AquaFit2Id, 'AquaFit Sopot', 'PL3579246801', 'Plażowa 7', 'Sopot', '81-700', '+48357924680', 0, 1),
+    (@AquaFit1Id, 'AquaFit Marina', 'PL2468135790', 'Portowa 12', 'Gdynia', '81-002', '+48246813579',
+     'marina@aquafit.pl', 0, 1),
+    (@AquaFit2Id, 'AquaFit Sopot', 'PL3579246801', 'Plażowa 7', 'Sopot', '81-700', '+48357924680', 'sopot@aquafit.pl',
+     0, 1),
 
     -- PowerGym Chain - firma główna (nie jest recepcją)
-    (@PowerGymMainId, 'PowerGym Chain', 'PL4680357912', 'Siłowa 3', 'Łódź', '90-001', '+48468035791', 1, 0),
+    (@PowerGymMainId, 'PowerGym Chain', 'PL4680357912', 'Siłowa 3', 'Łódź', '90-001', '+48468035791',
+     'contact@powergymchain.pl', 1, 0),
     -- PowerGym - recepcje (są recepcjami)
-    (@PowerGym1Id, 'PowerGym Center', 'PL5791468023', 'Centralna 45', 'Łódź', '90-002', '+48579146802', 0, 1),
-    (@PowerGym2Id, 'PowerGym Bydgoszcz', 'PL6802579134', 'Kujawska 18', 'Bydgoszcz', '85-001', '+48680257913', 0, 1),
+    (@PowerGym1Id, 'PowerGym Center', 'PL5791468023', 'Centralna 45', 'Łódź', '90-002', '+48579146802',
+     'center@powergym.pl', 0, 1),
+    (@PowerGym2Id, 'PowerGym Bydgoszcz', 'PL6802579134', 'Kujawska 18', 'Bydgoszcz', '85-001', '+48680257913',
+     'bydgoszcz@powergym.pl', 0, 1),
 
     -- FlexYoga Studios - firma główna (nie jest recepcją)
-    (@FlexYogaMainId, 'FlexYoga Studios', 'PL7913680245', 'Relaksacyjna 22', 'Warszawa', '01-001', '+48791368024', 1,
-     0),
+    (@FlexYogaMainId, 'FlexYoga Studios', 'PL7913680245', 'Relaksacyjna 22', 'Warszawa', '01-001', '+48791368024',
+     'contact@flexyogastudios.pl', 1, 0),
     -- FlexYoga - recepcja (jest recepcją))
-    (@FlexYoga1Id, 'FlexYoga Wilanów', 'PL8024791356', 'Spokójna 33', 'Warszawa', '02-958', '+48802479135', 0, 1);
+    (@FlexYoga1Id, 'FlexYoga Wilanów', 'PL8024791356', 'Spokójna 33', 'Warszawa', '02-958', '+48802479135',
+     'wilanow@flexyoga.pl', 0, 1);
 
 -- =============================================
 -- 2. CompanyHierarchy - dodanie hierarchii firm
@@ -228,7 +245,7 @@ DECLARE
 DECLARE
 @Manager10Id UNIQUEIDENTIFIER = NEWID();
 
-INSERT INTO Staff (Id, CompanyId, Role, Email, PasswordHash, FirstName, LastName, Phone)
+INSERT INTO Staff (Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone)
 VALUES
     -- Pracownicy recepcji SportFit
     (@StaffRec1Id, @Branch1Id, 'ReceptionEmployee', 'kowalska@sportfit.pl', 'password123', 'Anna', 'Kowalska',

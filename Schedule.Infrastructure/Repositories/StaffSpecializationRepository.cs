@@ -13,9 +13,9 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 
 	public async Task<List<StaffSpecialization>> GetByStaffIdAsync(Guid staffId)
 	{
-		var result = new List<StaffSpecialization>();
+        List<StaffSpecialization> result = new List<StaffSpecialization>();
 
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			SELECT Id, ReceptionId, StaffId, SpecializationId
 			FROM StaffSpecializations
@@ -24,7 +24,7 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 		AddParameter(command, "@StaffId", staffId);
 
 		await _connection.OpenAsync();
-		using var reader = await command.ExecuteReaderAsync();
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		while (await reader.ReadAsync())
 		{
 			result.Add(new StaffSpecialization
@@ -42,7 +42,7 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 
 	public async Task<Guid> CreateAsync(StaffSpecialization specialization)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			INSERT INTO StaffSpecializations (Id, ReceptionId, StaffId, SpecializationId)
 			VALUES (@Id, @ReceptionId, @StaffId, @SpecializationId)
@@ -64,7 +64,7 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 
 	public async Task DeleteAsync(Guid id)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "DELETE FROM StaffSpecializations WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 

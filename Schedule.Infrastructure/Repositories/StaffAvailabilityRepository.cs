@@ -12,9 +12,9 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 
 	public async Task<List<StaffAvailability>> GetByStaffIdAsync(Guid staffId)
 	{
-		var result = new List<StaffAvailability>();
+		List<StaffAvailability> result = new List<StaffAvailability>();
 
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			SELECT Id, ReceptionId, StaffId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability
@@ -23,7 +23,7 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 		AddParameter(command, "@StaffId", staffId);
 
 		await _connection.OpenAsync();
-		using var reader = await command.ExecuteReaderAsync();
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		while (await reader.ReadAsync())
 		{
 			result.Add(new StaffAvailability
@@ -44,12 +44,12 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 
 	public async Task<StaffAvailability?> GetByIdAsync(Guid id)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "SELECT * FROM StaffAvailability WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 
 		await _connection.OpenAsync();
-		using var reader = await command.ExecuteReaderAsync();
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
 		{
 			var availability = new StaffAvailability
@@ -71,7 +71,7 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 
 	public async Task<Guid> CreateAsync(StaffAvailability availability)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			INSERT INTO StaffAvailability 
 			(Id, ReceptionId, StaffId, Date, StartTime, EndTime, IsAvailable)
@@ -97,7 +97,7 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 
 	public async Task UpdateAsync(StaffAvailability availability)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			UPDATE StaffAvailability SET
 				StartTime = @StartTime,
@@ -118,7 +118,7 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 
 	public async Task DeleteAsync(Guid id)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "DELETE FROM StaffAvailability WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 

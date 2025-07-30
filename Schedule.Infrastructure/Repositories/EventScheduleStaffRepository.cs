@@ -13,9 +13,9 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 
 	public async Task<List<EventScheduleStaff>> GetByEventIdAsync(Guid eventId)
 	{
-		var result = new List<EventScheduleStaff>();
+		List<EventScheduleStaff> result = new List<EventScheduleStaff>();
 
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			SELECT Id, ReceptionId, EventScheduleId, StaffId
 			FROM EventScheduleStaff
@@ -24,7 +24,7 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 		AddParameter(command, "@EventScheduleId", eventId);
 
 		_connection.Open();
-		using var reader = await command.ExecuteReaderAsync();
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		while (await reader.ReadAsync())
 		{
 			result.Add(new EventScheduleStaff
@@ -44,7 +44,7 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 	{
 		entity.Id = Guid.NewGuid();
 
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			INSERT INTO EventScheduleStaff (Id, ReceptionId, EventScheduleId, StaffId)
 			VALUES (@Id, @ReceptionId, @EventScheduleId, @StaffId)
@@ -63,7 +63,7 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 
 	public async Task DeleteAsync(Guid id)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "DELETE FROM EventScheduleStaff WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 

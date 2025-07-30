@@ -14,7 +14,7 @@ public abstract class BaseRepository
 
 	protected void AddParameter(IDbCommand command, string name, object value)
 	{
-		var param = command.CreateParameter();
+		IDbDataParameter param = command.CreateParameter();
 		param.ParameterName = name;
 		param.Value = value ?? DBNull.Value;
 		command.Parameters.Add(param);

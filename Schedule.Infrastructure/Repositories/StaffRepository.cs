@@ -11,13 +11,13 @@ public class StaffRepository : BaseRepository, IStaffRepository
 
 	public async Task<List<Staff>> GetAllAsync()
 	{
-		var result = new List<Staff>();
+		List<Staff> result = new List<Staff>();
 
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "SELECT * FROM Staff";
 
 		await _connection.OpenAsync();
-		using var reader = await command.ExecuteReaderAsync();
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		while (await reader.ReadAsync())
 		{
 			result.Add(new Staff
@@ -39,12 +39,12 @@ public class StaffRepository : BaseRepository, IStaffRepository
 
 	public async Task<Staff?> GetByIdAsync(Guid id)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "SELECT * FROM Staff WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 
 		await _connection.OpenAsync();
-		using var reader = await command.ExecuteReaderAsync();
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
 		{
 			var staff = new Staff
@@ -67,7 +67,7 @@ public class StaffRepository : BaseRepository, IStaffRepository
 
 	public async Task<Guid> CreateAsync(Staff staff)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = @"
 			INSERT INTO Staff (Id, ReceptionId, Role, Email, PasswordHash, FirstName, LastName, Phone)
 			VALUES (@Id, @ReceptionId, @Role, @Email, @PasswordHash, @FirstName, @LastName, @Phone)";
@@ -92,7 +92,7 @@ public class StaffRepository : BaseRepository, IStaffRepository
 
 	public async Task UpdateAsync(Staff staff)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = @"
 			UPDATE Staff SET
 				ReceptionId = @ReceptionId,
@@ -120,7 +120,7 @@ public class StaffRepository : BaseRepository, IStaffRepository
 
 	public async Task DeleteAsync(Guid id)
 	{
-		using var command = _connection.CreateCommand();
+		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = "DELETE FROM Staff WHERE Id = @Id";
 		AddParameter(command, "@Id", id);
 

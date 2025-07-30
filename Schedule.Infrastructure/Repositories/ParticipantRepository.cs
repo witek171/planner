@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
+using System.Data.Common;
+using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
 
@@ -35,31 +37,74 @@ public class ParticipantRepository : IParticipantRepository
 		await command.ExecuteNonQueryAsync();
 	}
 
-	public async Task<bool> UpdateAsync(Participant participant)
+	public async Task<bool> PatchAsync(Participant participant)
 	{
-		const string sql = @"
-            UPDATE Participants 
-            SET Email = @Email, 
-                FirstName = @FirstName, 
-                LastName = @LastName, 
-                Phone = @Phone, 
-                GdprConsent = @GdprConsent
-            WHERE Id = @Id AND CompanyId = @CompanyId";
+		List<string> updateClauses = new List<string>();
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", participant.Id);
-		command.Parameters.AddWithValue("@CompanyId", participant.CompanyId);
-		command.Parameters.AddWithValue("@Email", participant.Email);
-		command.Parameters.AddWithValue("@FirstName", participant.FirstName);
-		command.Parameters.AddWithValue("@LastName", participant.LastName);
-		command.Parameters.AddWithValue("@Phone", participant.Phone ?? (object)DBNull.Value);
-		command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
+		await using DbTransaction transaction = await connection.BeginTransactionAsync();
 
-		int rowsAffected = await command.ExecuteNonQueryAsync();
-		return rowsAffected > 0;
+		try
+		{
+			await using SqlCommand? command = connection.CreateCommand();
+			command.Transaction = (SqlTransaction)transaction;
+
+			command.Parameters.AddWithValue("@Id", participant.Id);
+			command.Parameters.AddWithValue("@CompanyId", participant.CompanyId);
+
+			if (participant.Email != null)
+			{
+				updateClauses.Add("Email = @Email");
+				command.Parameters.AddWithValue("@Email", participant.Email);
+			}
+
+			if (participant.FirstName != null)
+			{
+				updateClauses.Add("FirstName = @FirstName");
+				command.Parameters.AddWithValue("@FirstName", participant.FirstName);
+			}
+
+			if (participant.LastName != null)
+			{
+				updateClauses.Add("LastName = @LastName");
+				command.Parameters.AddWithValue("@LastName", participant.LastName);
+			}
+
+			if (participant.Phone != null)
+			{
+				updateClauses.Add("Phone = @Phone");
+				command.Parameters.AddWithValue("@Phone", participant.Phone);
+			}
+
+			if (participant.GdprConsent != null)
+			{
+				updateClauses.Add("GdprConsent = @GdprConsent");
+				command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
+			}
+
+			if (updateClauses.Count == 0)
+				return false;
+
+			string sql = $"""
+			              UPDATE Participants
+			                          SET {string.Join(", ", updateClauses)}
+			                          WHERE Id = @Id AND CompanyId = @CompanyId
+			              """;
+
+			command.CommandText = sql;
+
+			int rowsAffected = await command.ExecuteNonQueryAsync();
+			await transaction.CommitAsync();
+
+			return rowsAffected > 0;
+		}
+		catch (Exception ex)
+		{
+			await transaction.RollbackAsync();
+			throw new DataException("Failed to update participant", ex);
+		}
 	}
 
 	public async Task<bool> DeleteByEmailAsync(
@@ -67,9 +112,11 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = @"
-        DELETE FROM Participants 
-        WHERE CompanyId = @CompanyId AND Email = @Email";
+		const string sql = """
+
+		                           DELETE FROM Participants 
+		                           WHERE CompanyId = @CompanyId AND Email = @Email
+		                   """;
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -82,15 +129,53 @@ public class ParticipantRepository : IParticipantRepository
 		return rowsAffected > 0;
 	}
 
+	public async Task<Participant?> GetByIdAsync(
+		Guid id,
+		Guid companyId
+	)
+	{
+		const string sql = """
+
+		                           SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+		                           FROM Participants 
+		                           WHERE CompanyId = @CompanyId AND Id = @Id
+		                   """;
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Id", id);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		if (!await reader.ReadAsync())
+			return null;
+
+		return new Participant(
+			reader.GetGuid(reader.GetOrdinal("Id")),
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
+			reader.GetString(reader.GetOrdinal("Email")),
+			reader.GetString(reader.GetOrdinal("FirstName")),
+			reader.GetString(reader.GetOrdinal("LastName")),
+			reader.GetString(reader.GetOrdinal("Phone")),
+			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
+			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
+		);
+	}
+
 	public async Task<Participant?> GetByEmailAsync(
 		string email,
 		Guid companyId
 	)
 	{
-		const string sql = @"
-            SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
-            FROM Participants 
-            WHERE CompanyId = @CompanyId AND Email = @Email";
+		const string sql = """
+
+		                               SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+		                               FROM Participants 
+		                               WHERE CompanyId = @CompanyId AND Email = @Email
+		                   """;
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -110,10 +195,47 @@ public class ParticipantRepository : IParticipantRepository
 			reader.GetString(reader.GetOrdinal("Email")),
 			reader.GetString(reader.GetOrdinal("FirstName")),
 			reader.GetString(reader.GetOrdinal("LastName")),
-			reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString(reader.GetOrdinal("Phone")),
+			reader.GetString(reader.GetOrdinal("Phone")),
 			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
 		);
+	}
+
+	public async Task<List<Participant>> GetAllAsync(Guid companyId)
+	{
+		const string sql = """
+
+		                           SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+		                           FROM Participants 
+		                           WHERE CompanyId = @CompanyId
+		                           ORDER BY CreatedAt DESC
+		                   """;
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		List<Participant> participants = new List<Participant>();
+
+		while (await reader.ReadAsync())
+		{
+			participants.Add(new Participant(
+				reader.GetGuid(reader.GetOrdinal("Id")),
+				reader.GetGuid(reader.GetOrdinal("CompanyId")),
+				reader.GetString(reader.GetOrdinal("Email")),
+				reader.GetString(reader.GetOrdinal("FirstName")),
+				reader.GetString(reader.GetOrdinal("LastName")),
+				reader.GetString(reader.GetOrdinal("Phone")),
+				reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
+				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
+			));
+		}
+
+		return participants;
 	}
 
 	public async Task<bool> EmailExistsAsync(
@@ -121,10 +243,12 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = @"
-            SELECT COUNT(1) 
-            FROM Participants 
-            WHERE CompanyId = @CompanyId AND Email = @Email";
+		const string sql = """
+
+		                               SELECT COUNT(1) 
+		                               FROM Participants 
+		                               WHERE CompanyId = @CompanyId AND Email = @Email
+		                   """;
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -142,10 +266,12 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = @"
-            SELECT COUNT(1) 
-            FROM Participants 
-            WHERE CompanyId = @CompanyId AND Phone = @Phone";
+		const string sql = """
+
+		                               SELECT COUNT(1) 
+		                               FROM Participants 
+		                               WHERE CompanyId = @CompanyId AND Phone = @Phone
+		                   """;
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

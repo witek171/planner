@@ -5,4 +5,20 @@ namespace Schedule.Application.Interfaces.Services;
 public interface IParticipantService
 {
 	Task CreateAsync(Participant participant);
+
+	Task<bool> PatchAsync(Participant participant);
+
+	Task<bool> DeleteByEmailAsync(
+		string email,
+		Guid companyId);
+
+	Task<Participant?> GetByIdAsync(
+		Guid participantId,
+		Guid companyId);
+
+	Task<Participant?> GetByEmailAsync(
+		string email,
+		Guid companyId);
+
+	Task<List<Participant>> GetAllAsync(Guid companyId);
 }

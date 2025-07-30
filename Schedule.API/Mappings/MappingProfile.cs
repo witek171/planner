@@ -30,7 +30,7 @@ public class MappingProfile : Profile
 					src.Details
 				)
 			);
-		
+
 		CreateMap<ParticipantCreateRequest, Participant>()
 			.ConstructUsing(src => new Participant(
 					Guid.NewGuid(),
@@ -43,5 +43,33 @@ public class MappingProfile : Profile
 					DateTime.UtcNow
 				)
 			);
+
+		CreateMap<Participant, ParticipantResponse>()
+			.ConstructUsing(src => new ParticipantResponse(
+					src.Email,
+					src.FirstName,
+					src.LastName,
+					src.Phone,
+					src.GdprConsent,
+					src.CreatedAt
+				)
+			);
+
+		CreateMap<ParticipantUpdateRequest, Participant>()
+			.ForMember(
+				dest => dest.Id, opt
+					=> opt.Ignore())
+			.ForMember(
+				dest => dest.CompanyId, opt
+					=> opt.Ignore())
+			.ForMember(
+				dest => dest.CreatedAt, opt
+					=> opt.Ignore())
+			.ForMember(dest => dest.GdprConsent, opt 
+				=> opt.MapFrom((src, dest) 
+					=> src.GdprConsent ?? dest.GdprConsent))
+			.ForAllMembers(opt
+				=> opt.Condition((src, dest, srcMember)
+					=> srcMember != null));
 	}
 }

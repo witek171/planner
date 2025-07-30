@@ -17,7 +17,7 @@ public class ParticipantCreateRequest
 	[Required] public bool GdprConsent { get; set; }
 
 	public ParticipantCreateRequest(
-		Guid receptionId,
+		Guid companyId,
 		string email,
 		string firstName,
 		string lastName,
@@ -25,7 +25,7 @@ public class ParticipantCreateRequest
 		bool gdprConsent
 	)
 	{
-		CompanyId = receptionId;
+		CompanyId = companyId;
 		Email = email;
 		FirstName = firstName;
 		LastName = lastName;

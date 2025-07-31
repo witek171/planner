@@ -24,6 +24,13 @@ public class ParticipantService : IParticipantService
 			participant.Email, participant.CompanyId);
 		bool phoneExists = await _repository.PhoneExistsAsync(
 			participant.Phone, participant.CompanyId);
+		if (phoneExists)
+		{
+			// warning	
+			// ($"Participant with phone {participant.Phone} already exists in reception");
+			return;
+		}
+
 		if (emailExists)
 		{
 			Participant existingParticipant = (await _repository.GetByEmailAsync(
@@ -35,29 +42,26 @@ public class ParticipantService : IParticipantService
 			await _repository.PatchAsync(existingParticipant);
 			return;
 		}
-		else if (phoneExists)
-		{
-			// warning	
-			// ($"Participant with phone {participant.Phone} already exists in reception");
-			return;
-		}
 
 		await _repository.CreateAsync(participant);
 	}
 
 	public async Task PatchAsync(Participant participant)
 	{
-		// Validate unique phone (if changing)
-		// if (!string.IsNullOrWhiteSpace(participant.Phone))
-		// {
-		// 	var existing = await _repository.GetByEmailAsync(participant.Email, participant.CompanyId);
-		// 	if (existing != null && existing.Phone != participant.Phone)
-		// 	{
-		// 		bool phoneExists = await _repository.PhoneExistsAsync(participant.Phone, participant.CompanyId);
-		// 		if (phoneExists)
-		// 			throw new InvalidOperationException($"Participant with phone {participant.Phone} already exists");
-		// 	}
-		// }
+		NormalizeParticipantData(participant);
+
+		bool phoneExists = await _repository.PhoneExistsExcludedParticipantAsync(
+			participant.Phone, participant.CompanyId, participant.Id);
+		bool emailExists = await _repository.EmailExistsExcludedParticipantAsync(
+			participant.Email, participant.CompanyId, participant.Id);
+		
+		if (phoneExists)
+			// warning ($"Participant with phone {participant.Phone} already exists");
+			return;
+
+		if (emailExists)
+			// warning ($"Participant with email {participant.Email} already exists");
+			return;
 
 		await _repository.PatchAsync(participant);
 	}

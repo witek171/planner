@@ -15,44 +15,37 @@ public class ParticipantService : IParticipantService
 
 	public async Task CreateAsync(Participant participant)
 	{
-		// czy zgoda gdpr musi byc true aby utworzyc participant?
 		if (!participant.GdprConsent)
 			throw new InvalidOperationException("GDPR consent is required");
-// musimy ustalic co dokladnie ma sie zrobic gdy participant
-// poda te same dane w tej samej recepcji
+
+		NormalizeParticipantData(participant);
+
 		bool emailExists = await _repository.EmailExistsAsync(
 			participant.Email, participant.CompanyId);
 		bool phoneExists = await _repository.PhoneExistsAsync(
 			participant.Phone, participant.CompanyId);
-		if (phoneExists && emailExists)
+		if (emailExists)
 		{
 			Participant existingParticipant = (await _repository.GetByEmailAsync(
 				participant.Email, participant.CompanyId))!;
-			existingParticipant.FirstName = participant.FirstName.Trim();
-			existingParticipant.LastName = participant.LastName.Trim();
+
+			existingParticipant.FirstName = participant.FirstName;
+			existingParticipant.LastName = participant.LastName;
+			existingParticipant.Phone = participant.Phone;
 			await _repository.PatchAsync(existingParticipant);
 			return;
 		}
-		else if (emailExists)
-		{
-			throw new InvalidOperationException(
-				$"Participant with email {participant.Email} already exists in reception");
-		}
 		else if (phoneExists)
 		{
-			throw new InvalidOperationException(
-				$"Participant with phone {participant.Phone} already exists in reception");
+			// warning	
+			// ($"Participant with phone {participant.Phone} already exists in reception");
+			return;
 		}
-
-		participant.Email = participant.Email.Trim().ToLowerInvariant();
-		participant.FirstName = participant.FirstName.Trim();
-		participant.LastName = participant.LastName.Trim();
-		participant.Phone = participant.Phone.Trim();
 
 		await _repository.CreateAsync(participant);
 	}
 
-	public async Task<bool> PatchAsync(Participant participant)
+	public async Task PatchAsync(Participant participant)
 	{
 		// Validate unique phone (if changing)
 		// if (!string.IsNullOrWhiteSpace(participant.Phone))
@@ -66,15 +59,14 @@ public class ParticipantService : IParticipantService
 		// 	}
 		// }
 
-		return await _repository.PatchAsync(participant);
+		await _repository.PatchAsync(participant);
 	}
 
-	public async Task<bool> DeleteByEmailAsync(
-		string email,
+	public async Task DeleteByIdAsync(
+		Guid id,
 		Guid companyId)
 	{
-		email = email.Trim().ToLowerInvariant();
-		return await _repository.DeleteByEmailAsync(email, companyId);
+		await _repository.DeleteByIdAsync(id, companyId);
 	}
 
 	public async Task<Participant?> GetByIdAsync(
@@ -95,5 +87,13 @@ public class ParticipantService : IParticipantService
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
 	{
 		return await _repository.GetAllAsync(companyId);
+	}
+
+	private void NormalizeParticipantData(Participant participant)
+	{
+		participant.Email = participant.Email.Trim().ToLowerInvariant();
+		participant.FirstName = participant.FirstName.Trim();
+		participant.LastName = participant.LastName.Trim();
+		participant.Phone = participant.Phone.Trim();
 	}
 }

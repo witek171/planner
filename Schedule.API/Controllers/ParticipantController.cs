@@ -30,11 +30,9 @@ public class ParticipantController : ControllerBase
 	{
 		request.CompanyId = companyId;
 		Participant participant = _mapper.Map<Participant>(request);
-// potrzebny try catch skoro createAsyns rzuca wyjatki
+
 		await _participantService.CreateAsync(participant);
-// co tu zwracac?
-		return Created($"api/participant/{companyId}/{participant.Id}",
-			new { message = "participant created" });
+		return CreatedAtAction(nameof(Create), participant.Id);
 	}
 
 	[HttpPatch("{participantId:guid}")]
@@ -43,28 +41,20 @@ public class ParticipantController : ControllerBase
 	{
 		// obecnie podawane dane nie sa formatowane (mozna podac email duzymi literami i whitespacey)
 		Participant? existing = await _participantService.GetByIdAsync(participantId, companyId);
-		// if (existing == null)
-		// 	return NotFound(new { message = "participant not exist" });
 
 		_mapper.Map(request, existing);
-// try catch
-		await _participantService.PatchAsync(existing);
 
+		await _participantService.PatchAsync(existing);
 		return NoContent();
 	}
 
 	[HttpDelete("{email}")]
 	public async Task<ActionResult> Delete(
 		Guid companyId,
-		string email
+		Guid id
 	)
 	{
-		// bool deleted = 
-			await _participantService.DeleteByEmailAsync(email, companyId);
-
-		// if (!deleted)
-		// 	return NotFound();
-
+		await _participantService.DeleteByIdAsync(id, companyId);
 		return NoContent();
 	}
 
@@ -75,8 +65,6 @@ public class ParticipantController : ControllerBase
 	)
 	{
 		Participant? participant = await _participantService.GetByEmailAsync(email, companyId);
-		if (participant == null)
-			return NotFound();
 
 		ParticipantResponse response = _mapper.Map<ParticipantResponse>(participant);
 		return Ok(response);

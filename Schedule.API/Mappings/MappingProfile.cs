@@ -63,11 +63,11 @@ public class MappingProfile : Profile
 				dest => dest.CompanyId, opt
 					=> opt.Ignore())
 			.ForMember(
+				dest => dest.GdprConsent, opt
+					=> opt.Ignore())
+			.ForMember(
 				dest => dest.CreatedAt, opt
 					=> opt.Ignore())
-			.ForMember(dest => dest.GdprConsent, opt 
-				=> opt.MapFrom((src, dest) 
-					=> src.GdprConsent ?? dest.GdprConsent))
 			.ForAllMembers(opt
 				=> opt.Condition((src, dest, srcMember)
 					=> srcMember != null));

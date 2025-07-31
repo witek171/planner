@@ -7,8 +7,8 @@ public interface IParticipantRepository
 	Task CreateAsync(Participant participant);
 	Task<bool> PatchAsync(Participant participant);
 
-	Task<bool> DeleteByEmailAsync(
-		string email,
+	Task<bool> DeleteByIdAsync(
+		Guid id,
 		Guid companyId
 	);
 

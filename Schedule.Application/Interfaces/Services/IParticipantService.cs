@@ -6,10 +6,10 @@ public interface IParticipantService
 {
 	Task CreateAsync(Participant participant);
 
-	Task<bool> PatchAsync(Participant participant);
+	Task PatchAsync(Participant participant);
 
-	Task<bool> DeleteByEmailAsync(
-		string email,
+	Task DeleteByIdAsync(
+		Guid id,
 		Guid companyId);
 
 	Task<Participant?> GetByIdAsync(

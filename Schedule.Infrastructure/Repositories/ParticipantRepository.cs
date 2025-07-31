@@ -107,15 +107,15 @@ public class ParticipantRepository : IParticipantRepository
 		}
 	}
 
-	public async Task<bool> DeleteByEmailAsync(
-		string email,
+	public async Task<bool> DeleteByIdAsync(
+		Guid id,
 		Guid companyId
 	)
 	{
 		const string sql = """
 
 		                           DELETE FROM Participants 
-		                           WHERE CompanyId = @CompanyId AND Email = @Email
+		                           WHERE CompanyId = @CompanyId AND Id = @Id
 		                   """;
 
 		await using SqlConnection connection = new(_connectionString);
@@ -123,7 +123,7 @@ public class ParticipantRepository : IParticipantRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@Email", email);
+		command.Parameters.AddWithValue("@Id", id);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;

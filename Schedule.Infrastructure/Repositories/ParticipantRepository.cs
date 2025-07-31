@@ -283,4 +283,56 @@ public class ParticipantRepository : IParticipantRepository
 		int count = (int)await command.ExecuteScalarAsync();
 		return count > 0;
 	}
+
+	public async Task<bool> PhoneExistsExcludedParticipantAsync(
+		string phone,
+		Guid companyId,
+		Guid excludeParticipantId
+	)
+	{
+		const string sql = """
+		                   SELECT COUNT(1) 
+		                   FROM Participants 
+		                   WHERE CompanyId = @CompanyId 
+		                     AND Phone = @Phone 
+		                     AND Id != @ExcludeParticipantId
+		                   """;
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Phone", phone);
+		command.Parameters.AddWithValue("@ExcludeParticipantId", excludeParticipantId);
+
+		int count = (int)await command.ExecuteScalarAsync();
+		return count > 0;
+	}
+
+	public async Task<bool> EmailExistsExcludedParticipantAsync(
+		string email,
+		Guid companyId,
+		Guid excludeParticipantId
+	)
+	{
+		const string sql = """
+		                   SELECT COUNT(1) 
+		                   FROM Participants 
+		                   WHERE CompanyId = @CompanyId 
+		                     AND Email = @Email 
+		                     AND Id != @ExcludeParticipantId
+		                   """;
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Email", email);
+		command.Parameters.AddWithValue("@ExcludeParticipantId", excludeParticipantId);
+
+		int count = (int)await command.ExecuteScalarAsync();
+		return count > 0;
+	}
 }

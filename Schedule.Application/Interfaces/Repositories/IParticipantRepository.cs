@@ -33,4 +33,16 @@ public interface IParticipantRepository
 		string phone,
 		Guid companyId
 	);
+
+	Task<bool> PhoneExistsExcludedParticipantAsync(
+		string phone,
+		Guid companyId,
+		Guid excludeParticipantId
+	);
+
+	Task<bool> EmailExistsExcludedParticipantAsync(
+		string email,
+		Guid companyId,
+		Guid excludeParticipantId
+	);
 }

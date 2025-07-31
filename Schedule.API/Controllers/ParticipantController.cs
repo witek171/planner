@@ -60,14 +60,26 @@ public class ParticipantController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet]
+	[HttpGet("by-id")]
+	public async Task<ActionResult> GetById(
+		[FromQuery] Guid id,
+		Guid companyId
+	)
+	{
+		Participant? participant = await _participantService.GetByIdAsync(id, companyId);
+
+		ParticipantResponse response = _mapper.Map<ParticipantResponse>(participant);
+		return Ok(response);
+	}
+	
+	[HttpGet("by-email")]
 	public async Task<ActionResult> GetByEmail(
 		[FromQuery] string email,
 		Guid companyId
 	)
 	{
 		Participant? participant = await _participantService.GetByEmailAsync(email, companyId);
-
+	
 		ParticipantResponse response = _mapper.Map<ParticipantResponse>(participant);
 		return Ok(response);
 	}

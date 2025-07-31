@@ -36,10 +36,12 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpPatch("{participantId:guid}")]
-	public async Task<ActionResult> Update(
-		Guid companyId, Guid participantId, [FromBody] ParticipantUpdateRequest request)
+	public async Task<ActionResult> Patch(
+		Guid companyId,
+		Guid participantId,
+		[FromBody] ParticipantUpdateRequest request
+	)
 	{
-		// obecnie podawane dane nie sa formatowane (mozna podac email duzymi literami i whitespacey)
 		Participant? existing = await _participantService.GetByIdAsync(participantId, companyId);
 
 		_mapper.Map(request, existing);
@@ -48,13 +50,13 @@ public class ParticipantController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpDelete("{email}")]
-	public async Task<ActionResult> Delete(
+	[HttpDelete("{participantId:guid}")]
+	public async Task<ActionResult> DeleteById(
 		Guid companyId,
-		Guid id
+		Guid participantId
 	)
 	{
-		await _participantService.DeleteByIdAsync(id, companyId);
+		await _participantService.DeleteByIdAsync(participantId, companyId);
 		return NoContent();
 	}
 

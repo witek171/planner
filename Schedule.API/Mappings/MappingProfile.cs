@@ -8,17 +8,7 @@ public class MappingProfile : Profile
 {
 	public MappingProfile()
 	{
-		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusResponse>()
-			.ConstructUsing(src => new ApplicationHealthStatusResponse(
-					src.Version,
-					src.Environment,
-					src.Uptime,
-					src.MemoryUsage,
-					src.Status,
-					src.Timestamp,
-					src.Details
-				)
-			);
+		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusResponse>();
 
 		CreateMap<DatabaseHealthStatus, DatabaseHealthStatusResponse>()
 			.ConstructUsing(src => new DatabaseHealthStatusResponse(
@@ -44,16 +34,7 @@ public class MappingProfile : Profile
 				)
 			);
 
-		CreateMap<Participant, ParticipantResponse>()
-			.ConstructUsing(src => new ParticipantResponse(
-					src.Email,
-					src.FirstName,
-					src.LastName,
-					src.Phone,
-					src.GdprConsent,
-					src.CreatedAt
-				)
-			);
+		CreateMap<Participant, ParticipantResponse>();
 
 		CreateMap<ParticipantUpdateRequest, Participant>()
 			.ForMember(

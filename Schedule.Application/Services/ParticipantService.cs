@@ -2,7 +2,7 @@
 using Schedule.Application.Interfaces.Services;
 using Schedule.Domain.Models;
 
-namespace Schedule.Infrastructure.Services;
+namespace Schedule.Application.Services;
 
 public class ParticipantService : IParticipantService
 {
@@ -50,16 +50,18 @@ public class ParticipantService : IParticipantService
 	{
 		NormalizeParticipantData(participant);
 
-		bool phoneExists = await _repository.PhoneExistsExcludedParticipantAsync(
+		bool phoneExistsExcludedParticipant = await _repository
+			.PhoneExistsExcludedParticipantAsync(
 			participant.Phone, participant.CompanyId, participant.Id);
-		bool emailExists = await _repository.EmailExistsExcludedParticipantAsync(
+		bool emailExistsExcludedParticipant = await _repository
+			.EmailExistsExcludedParticipantAsync(
 			participant.Email, participant.CompanyId, participant.Id);
 		
-		if (phoneExists)
+		if (phoneExistsExcludedParticipant)
 			// warning ($"Participant with phone {participant.Phone} already exists");
 			return;
 
-		if (emailExists)
+		if (emailExistsExcludedParticipant)
 			// warning ($"Participant with email {participant.Email} already exists");
 			return;
 

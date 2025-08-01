@@ -5,15 +5,15 @@ namespace Schedule.Application.Interfaces.Repositories;
 public interface IParticipantRepository
 {
 	Task CreateAsync(Participant participant);
-	Task<bool> PatchAsync(Participant participant);
+	Task<bool> PutAsync(Participant participant);
 
 	Task<bool> DeleteByIdAsync(
-		Guid id,
+		Guid participantId,
 		Guid companyId
 	);
 
 	Task<Participant?> GetByIdAsync(
-		Guid id,
+		Guid participantId,
 		Guid companyId
 	);
 
@@ -24,25 +24,8 @@ public interface IParticipantRepository
 
 	Task<List<Participant>> GetAllAsync(Guid companyId);
 
-	Task<bool> EmailExistsAsync(
-		string email,
+	Task<bool> IsParticipantAssignedToReservationsAsync(
+		Guid participantId,
 		Guid companyId
-	);
-
-	Task<bool> PhoneExistsAsync(
-		string phone,
-		Guid companyId
-	);
-
-	Task<bool> PhoneExistsExcludedParticipantAsync(
-		string phone,
-		Guid companyId,
-		Guid excludeParticipantId
-	);
-
-	Task<bool> EmailExistsExcludedParticipantAsync(
-		string email,
-		Guid companyId,
-		Guid excludeParticipantId
 	);
 }

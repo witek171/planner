@@ -35,18 +35,19 @@ public class ParticipantController : ControllerBase
 		return CreatedAtAction(nameof(Create), participant.Id);
 	}
 
-	[HttpPatch("{participantId:guid}")]
-	public async Task<ActionResult> Patch(
+	[HttpPut("{participantId:guid}")]
+	public async Task<ActionResult> Put(
 		Guid companyId,
 		Guid participantId,
 		[FromBody] ParticipantUpdateRequest request
 	)
 	{
-		Participant? existing = await _participantService.GetByIdAsync(participantId, companyId);
+		Participant? participant = await _participantService
+			.GetByIdAsync(participantId, companyId);
 
-		_mapper.Map(request, existing);
+		_mapper.Map(request, participant);
 
-		await _participantService.PatchAsync(existing);
+		await _participantService.PutAsync(participant);
 		return NoContent();
 	}
 
@@ -60,26 +61,27 @@ public class ParticipantController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet("by-id")]
+	[HttpGet("byId")]
 	public async Task<ActionResult> GetById(
-		[FromQuery] Guid id,
+		[FromQuery] Guid participantId,
 		Guid companyId
 	)
 	{
-		Participant? participant = await _participantService.GetByIdAsync(id, companyId);
+		Participant? participant = await _participantService
+			.GetByIdAsync(participantId, companyId);
 
 		ParticipantResponse response = _mapper.Map<ParticipantResponse>(participant);
 		return Ok(response);
 	}
-	
-	[HttpGet("by-email")]
+
+	[HttpGet("byEmail")]
 	public async Task<ActionResult> GetByEmail(
 		[FromQuery] string email,
 		Guid companyId
 	)
 	{
 		Participant? participant = await _participantService.GetByEmailAsync(email, companyId);
-	
+
 		ParticipantResponse response = _mapper.Map<ParticipantResponse>(participant);
 		return Ok(response);
 	}

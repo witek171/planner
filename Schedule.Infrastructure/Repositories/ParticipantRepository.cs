@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
 
@@ -15,27 +16,22 @@ public class ParticipantRepository : IParticipantRepository
 
 	public async Task CreateAsync(Participant participant)
 	{
-		participant.Id= Guid.NewGuid();
-		participant.CreatedAt = DateTime.UtcNow;
-		
 		const string sql = """
 
-		                               INSERT INTO Participants (Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt)
-		                               VALUES (@Id, @CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent, @CreatedAt);
+		                               INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
+		                               VALUES (@CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent);
 		                   """;
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", participant.Id);
 		command.Parameters.AddWithValue("@CompanyId", participant.CompanyId);
 		command.Parameters.AddWithValue("@Email", participant.Email);
 		command.Parameters.AddWithValue("@FirstName", participant.FirstName);
 		command.Parameters.AddWithValue("@LastName", participant.LastName);
 		command.Parameters.AddWithValue("@Phone", participant.Phone);
 		command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
-		command.Parameters.AddWithValue("@CreatedAt", participant.CreatedAt);
 
 		await command.ExecuteNonQueryAsync();
 	}

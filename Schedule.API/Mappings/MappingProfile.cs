@@ -21,36 +21,10 @@ public class MappingProfile : Profile
 				)
 			);
 
-		CreateMap<ParticipantCreateRequest, Participant>()
-			.ConstructUsing(src => new Participant(
-					Guid.NewGuid(),
-					src.CompanyId,
-					src.Email,
-					src.FirstName,
-					src.LastName,
-					src.Phone,
-					src.GdprConsent,
-					DateTime.UtcNow
-				)
-			);
+		CreateMap<ParticipantCreateRequest, Participant>();
 
 		CreateMap<Participant, ParticipantResponse>();
 
-		CreateMap<ParticipantUpdateRequest, Participant>()
-			.ForMember(
-				dest => dest.Id, opt
-					=> opt.Ignore())
-			.ForMember(
-				dest => dest.CompanyId, opt
-					=> opt.Ignore())
-			.ForMember(
-				dest => dest.GdprConsent, opt
-					=> opt.Ignore())
-			.ForMember(
-				dest => dest.CreatedAt, opt
-					=> opt.Ignore())
-			.ForAllMembers(opt
-				=> opt.Condition((src, dest, srcMember)
-					=> srcMember != null));
+		CreateMap<ParticipantUpdateRequest, Participant>();
 	}
 }

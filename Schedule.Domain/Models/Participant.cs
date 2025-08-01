@@ -11,6 +11,10 @@ public class Participant
 	public bool GdprConsent { get; set; }
 	public DateTime CreatedAt { get; set; }
 
+	public Participant()
+	{
+	}
+
 	public Participant(
 		Guid id,
 		Guid receptionId,

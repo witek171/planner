@@ -8,7 +8,6 @@ public class ParticipantResponse
 	[Required] public string FirstName { get; set; }
 	[Required] public string LastName { get; set; }
 	[Required] public string Phone { get; set; }
-	[Required] public bool GdprConsent { get; set; }
 	[Required] public DateTime CreatedAt { get; set; }
 
 	public string FullName => $"{FirstName} {LastName}";
@@ -18,7 +17,6 @@ public class ParticipantResponse
 		string firstName,
 		string lastName,
 		string phone,
-		bool gdprConsent,
 		DateTime createdAt
 	)
 	{
@@ -26,7 +24,6 @@ public class ParticipantResponse
 		FirstName = firstName;
 		LastName = lastName;
 		Phone = phone;
-		GdprConsent = gdprConsent;
 		CreatedAt = createdAt;
 	}
 }

@@ -16,7 +16,7 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
-			SELECT Id, ReceptionId, EventScheduleId, StaffId
+			SELECT Id, CompanyId, EventScheduleId, StaffId
 			FROM EventScheduleStaff
 			WHERE EventScheduleId = @EventScheduleId
 		""";
@@ -29,7 +29,7 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 			result.Add(new EventScheduleStaff
 			{
 				Id = reader.GetGuid(0),
-				ReceptionId = reader.GetGuid(1),
+				CompanyId = reader.GetGuid(1),
 				EventScheduleId = reader.GetGuid(2),
 				StaffId = reader.GetGuid(3)
 			});
@@ -45,11 +45,11 @@ public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffR
 
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
-			INSERT INTO EventScheduleStaff (Id, ReceptionId, EventScheduleId, StaffId)
-			VALUES (@Id, @ReceptionId, @EventScheduleId, @StaffId)
+			INSERT INTO EventScheduleStaff (Id, CompanyId, EventScheduleId, StaffId)
+			VALUES (@Id, @CompanyId, @EventScheduleId, @StaffId)
 		""";
 		AddParameter(command, "@Id", entity.Id);
-		AddParameter(command, "@ReceptionId", entity.ReceptionId);
+		AddParameter(command, "@CompanyId", entity.CompanyId);
 		AddParameter(command, "@EventScheduleId", entity.EventScheduleId);
 		AddParameter(command, "@StaffId", entity.StaffId);
 

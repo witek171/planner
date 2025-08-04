@@ -24,10 +24,10 @@ public class StaffRepository : BaseRepository, IStaffRepository
 			result.Add(new Staff
 			{
 				Id = reader.GetGuid(0),
-				ReceptionId = reader.GetGuid(1),
+				CompanyId = reader.GetGuid(1),
 				Role = reader.GetString(2),
 				Email = reader.GetString(3),
-				PasswordHash = reader.GetString(4),
+				Password = reader.GetString(4),
 				FirstName = reader.GetString(5),
 				LastName = reader.GetString(6),
 				Phone = reader.GetString(7),
@@ -48,13 +48,13 @@ public class StaffRepository : BaseRepository, IStaffRepository
 		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
 		{
-			var staff = new Staff
+			Staff staff = new Staff
 			{
 				Id = reader.GetGuid(0),
-				ReceptionId = reader.GetGuid(1),
+				CompanyId = reader.GetGuid(1),
 				Role = reader.GetString(2),
 				Email = reader.GetString(3),
-				PasswordHash = reader.GetString(4),
+				Password = reader.GetString(4),
 				FirstName = reader.GetString(5),
 				LastName = reader.GetString(6),
 				Phone = reader.GetString(7),
@@ -70,16 +70,16 @@ public class StaffRepository : BaseRepository, IStaffRepository
 	{
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = @"
-			INSERT INTO Staff (Id, ReceptionId, Role, Email, PasswordHash, FirstName, LastName, Phone)
-			VALUES (@Id, @ReceptionId, @Role, @Email, @PasswordHash, @FirstName, @LastName, @Phone)";
+			INSERT INTO Staff (Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone)
+			VALUES (@Id, @CompanyId, @Role, @Email, @Password, @FirstName, @LastName, @Phone)";
 
 		staff.Id = Guid.NewGuid();
 
 		AddParameter(command, "@Id", staff.Id);
-		AddParameter(command, "@ReceptionId", staff.ReceptionId);
+		AddParameter(command, "@CompanyId", staff.CompanyId);
 		AddParameter(command, "@Role", staff.Role);
 		AddParameter(command, "@Email", staff.Email);
-		AddParameter(command, "@PasswordHash", staff.PasswordHash);
+		AddParameter(command, "@Password", staff.Password);
 		AddParameter(command, "@FirstName", staff.FirstName);
 		AddParameter(command, "@LastName", staff.LastName);
 		AddParameter(command, "@Phone", staff.Phone);
@@ -96,20 +96,20 @@ public class StaffRepository : BaseRepository, IStaffRepository
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = @"
 			UPDATE Staff SET
-				ReceptionId = @ReceptionId,
+				CompanyId = @CompanyId,
 				Role = @Role,
 				Email = @Email,
-				PasswordHash = @PasswordHash,
+				Password = @Password,
 				FirstName = @FirstName,
 				LastName = @LastName,
 				Phone = @Phone
 			WHERE Id = @Id";
 
 		AddParameter(command, "@Id", staff.Id);
-		AddParameter(command, "@ReceptionId", staff.ReceptionId);
+		AddParameter(command, "@CompanyId", staff.CompanyId);
 		AddParameter(command, "@Role", staff.Role);
 		AddParameter(command, "@Email", staff.Email);
-		AddParameter(command, "@PasswordHash", staff.PasswordHash);
+		AddParameter(command, "@Password", staff.Password);
 		AddParameter(command, "@FirstName", staff.FirstName);
 		AddParameter(command, "@LastName", staff.LastName);
 		AddParameter(command, "@Phone", staff.Phone);

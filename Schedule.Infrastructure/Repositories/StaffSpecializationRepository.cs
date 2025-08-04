@@ -16,7 +16,7 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
-			SELECT Id, ReceptionId, StaffId, SpecializationId
+			SELECT Id, CompanyId, StaffId, SpecializationId
 			FROM StaffSpecializations
 			WHERE StaffId = @StaffId
 		""";
@@ -29,7 +29,7 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 			result.Add(new StaffSpecialization
 			{
 				Id = reader.GetGuid(0),
-				ReceptionId = reader.GetGuid(1),
+				CompanyId = reader.GetGuid(1),
 				StaffId = reader.GetGuid(2),
 				SpecializationId = reader.GetGuid(3)
 			});
@@ -43,14 +43,14 @@ public class StaffSpecializationRepository : BaseRepository, IStaffSpecializatio
 	{
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
-			INSERT INTO StaffSpecializations (Id, ReceptionId, StaffId, SpecializationId)
-			VALUES (@Id, @ReceptionId, @StaffId, @SpecializationId)
+			INSERT INTO StaffSpecializations (Id, CompanyId, StaffId, SpecializationId)
+			VALUES (@Id, @CompanyId, @StaffId, @SpecializationId)
 		""";
 
 		specialization.Id = Guid.NewGuid();
 
 		AddParameter(command, "@Id", specialization.Id);
-		AddParameter(command, "@ReceptionId", specialization.ReceptionId);
+		AddParameter(command, "@CompanyId", specialization.CompanyId);
 		AddParameter(command, "@StaffId", specialization.StaffId);
 		AddParameter(command, "@SpecializationId", specialization.SpecializationId);
 

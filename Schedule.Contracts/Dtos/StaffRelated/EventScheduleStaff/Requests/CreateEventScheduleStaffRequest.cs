@@ -2,7 +2,7 @@
 
 public class CreateEventScheduleStaffRequest
 {
-	public Guid ReceptionId { get; set; }
+	public Guid CompanyId { get; set; }
 	public Guid EventScheduleId { get; set; }
 	public Guid StaffId { get; set; }
 }

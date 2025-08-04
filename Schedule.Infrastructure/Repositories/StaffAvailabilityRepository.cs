@@ -16,7 +16,7 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
-			SELECT Id, ReceptionId, StaffId, Date, StartTime, EndTime, IsAvailable
+			SELECT Id, CompanyId, StaffId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability
 			WHERE StaffId = @StaffId
 		""";
@@ -29,7 +29,7 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 			result.Add(new StaffAvailability
 			{
 				Id = reader.GetGuid(0),
-				ReceptionId = reader.GetGuid(1),
+				CompanyId = reader.GetGuid(1),
 				StaffId = reader.GetGuid(2),
 				Date = DateOnly.FromDateTime(reader.GetDateTime(3)),
 				StartTime = reader.GetDateTime(4),
@@ -52,10 +52,10 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 		using SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
 		{
-			var availability = new StaffAvailability
+			StaffAvailability availability = new StaffAvailability
 			{
 				Id = reader.GetGuid(0),
-				ReceptionId = reader.GetGuid(1),
+				CompanyId = reader.GetGuid(1),
 				StaffId = reader.GetGuid(2),
 				Date = DateOnly.FromDateTime(reader.GetDateTime(3)),
 				StartTime = reader.GetDateTime(4),
@@ -74,14 +74,14 @@ public class StaffAvailabilityRepository : BaseRepository, IStaffAvailabilityRep
 		using SqlCommand command = _connection.CreateCommand();
 		command.CommandText = """
 			INSERT INTO StaffAvailability 
-			(Id, ReceptionId, StaffId, Date, StartTime, EndTime, IsAvailable)
-			VALUES (@Id, @ReceptionId, @StaffId, @Date, @StartTime, @EndTime, @IsAvailable)
+			(Id, CompanyId, StaffId, Date, StartTime, EndTime, IsAvailable)
+			VALUES (@Id, @CompanyId, @StaffId, @Date, @StartTime, @EndTime, @IsAvailable)
 		""";
 
 		availability.Id = Guid.NewGuid();
 
 		AddParameter(command, "@Id", availability.Id);
-		AddParameter(command, "@ReceptionId", availability.ReceptionId);
+		AddParameter(command, "@CompanyId", availability.CompanyId);
 		AddParameter(command, "@StaffId", availability.StaffId);
 		AddParameter(command, "@Date", availability.Date.ToDateTime(TimeOnly.MinValue));
 		AddParameter(command, "@StartTime", availability.StartTime);

@@ -23,13 +23,13 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ActionResult> Create(
+	public async Task<ActionResult<Guid>> Create(
 		Guid companyId,
 		[FromBody] ParticipantCreateRequest request
 	)
 	{
-		request.CompanyId = companyId;
 		Participant participant = _mapper.Map<Participant>(request);
+		participant.CompanyId = companyId;
 
 		await _participantService.CreateAsync(participant);
 		return CreatedAtAction(nameof(Create), participant.Id);
@@ -47,7 +47,7 @@ public class ParticipantController : ControllerBase
 
 		_mapper.Map(request, participant);
 
-		await _participantService.PutAsync(participant);
+		await _participantService.PutAsync(participant!);
 		return NoContent();
 	}
 
@@ -62,7 +62,7 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpGet("byId")]
-	public async Task<ActionResult> GetById(
+	public async Task<ActionResult<ParticipantResponse>> GetById(
 		[FromQuery] Guid participantId,
 		Guid companyId
 	)
@@ -75,7 +75,7 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpGet("byEmail")]
-	public async Task<ActionResult> GetByEmail(
+	public async Task<ActionResult<ParticipantResponse>> GetByEmail(
 		[FromQuery] string email,
 		Guid companyId
 	)
@@ -87,7 +87,7 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpGet("all")]
-	public async Task<ActionResult> GetAll(Guid companyId)
+	public async Task<ActionResult<List<ParticipantResponse>>> GetAll(Guid companyId)
 	{
 		List<Participant> participants = await _participantService.GetAllAsync(companyId);
 

@@ -4,8 +4,6 @@ namespace Schedule.Contracts.Dtos;
 
 public class ParticipantCreateRequest
 {
-	[Required] public Guid CompanyId { get; set; }
-
 	[Required] [EmailAddress] public string Email { get; set; }
 
 	[Required] [StringLength(40)] public string FirstName { get; set; }
@@ -17,7 +15,6 @@ public class ParticipantCreateRequest
 	[Required] public bool GdprConsent { get; set; }
 
 	public ParticipantCreateRequest(
-		Guid companyId,
 		string email,
 		string firstName,
 		string lastName,
@@ -25,7 +22,6 @@ public class ParticipantCreateRequest
 		bool gdprConsent
 	)
 	{
-		CompanyId = companyId;
 		Email = email;
 		FirstName = firstName;
 		LastName = lastName;

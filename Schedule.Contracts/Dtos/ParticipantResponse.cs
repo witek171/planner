@@ -10,8 +10,6 @@ public class ParticipantResponse
 	[Required] public string Phone { get; set; }
 	[Required] public DateTime CreatedAt { get; set; }
 
-	public string FullName => $"{FirstName} {LastName}";
-
 	public ParticipantResponse(
 		string email,
 		string firstName,

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Schedule.Contracts.Dtos;
 using Schedule.Contracts.Dtos.Requests;
 using Schedule.Contracts.Dtos.Responses;
 using Schedule.Domain.Models;

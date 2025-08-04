@@ -15,12 +15,11 @@ public class ParticipantRepository : IParticipantRepository
 
 	public async Task CreateAsync(Participant participant)
 	{
-		const string sql = """
-
-		                   INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
-		                   OUTPUT INSERTED.Id
-		                               VALUES (@CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent);
-		                   """;
+		const string sql = @"
+			INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
+			OUTPUT INSERTED.Id
+			VALUES (@CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent);
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -39,14 +38,14 @@ public class ParticipantRepository : IParticipantRepository
 
 	public async Task<bool> PutAsync(Participant participant)
 	{
-		const string sql = """
-		                   UPDATE Participants
-		                   SET Email = @Email,
-		                       FirstName = @FirstName,
-		                       LastName = @LastName,
-		                       Phone = @Phone
-		                   WHERE Id = @Id AND CompanyId = @CompanyId
-		                   """;
+		const string sql = @"
+			UPDATE Participants
+			SET Email = @Email,
+			FirstName = @FirstName,
+			LastName = @LastName,
+			Phone = @Phone
+			WHERE Id = @Id AND CompanyId = @CompanyId
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -68,11 +67,10 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = """
-
-		                           DELETE FROM Participants 
-		                           WHERE CompanyId = @CompanyId AND Id = @Id
-		                   """;
+		const string sql = @"
+			DELETE FROM Participants 
+			WHERE CompanyId = @CompanyId AND Id = @Id
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -90,12 +88,11 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = """
-
-		                           SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
-		                           FROM Participants 
-		                           WHERE CompanyId = @CompanyId AND Id = @Id
-		                   """;
+		const string sql = @"
+			SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+			FROM Participants 
+			WHERE CompanyId = @CompanyId AND Id = @Id
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -126,12 +123,11 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = """
-
-		                               SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
-		                               FROM Participants 
-		                               WHERE CompanyId = @CompanyId AND Email = @Email
-		                   """;
+		const string sql = @"
+			SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+			FROM Participants 
+			WHERE CompanyId = @CompanyId AND Email = @Email
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -159,13 +155,12 @@ public class ParticipantRepository : IParticipantRepository
 
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
 	{
-		const string sql = """
-
-		                           SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
-		                           FROM Participants 
-		                           WHERE CompanyId = @CompanyId
-		                           ORDER BY CreatedAt DESC
-		                   """;
+		const string sql = @"
+			SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
+			FROM Participants 
+			WHERE CompanyId = @CompanyId
+			ORDER BY CreatedAt DESC
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -199,11 +194,11 @@ public class ParticipantRepository : IParticipantRepository
 		Guid companyId
 	)
 	{
-		const string sql = """
-		                   SELECT COUNT(1)
-		                   FROM Reservations 
-		                   WHERE CompanyId = @CompanyId AND ParticipantId = @ParticipantId
-		                   """;
+		const string sql = @"
+			SELECT COUNT(1)
+			FROM Reservations 
+			WHERE CompanyId = @CompanyId AND ParticipantId = @ParticipantId
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -212,7 +207,7 @@ public class ParticipantRepository : IParticipantRepository
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@ParticipantId", participantId);
 
-		int count = (int)await command.ExecuteScalarAsync();
+		int count = (int)(await command.ExecuteScalarAsync())!;
 		return count > 0;
 	}
 }

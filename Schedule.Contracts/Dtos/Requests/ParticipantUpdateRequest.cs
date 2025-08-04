@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Schedule.Contracts.Dtos;
+namespace Schedule.Contracts.Dtos.Requests;
 
 public class ParticipantUpdateRequest
 {

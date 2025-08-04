@@ -63,7 +63,7 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStaffRequest request)
+	public async Task<ActionResult> Update(Guid id, [FromBody] UpdateStaffRequest request)
 	{
 		Staff? existing = await _staffService.GetByIdAsync(id);
 		if (existing == null)
@@ -79,7 +79,7 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> Delete(Guid id)
+	public async Task<ActionResult> Delete(Guid id)
 	{
 		await _staffService.DeleteAsync(id);
 		return NoContent();
@@ -104,7 +104,7 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpDelete("specializations/{id}")]
-	public async Task<IActionResult> DeleteSpecialization(Guid id)
+	public async Task<ActionResult> DeleteSpecialization(Guid id)
 	{
 		await _specializationService.DeleteAsync(id);
 		return NoContent();
@@ -139,7 +139,7 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpPut("availability/{id}")]
-	public async Task<IActionResult> UpdateAvailability(Guid id, [FromBody] UpdateStaffAvailabilityRequest request)
+	public async Task<ActionResult> UpdateAvailability(Guid id, [FromBody] UpdateStaffAvailabilityRequest request)
 	{
 		StaffAvailability? existing = await _availabilityService.GetByIdAsync(id);
 		if (existing == null)
@@ -155,7 +155,7 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpDelete("availability/{id}")]
-	public async Task<IActionResult> DeleteAvailability(Guid id)
+	public async Task<ActionResult> DeleteAvailability(Guid id)
 	{
 		await _availabilityService.DeleteAsync(id);
 		return NoContent();
@@ -180,7 +180,7 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpDelete("eventschedules/staff/{id}")]
-	public async Task<IActionResult> UnassignStaffFromEvent(Guid id)
+	public async Task<ActionResult> UnassignStaffFromEvent(Guid id)
 	{
 		await _eventScheduleStaffService.DeleteAsync(id);
 		return NoContent();

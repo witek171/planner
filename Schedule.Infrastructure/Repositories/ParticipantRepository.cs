@@ -17,7 +17,8 @@ public class ParticipantRepository : IParticipantRepository
 	{
 		const string sql = """
 
-		                               INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
+		                   INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
+		                   OUTPUT INSERTED.Id
 		                               VALUES (@CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent);
 		                   """;
 
@@ -32,7 +33,8 @@ public class ParticipantRepository : IParticipantRepository
 		command.Parameters.AddWithValue("@Phone", participant.Phone);
 		command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
 
-		await command.ExecuteNonQueryAsync();
+		object result = (await command.ExecuteScalarAsync())!;
+		participant.Id = (Guid)result;
 	}
 
 	public async Task<bool> PutAsync(Participant participant)

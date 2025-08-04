@@ -1,4 +1,4 @@
-﻿namespace Schedule.Contracts.Dtos.StaffRelated.Staff.Responses;
+﻿namespace Schedule.Contracts.Dtos.Responses;
 
 public class StaffResponse
 {

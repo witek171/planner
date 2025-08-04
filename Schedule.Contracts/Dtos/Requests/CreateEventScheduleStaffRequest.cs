@@ -1,4 +1,4 @@
-﻿namespace Schedule.Contracts.Dtos.StaffRelated.EventScheduleStaff.Requests;
+﻿namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateEventScheduleStaffRequest
 {

@@ -1,4 +1,4 @@
-﻿namespace Schedule.Contracts.Dtos.StaffRelated.StaffSpecializations.Responses;
+﻿namespace Schedule.Contracts.Dtos.Responses;
 
 public class StaffSpecializationResponse
 {

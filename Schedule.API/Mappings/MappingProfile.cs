@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using Schedule.Contracts.Dtos;
-using Schedule.Contracts.Dtos.StaffRelated.Staff.Requests;
-using Schedule.Contracts.Dtos.StaffRelated.Staff.Responses;
-using Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Requests;
-using Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Responses;
-using Schedule.Contracts.Dtos.StaffRelated.StaffSpecializations.Requests;
-using Schedule.Contracts.Dtos.StaffRelated.StaffSpecializations.Responses;
+using Schedule.Contracts.Dtos.Requests;
+using Schedule.Contracts.Dtos.Responses;
 using Schedule.Domain.Models;
 using Schedule.Domain.Models.StaffRelated;
 

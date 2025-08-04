@@ -1,4 +1,4 @@
-﻿namespace Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Requests;
+﻿namespace Schedule.Contracts.Dtos.Requests;
 
 public class UpdateStaffAvailabilityRequest
 {

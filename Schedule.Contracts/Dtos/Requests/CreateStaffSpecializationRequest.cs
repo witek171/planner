@@ -1,4 +1,4 @@
-﻿namespace Schedule.Contracts.Dtos.StaffRelated.StaffSpecializations.Requests;
+﻿namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateStaffSpecializationRequest
 {

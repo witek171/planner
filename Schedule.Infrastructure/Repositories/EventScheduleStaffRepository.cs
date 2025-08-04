@@ -3,7 +3,6 @@ using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models.StaffRelated;
 using Schedule.Infrastructure.Repositories.Common;
 using Schedule.Infrastructure.Services;
-using System.Data.Common;
 
 namespace Schedule.Infrastructure.Repositories;
 

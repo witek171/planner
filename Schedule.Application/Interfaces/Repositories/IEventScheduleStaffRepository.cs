@@ -2,7 +2,6 @@
 
 namespace Schedule.Application.Interfaces.Repositories;
 
-
 public interface IEventScheduleStaffRepository
 {
 	Task<List<EventScheduleStaff>> GetByEventIdAsync(Guid eventId);

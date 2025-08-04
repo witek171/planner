@@ -1,18 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
+using Schedule.Contracts.Dtos.StaffRelated.EventScheduleStaff.Requests;
+using Schedule.Contracts.Dtos.StaffRelated.EventScheduleStaff.Responses;
 using Schedule.Contracts.Dtos.StaffRelated.Staff.Requests;
 using Schedule.Contracts.Dtos.StaffRelated.Staff.Responses;
+using Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Requests;
+using Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Responses;
 using Schedule.Contracts.Dtos.StaffRelated.StaffSpecializations.Requests;
 using Schedule.Contracts.Dtos.StaffRelated.StaffSpecializations.Responses;
 using Schedule.Domain.Models.StaffRelated;
-using Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Requests;
-using Schedule.Contracts.Dtos.StaffRelated.StaffAvailability.Responses;
-using Schedule.Application.Services;
-using Schedule.Contracts.Dtos.StaffRelated.EventScheduleStaff.Requests;
-using Schedule.Contracts.Dtos.StaffRelated.EventScheduleStaff.Responses;
 
-namespace Schedule.API.Controllers;
+namespace PlannerNet.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -38,19 +37,17 @@ public class StaffController : ControllerBase
 		_mapper = mapper;
 	}
 
-	// STAFF ENDPOINTS
-
 	[HttpGet]
 	public async Task<ActionResult<List<StaffResponse>>> GetAll()
 	{
-		var staffList = await _staffService.GetAllAsync();
+		List<Staff> staffList = await _staffService.GetAllAsync();
 		return Ok(_mapper.Map<List<StaffResponse>>(staffList));
 	}
 
 	[HttpGet("{id}")]
 	public async Task<ActionResult<StaffResponse>> GetById(Guid id)
 	{
-		var staff = await _staffService.GetByIdAsync(id);
+		Staff? staff = await _staffService.GetByIdAsync(id);
 		if (staff == null)
 			return NotFound();
 
@@ -60,15 +57,15 @@ public class StaffController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<Guid>> Create([FromBody] CreateStaffRequest request)
 	{
-		var staff = _mapper.Map<Staff>(request);
-		var id = await _staffService.CreateAsync(staff);
+		Staff? staff = _mapper.Map<Staff>(request);
+		Guid id = await _staffService.CreateAsync(staff);
 		return Ok(id);
 	}
 
 	[HttpPut("{id}")]
 	public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStaffRequest request)
 	{
-		var existing = await _staffService.GetByIdAsync(id);
+		Staff? existing = await _staffService.GetByIdAsync(id);
 		if (existing == null)
 			return NotFound();
 
@@ -88,12 +85,10 @@ public class StaffController : ControllerBase
 		return NoContent();
 	}
 
-	// STAFF SPECIALIZATIONS ENDPOINTS
-
 	[HttpGet("{staffId}/specializations")]
 	public async Task<ActionResult<List<StaffSpecializationResponse>>> GetSpecializations(Guid staffId)
 	{
-		var list = await _specializationService.GetByStaffIdAsync(staffId);
+		List<StaffSpecialization> list = await _specializationService.GetByStaffIdAsync(staffId);
 		return Ok(_mapper.Map<List<StaffSpecializationResponse>>(list));
 	}
 
@@ -103,8 +98,8 @@ public class StaffController : ControllerBase
 		if (staffId != request.StaffId)
 			return BadRequest("StaffId in route does not match body.");
 
-		var specialization = _mapper.Map<StaffSpecialization>(request);
-		var id = await _specializationService.CreateAsync(specialization);
+		StaffSpecialization? specialization = _mapper.Map<StaffSpecialization>(request);
+		Guid id = await _specializationService.CreateAsync(specialization);
 		return Ok(id);
 	}
 
@@ -115,19 +110,17 @@ public class StaffController : ControllerBase
 		return NoContent();
 	}
 
-	// STAFF AVAILABILITY ENDPOINTS
-
 	[HttpGet("{staffId}/availability")]
 	public async Task<ActionResult<List<StaffAvailabilityResponse>>> GetAvailabilityByStaffId(Guid staffId)
 	{
-		var list = await _availabilityService.GetByStaffIdAsync(staffId);
+		List<StaffAvailability> list = await _availabilityService.GetByStaffIdAsync(staffId);
 		return Ok(_mapper.Map<List<StaffAvailabilityResponse>>(list));
 	}
 
 	[HttpGet("availability/{id}")]
 	public async Task<ActionResult<StaffAvailabilityResponse>> GetAvailabilityById(Guid id)
 	{
-		var availability = await _availabilityService.GetByIdAsync(id);
+		StaffAvailability? availability = await _availabilityService.GetByIdAsync(id);
 		if (availability == null)
 			return NotFound();
 
@@ -140,15 +133,15 @@ public class StaffController : ControllerBase
 		if (staffId != request.StaffId)
 			return BadRequest("StaffId in route does not match body.");
 
-		var entity = _mapper.Map<StaffAvailability>(request);
-		var id = await _availabilityService.CreateAsync(entity);
+		StaffAvailability? entity = _mapper.Map<StaffAvailability>(request);
+		Guid id = await _availabilityService.CreateAsync(entity);
 		return Ok(id);
 	}
 
 	[HttpPut("availability/{id}")]
 	public async Task<IActionResult> UpdateAvailability(Guid id, [FromBody] UpdateStaffAvailabilityRequest request)
 	{
-		var existing = await _availabilityService.GetByIdAsync(id);
+		StaffAvailability? existing = await _availabilityService.GetByIdAsync(id);
 		if (existing == null)
 			return NotFound();
 
@@ -168,12 +161,10 @@ public class StaffController : ControllerBase
 		return NoContent();
 	}
 
-	// EVENT SCHEDULE STAFF ENDPOINTS
-
 	[HttpGet("eventschedules/{eventId}/staff")]
 	public async Task<ActionResult<List<EventScheduleStaffResponse>>> GetStaffAssignedToEvent(Guid eventId)
 	{
-		var list = await _eventScheduleStaffService.GetByEventIdAsync(eventId);
+		List<EventScheduleStaff> list = await _eventScheduleStaffService.GetByEventIdAsync(eventId);
 		return Ok(_mapper.Map<List<EventScheduleStaffResponse>>(list));
 	}
 
@@ -183,8 +174,8 @@ public class StaffController : ControllerBase
 		if (eventId != request.EventScheduleId)
 			return BadRequest("EventScheduleId in route does not match body.");
 
-		var entity = _mapper.Map<EventScheduleStaff>(request);
-		var id = await _eventScheduleStaffService.CreateAsync(entity);
+		EventScheduleStaff? entity = _mapper.Map<EventScheduleStaff>(request);
+		Guid id = await _eventScheduleStaffService.CreateAsync(entity);
 		return Ok(id);
 	}
 

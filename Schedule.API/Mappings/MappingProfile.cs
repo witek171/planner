@@ -38,16 +38,13 @@ public class MappingProfile : Profile
 				)
 			);
 
-		// Staff
 		CreateMap<Staff, StaffResponse>();
 		CreateMap<CreateStaffRequest, Staff>();
 		CreateMap<UpdateStaffRequest, Staff>();
 
-		// StaffSpecialization
 		CreateMap<CreateStaffSpecializationRequest, StaffSpecialization>();
 		CreateMap<StaffSpecialization, StaffSpecializationResponse>();
 
-		// StaffAvailability
 		CreateMap<CreateStaffAvailabilityRequest, StaffAvailability>();
 		CreateMap<UpdateStaffAvailabilityRequest, StaffAvailability>();
 		CreateMap<StaffAvailability, StaffAvailabilityResponse>();

@@ -1,6 +1,6 @@
 ﻿using Schedule.Domain.Models.StaffRelated;
 
-namespace Schedule.Infrastructure.Repositories;
+namespace Schedule.Application.Interfaces.Repositories;
 
 public interface IStaffRepository
 {

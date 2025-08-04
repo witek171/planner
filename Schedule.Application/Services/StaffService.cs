@@ -1,6 +1,6 @@
-﻿using Schedule.Application.Interfaces.Services;
+﻿using Schedule.Application.Interfaces.Repositories;
+using Schedule.Application.Interfaces.Services;
 using Schedule.Domain.Models.StaffRelated;
-using Schedule.Infrastructure.Repositories;
 
 namespace Schedule.Application.Services;
 

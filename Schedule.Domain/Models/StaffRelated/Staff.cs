@@ -1,14 +1,38 @@
-﻿namespace Schedule.Domain.Models.StaffRelated;
+﻿using Schedule.Domain.Models.Enums;
+
+namespace Schedule.Domain.Models.StaffRelated;
 
 public class Staff
 {
-	public Guid Id { get; set; }
-	public Guid CompanyId { get; set; }
-	public string Role { get; set; } = null!;
-	public string Email { get; set; } = null!;
-	public string Password { get; set; } = null!;
-	public string FirstName { get; set; } = null!;
-	public string LastName { get; set; } = null!;
-	public string Phone { get; set; } = null!;
-	public DateTime CreatedAt { get; set; }
+	public Guid Id { get; }
+	public Guid CompanyId { get; }
+	public StaffRole Role { get; }
+	public string Email { get; }
+	public string Password { get; }
+	public string FirstName { get; }
+	public string LastName { get; }
+	public string Phone { get; }
+	public DateTime CreatedAt { get; }
+
+	public Staff(
+		Guid id,
+		Guid companyId,
+		StaffRole role,
+		string email,
+		string password,
+		string firstName,
+		string lastName,
+		string phone,
+		DateTime createdAt)
+	{
+		Id = id;
+		CompanyId = companyId;
+		Role = role;
+		Email = email;
+		Password = password;
+		FirstName = firstName;
+		LastName = lastName;
+		Phone = phone;
+		CreatedAt = createdAt;
+	}
 }

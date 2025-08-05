@@ -4,7 +4,7 @@ namespace Schedule.Application.Interfaces.Repositories;
 
 public interface IParticipantRepository
 {
-	Task CreateAsync(Participant participant);
+	Task<Guid> CreateAsync(Participant participant);
 	Task<bool> PutAsync(Participant participant);
 
 	Task<bool> DeleteByIdAsync(

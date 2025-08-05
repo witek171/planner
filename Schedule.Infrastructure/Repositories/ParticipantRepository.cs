@@ -13,7 +13,7 @@ public class ParticipantRepository : IParticipantRepository
 		_connectionString = connectionString;
 	}
 
-	public async Task CreateAsync(Participant participant)
+	public async Task<Guid> CreateAsync(Participant participant)
 	{
 		const string sql = @"
 			INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
@@ -33,7 +33,7 @@ public class ParticipantRepository : IParticipantRepository
 		command.Parameters.AddWithValue("@GdprConsent", participant.GdprConsent);
 
 		object result = (await command.ExecuteScalarAsync())!;
-		participant.Id = (Guid)result;
+		return (Guid)result;
 	}
 
 	public async Task<bool> PutAsync(Participant participant)

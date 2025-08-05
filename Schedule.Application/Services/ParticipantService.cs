@@ -13,18 +13,18 @@ public class ParticipantService : IParticipantService
 		_repository = repository;
 	}
 
-	public async Task CreateAsync(Participant participant)
+	public async Task<Guid> CreateAsync(Participant participant)
 	{
 		if (!participant.GdprConsent)
 			throw new InvalidOperationException("GDPR consent is required");
 
-		NormalizeParticipantData(participant);
-		await _repository.CreateAsync(participant);
+		participant.Normalize();
+		return await _repository.CreateAsync(participant);
 	}
 
 	public async Task PutAsync(Participant participant)
 	{
-		NormalizeParticipantData(participant);
+		participant.Normalize();
 		await _repository.PutAsync(participant);
 	}
 
@@ -40,7 +40,7 @@ public class ParticipantService : IParticipantService
 			Participant participant = (await _repository.GetByIdAsync(
 				participantId, companyId))!;
 
-			participant.LastName = participant.LastName[0] + " (deleted)";
+			participant.Anonymize();
 			await _repository.PutAsync(participant);
 		}
 		else
@@ -67,13 +67,5 @@ public class ParticipantService : IParticipantService
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
 	{
 		return await _repository.GetAllAsync(companyId);
-	}
-
-	private void NormalizeParticipantData(Participant participant)
-	{
-		participant.Email = participant.Email.Trim().ToLowerInvariant();
-		participant.FirstName = participant.FirstName.Trim();
-		participant.LastName = participant.LastName.Trim();
-		participant.Phone = participant.Phone.Trim();
 	}
 }

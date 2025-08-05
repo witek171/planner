@@ -4,7 +4,7 @@ namespace Schedule.Application.Interfaces.Services;
 
 public interface IParticipantService
 {
-	Task CreateAsync(Participant participant);
+	Task<Guid> CreateAsync(Participant participant);
 
 	Task PutAsync(Participant participant);
 

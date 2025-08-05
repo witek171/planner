@@ -1,9 +1,13 @@
-﻿namespace Schedule.Contracts.Dtos.Responses;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Schedule.Contracts.Dtos.Responses;
 
 public class StaffSpecializationResponse
 {
-	public Guid Id { get; set; }
-	public Guid CompanyId { get; set; }
-	public Guid StaffId { get; set; }
-	public Guid SpecializationId { get; set; }
+	[Required] public Guid SpecializationId { get; set; }
+
+	public StaffSpecializationResponse(Guid specializationId)
+	{
+		SpecializationId = specializationId;
+	}
 }

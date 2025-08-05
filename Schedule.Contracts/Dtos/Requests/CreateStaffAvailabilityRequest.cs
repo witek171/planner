@@ -1,11 +1,26 @@
-﻿namespace Schedule.Contracts.Dtos.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateStaffAvailabilityRequest
 {
-	public Guid CompanyId { get; set; }
-	public Guid StaffId { get; set; }
-	public DateOnly Date { get; set; }
-	public DateTime StartTime { get; set; }
-	public DateTime EndTime { get; set; }
-	public bool IsAvailable { get; set; } = true;
+	[Required] public Guid StaffId { get; set; }
+	[Required] public DateOnly Date { get; set; }
+	[Required] public DateTime StartTime { get; set; }
+	[Required] public DateTime EndTime { get; set; }
+	[Required] public bool IsAvailable { get; set; }
+
+	public CreateStaffAvailabilityRequest(
+		Guid staffId,
+		DateOnly date,
+		DateTime startTime,
+		DateTime endTime,
+		bool isAvailable)
+	{
+		StaffId = staffId;
+		Date = date;
+		StartTime = startTime;
+		EndTime = endTime;
+		IsAvailable = isAvailable;
+	}
 }

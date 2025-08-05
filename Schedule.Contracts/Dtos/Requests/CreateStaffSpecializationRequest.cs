@@ -1,8 +1,17 @@
-﻿namespace Schedule.Contracts.Dtos.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateStaffSpecializationRequest
 {
-	public Guid CompanyId { get; set; }
-	public Guid StaffId { get; set; }
-	public Guid SpecializationId { get; set; }
+	[Required] public Guid StaffId { get; set; }
+	[Required] public Guid SpecializationId { get; set; }
+
+	public CreateStaffSpecializationRequest(
+		Guid staffId,
+		Guid specializationId)
+	{
+		StaffId = staffId;
+		SpecializationId = specializationId;
+	}
 }

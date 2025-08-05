@@ -2,14 +2,14 @@
 
 public class Participant
 {
-	public Guid Id { get; private set; }
+	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
 	public string Email { get; private set; }
 	public string FirstName { get; private set; }
 	public string LastName { get; private set; }
 	public string Phone { get; private set; }
-	public bool GdprConsent { get; private set; }
-	public DateTime CreatedAt { get; private set; }
+	public bool GdprConsent { get; }
+	public DateTime CreatedAt { get; }
 
 	public Participant()
 	{
@@ -35,15 +35,16 @@ public class Participant
 		GdprConsent = gdprConsent;
 		CreatedAt = createdAt;
 	}
-	
+
 	public void SetCompanyId(Guid companyId)
 	{
 		if (CompanyId != Guid.Empty)
-			throw new InvalidOperationException("CompanyId can only be set once");
-		
+			throw new InvalidOperationException(
+				$"CompanyId is already set to {CompanyId} and cannot be changed");
+
 		CompanyId = companyId;
 	}
-	
+
 	public void Normalize()
 	{
 		Email = Email.Trim().ToLowerInvariant();
@@ -51,7 +52,7 @@ public class Participant
 		LastName = LastName.Trim();
 		Phone = Phone.Trim();
 	}
-	
+
 	public void Anonymize()
 	{
 		Email = "(deleted)";

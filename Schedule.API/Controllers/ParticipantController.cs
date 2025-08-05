@@ -30,10 +30,10 @@ public class ParticipantController : ControllerBase
 	)
 	{
 		Participant participant = _mapper.Map<Participant>(request);
-		participant.CompanyId = companyId;
+		participant.SetCompanyId(companyId);
 
-		await _participantService.CreateAsync(participant);
-		return CreatedAtAction(nameof(Create), participant.Id);
+		Guid participantId = await _participantService.CreateAsync(participant);
+		return CreatedAtAction(nameof(Create), participantId);
 	}
 
 	[HttpPut("{participantId:guid}")]

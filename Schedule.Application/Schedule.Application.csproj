@@ -3,10 +3,7 @@
 	<Import Project="..\Common\ProjectBase.props"/>
 
 	<ItemGroup>
-		<Folder Include="Interfaces\"/>
-	</ItemGroup>
-
-	<ItemGroup>
+		<ProjectReference Include="..\Schedule.Contracts\Schedule.Contracts.csproj" />
 		<ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj"/>
 	</ItemGroup>
 

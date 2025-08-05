@@ -27,6 +27,9 @@ public class Program
 			return new HealthCheckService(healthCheckUtils, logger, connectionString);
 		});
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
+		builder.Services.AddScoped<IParticipantRepository>(provider =>
+			new ParticipantRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IParticipantService, ParticipantService>();
 		builder.Services.AddAutoMapper(typeof(MappingProfile));
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
@@ -57,7 +60,6 @@ public class Program
 		app.UseHttpsRedirection();
 
 		app.UseAuthorization();
-
 
 		app.MapControllers();
 

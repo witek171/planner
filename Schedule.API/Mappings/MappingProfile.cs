@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Schedule.Contracts.Dtos;
+using Schedule.Contracts.Dtos.Requests;
+using Schedule.Contracts.Dtos.Responses;
 using Schedule.Domain.Models;
 
 namespace PlannerNet.Mappings;
@@ -8,17 +9,7 @@ public class MappingProfile : Profile
 {
 	public MappingProfile()
 	{
-		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusResponse>()
-			.ConstructUsing(src => new ApplicationHealthStatusResponse(
-					src.Version,
-					src.Environment,
-					src.Uptime,
-					src.MemoryUsage,
-					src.Status,
-					src.Timestamp,
-					src.Details
-				)
-			);
+		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusResponse>();
 
 		CreateMap<DatabaseHealthStatus, DatabaseHealthStatusResponse>()
 			.ConstructUsing(src => new DatabaseHealthStatusResponse(
@@ -30,5 +21,11 @@ public class MappingProfile : Profile
 					src.Details
 				)
 			);
+
+		CreateMap<ParticipantCreateRequest, Participant>();
+
+		CreateMap<Participant, ParticipantResponse>();
+
+		CreateMap<ParticipantUpdateRequest, Participant>();
 	}
 }

@@ -2,14 +2,14 @@
 
 public class Participant
 {
-	public Guid Id { get; set; }
-	public Guid CompanyId { get; set; }
-	public string Email { get; set; }
-	public string FirstName { get; set; }
-	public string LastName { get; set; }
-	public string Phone { get; set; }
-	public bool GdprConsent { get; set; }
-	public DateTime CreatedAt { get; set; }
+	public Guid Id { get; private set; }
+	public Guid CompanyId { get; private set; }
+	public string Email { get; private set; }
+	public string FirstName { get; private set; }
+	public string LastName { get; private set; }
+	public string Phone { get; private set; }
+	public bool GdprConsent { get; private set; }
+	public DateTime CreatedAt { get; private set; }
 
 	public Participant()
 	{
@@ -34,5 +34,28 @@ public class Participant
 		Phone = phone;
 		GdprConsent = gdprConsent;
 		CreatedAt = createdAt;
+	}
+	
+	public void SetCompanyId(Guid companyId)
+	{
+		if (CompanyId != Guid.Empty)
+			throw new InvalidOperationException("CompanyId can only be set once");
+		
+		CompanyId = companyId;
+	}
+	
+	public void Normalize()
+	{
+		Email = Email.Trim().ToLowerInvariant();
+		FirstName = FirstName.Trim();
+		LastName = LastName.Trim();
+		Phone = Phone.Trim();
+	}
+	
+	public void Anonymize()
+	{
+		Email = "(deleted)";
+		LastName = LastName[0] + " (deleted)";
+		Phone = "(deleted)";
 	}
 }

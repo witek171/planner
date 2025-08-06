@@ -68,10 +68,10 @@ CREATE TABLE CompanyHierarchy
 (
     CompanyId       UNIQUEIDENTIFIER PRIMARY KEY,
     ParentCompanyId UNIQUEIDENTIFIER,
-    CONSTRAINT fk_ch_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_ch_parent FOREIGN KEY (ParentCompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    CONSTRAINT fk_ch_company FOREIGN KEY (CompanyId) 
+            REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT fk_ch_parent FOREIGN KEY (ParentCompanyId) 
+            REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Staff (personel)
@@ -88,7 +88,7 @@ CREATE TABLE Staff
     CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
     IsDeleted BIT                          DEFAULT 0,
     CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela Participants (uczestnicy)
@@ -103,7 +103,7 @@ CREATE TABLE Participants
     GdprConsent BIT              NOT NULL,
     CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
     CONSTRAINT fk_participants_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela Specializations (specjalizacje)
@@ -114,7 +114,7 @@ CREATE TABLE Specializations
     Name        NVARCHAR(100)    NOT NULL,
     Description NVARCHAR(MAX),
     CONSTRAINT fk_specializations_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela StaffSpecializations (specjalizacje personelu)
@@ -125,7 +125,7 @@ CREATE TABLE StaffSpecializations
     StaffId          UNIQUEIDENTIFIER NOT NULL,
     SpecializationId UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_staffspec_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_staffspec_staff FOREIGN KEY (StaffId)
         REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_staffspec_specialization FOREIGN KEY (SpecializationId)
@@ -143,7 +143,7 @@ CREATE TABLE StaffAvailability
     EndTime     DATETIME         NOT NULL,
     IsAvailable BIT                          DEFAULT 1,
     CONSTRAINT fk_staffavail_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffId)
         REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
@@ -160,7 +160,7 @@ CREATE TABLE EventTypes
     MaxParticipants INT,
     MinStaff        INT                          DEFAULT 1,
     CONSTRAINT fk_eventtypes_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela EventSchedules (harmonogramy wydarzeń)
@@ -174,7 +174,7 @@ CREATE TABLE EventSchedules
     CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
     Status      NVARCHAR(20)                 DEFAULT 'Active',
     CONSTRAINT fk_eventschedules_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_eventschedules_eventtype FOREIGN KEY (EventTypeId)
         REFERENCES EventTypes (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -190,7 +190,7 @@ CREATE TABLE EventScheduleStaff
     EventScheduleId UNIQUEIDENTIFIER NOT NULL,
     StaffId         UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_eventstaff_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_eventstaff_schedule FOREIGN KEY (EventScheduleId)
         REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_eventstaff_staff FOREIGN KEY (StaffId)
@@ -211,7 +211,7 @@ CREATE TABLE Reservations
     CancelledAt      DATETIME         NULL,
     PaidAt           DATETIME         NULL,
     CONSTRAINT fk_reservations_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_reservations_participant FOREIGN KEY (ParticipantId)
         REFERENCES Participants (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_reservations_eventschedule FOREIGN KEY (EventScheduleId)
@@ -231,7 +231,7 @@ CREATE TABLE Notifications
     EmailContent  NVARCHAR(MAX),
     SmsContent    NVARCHAR(MAX),
     CONSTRAINT fk_notifications_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_notifications_reservation FOREIGN KEY (ReservationId)
         REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -246,7 +246,7 @@ CREATE TABLE Messages
     Content    NVARCHAR(MAX)    NOT NULL,
     CreatedAt  DATETIME                     DEFAULT GETUTCDATE(),
     CONSTRAINT fk_messages_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_messages_sender FOREIGN KEY (SenderId)
         REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_messages_receiver FOREIGN KEY (ReceiverId)

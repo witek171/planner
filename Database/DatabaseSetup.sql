@@ -88,8 +88,7 @@ CREATE TABLE Staff
     CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
     IsDeleted BIT                          DEFAULT 0,
     CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_staff_role CHECK (Role IN ('ReceptionEmployee', 'Trainer', 'Manager'))
+        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Participants (uczestnicy)
@@ -177,8 +176,7 @@ CREATE TABLE EventSchedules
     CONSTRAINT fk_eventschedules_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_eventschedules_eventtype FOREIGN KEY (EventTypeId)
-        REFERENCES EventTypes (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_eventschedules_status CHECK (Status IN ('Active', 'Completed'))
+        REFERENCES EventTypes (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Indeks na EventSchedules
@@ -217,8 +215,7 @@ CREATE TABLE Reservations
     CONSTRAINT fk_reservations_participant FOREIGN KEY (ParticipantId)
         REFERENCES Participants (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_reservations_eventschedule FOREIGN KEY (EventScheduleId)
-        REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_reservations_status CHECK (Status IN ('Confirmed', 'Cancelled'))
+        REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Notifications (powiadomienia)
@@ -236,9 +233,7 @@ CREATE TABLE Notifications
     CONSTRAINT fk_notifications_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_notifications_reservation FOREIGN KEY (ReservationId)
-        REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_notifications_email_status CHECK (EmailStatus IN ('Sent', 'Failed', 'Pending')),
-    CONSTRAINT chk_notifications_sms_status CHECK (SmsStatus IN ('Sent', 'Failed', 'Pending'))
+        REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Messages (wiadomości)

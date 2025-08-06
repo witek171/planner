@@ -9,7 +9,7 @@ public interface IStaffService
 		Guid id,
 		Guid companyId);
 	Task<Guid> CreateAsync(Staff staff);
-	Task UpdateAsync(Staff staff);
+	Task PutAsync(Staff staff);
 	Task DeleteAsync(
 		Guid id,
 		Guid companyId);

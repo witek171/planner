@@ -31,7 +31,7 @@ public class StaffService : IStaffService
 		return await _repository.CreateAsync(staff);
 	}
 
-	public async Task UpdateAsync(Staff staff)
+	public async Task PutAsync(Staff staff)
 	{
 		staff.Normalize();
 		await _repository.PutAsync(staff);

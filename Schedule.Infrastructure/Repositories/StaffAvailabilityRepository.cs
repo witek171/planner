@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
-using Schedule.Domain.Models.StaffRelated;
+using Schedule.Domain.Models;
 
 namespace Schedule.Infrastructure.Repositories;
 

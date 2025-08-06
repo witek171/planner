@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
+using Schedule.Domain.Models;
 using Schedule.Domain.Models.Enums;
-using Schedule.Domain.Models.StaffRelated;
 
 namespace Schedule.Infrastructure.Repositories;
 

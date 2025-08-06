@@ -1,4 +1,4 @@
-﻿namespace Schedule.Domain.Models.StaffRelated;
+﻿namespace Schedule.Domain.Models;
 
 public class StaffAvailability
 {

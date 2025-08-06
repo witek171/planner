@@ -1,4 +1,4 @@
-﻿using Schedule.Domain.Models.StaffRelated;
+﻿using Schedule.Domain.Models;
 
 namespace Schedule.Application.Interfaces.Repositories;
 

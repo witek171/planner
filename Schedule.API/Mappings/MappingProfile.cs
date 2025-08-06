@@ -2,7 +2,6 @@
 using Schedule.Contracts.Dtos.Requests;
 using Schedule.Contracts.Dtos.Responses;
 using Schedule.Domain.Models;
-using Schedule.Domain.Models.StaffRelated;
 
 namespace PlannerNet.Mappings;
 

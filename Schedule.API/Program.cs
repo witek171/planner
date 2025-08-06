@@ -15,9 +15,25 @@ public class Program
 	{
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-		// Add services to the container.
-
 		builder.Services.AddControllers();
+		builder.Services.AddAutoMapper(typeof(MappingProfile));
+		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
+
+		// Repositories
+		builder.Services.AddScoped<IParticipantRepository>(provider =>
+			new ParticipantRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffRepository>(provider =>
+			new StaffRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffSpecializationRepository>(provider =>
+			new StaffSpecializationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffAvailabilityRepository>(provider =>
+			new StaffAvailabilityRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventScheduleStaffRepository>(provider =>
+			new EventScheduleStaffRepository(EnvironmentService.SqlConnectionString));
+
+		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>
 		{
 			IHealthCheckUtils healthCheckUtils = provider.GetRequiredService<IHealthCheckUtils>();
@@ -26,26 +42,13 @@ public class Program
 
 			return new HealthCheckService(healthCheckUtils, logger, connectionString);
 		});
-		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
-		builder.Services.AddScoped<IParticipantRepository>(provider =>
-			new ParticipantRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IParticipantService, ParticipantService>();
-		builder.Services.AddAutoMapper(typeof(MappingProfile));
-		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-		builder.Services.AddEndpointsApiExplorer();
-		builder.Services.AddSwaggerGen();
-
-		// Repositories
-		builder.Services.AddScoped<IStaffRepository, StaffRepository>();
-		builder.Services.AddScoped<IStaffSpecializationRepository, StaffSpecializationRepository>();
-		builder.Services.AddScoped<IStaffAvailabilityRepository, StaffAvailabilityRepository>();
-		builder.Services.AddScoped<IEventScheduleStaffRepository, EventScheduleStaffRepository>();
-
-		// Services
 		builder.Services.AddScoped<IStaffService, StaffService>();
 		builder.Services.AddScoped<IStaffSpecializationService, StaffSpecializationService>();
 		builder.Services.AddScoped<IStaffAvailabilityService, StaffAvailabilityService>();
 		builder.Services.AddScoped<IEventScheduleStaffService, EventScheduleStaffService>();
+
+		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 
 		WebApplication app = builder.Build();
 

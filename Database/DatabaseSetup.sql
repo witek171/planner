@@ -127,7 +127,7 @@ CREATE TABLE StaffSpecializations
     CONSTRAINT fk_staffspec_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_staffspec_staff FOREIGN KEY (StaffId)
-        REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+        REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_staffspec_specialization FOREIGN KEY (SpecializationId)
         REFERENCES Specializations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -145,7 +145,7 @@ CREATE TABLE StaffAvailability
     CONSTRAINT fk_staffavail_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffId)
-        REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION
+        REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela EventTypes (typy wydarzeń)

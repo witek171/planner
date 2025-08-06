@@ -30,11 +30,11 @@ public class StaffAvailabilityService : IStaffAvailabilityService
 
 	public async Task UpdateAsync(StaffAvailability availability)
 	{
-		await _repository.UpdateAsync(availability);
+		await _repository.PutAsync(availability);
 	}
 
 	public async Task DeleteAsync(Guid id)
 	{
-		await _repository.DeleteAsync(id);
+		await _repository.DeleteByIdAsync(id);
 	}
 }

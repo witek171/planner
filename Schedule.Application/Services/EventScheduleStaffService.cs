@@ -15,7 +15,7 @@ public class EventScheduleStaffService : IEventScheduleStaffService
 
 	public async Task<List<EventScheduleStaff>> GetByEventIdAsync(Guid eventId)
 	{
-		return await _repository.GetByEventIdAsync(eventId);
+		return await _repository.GetByEventScheduleIdAsync(eventId);
 	}
 
 	public async Task<Guid> CreateAsync(EventScheduleStaff entity)
@@ -25,7 +25,7 @@ public class EventScheduleStaffService : IEventScheduleStaffService
 
 	public async Task DeleteAsync(Guid id)
 	{
-		await _repository.DeleteAsync(id);
+		await _repository.DeleteByIdAsync(id);
 	}
 }
 

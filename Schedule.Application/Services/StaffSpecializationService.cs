@@ -25,6 +25,6 @@ public class StaffSpecializationService : IStaffSpecializationService
 
 	public async Task DeleteAsync(Guid id)
 	{
-		await _repository.DeleteAsync(id);
+		await _repository.DeleteByIdAsync(id);
 	}
 }

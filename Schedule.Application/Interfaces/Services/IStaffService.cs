@@ -8,5 +8,5 @@ public interface IStaffService
 	Task<Staff?> GetByIdAsync(Guid id);
 	Task<Guid> CreateAsync(Staff staff);
 	Task UpdateAsync(Staff staff);
-	Task DeleteAsync(Guid id);
+	Task DeleteAsync(Guid id, Guid companyId);
 }

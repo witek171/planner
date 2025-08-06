@@ -13,28 +13,42 @@ public class StaffService : IStaffService
 		_repository = repository;
 	}
 
-	public async Task<List<Staff>> GetAllAsync()
+	public async Task<List<Staff>> GetAllAsync(Guid companyId)
 	{
-		return await _repository.GetAllAsync();
+		return await _repository.GetAllAsync(companyId);
 	}
 
-	public async Task<Staff?> GetByIdAsync(Guid id)
+	public async Task<Staff?> GetByIdAsync(
+		Guid id,
+		Guid companyId)
 	{
-		return await _repository.GetByIdAsync(id);
+		return await _repository.GetByIdAsync(id, companyId);
 	}
 
 	public async Task<Guid> CreateAsync(Staff staff)
 	{
+		staff.Normalize();
 		return await _repository.CreateAsync(staff);
 	}
 
 	public async Task UpdateAsync(Staff staff)
 	{
+		staff.Normalize();
 		await _repository.PutAsync(staff);
 	}
 
-	public async Task DeleteAsync(Guid id, Guid companyId)
+	public async Task DeleteAsync(
+		Guid id,
+		Guid companyId)
 	{
-		await _repository.DeleteByIdAsync(id);
+		if (await _repository.HasRelatedRecordsAsync(id, companyId))
+		{
+			Staff staffMember = (await _repository.GetByIdAsync(id, companyId))!;
+			staffMember.SoftDelete();
+		}
+		else
+		{
+			await _repository.DeleteByIdAsync(id, companyId);
+		}
 	}
 }

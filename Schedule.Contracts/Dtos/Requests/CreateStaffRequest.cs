@@ -5,13 +5,6 @@ namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateStaffRequest
 {
-	[Required] public StaffRole Role { get; set; }
-	[Required] [EmailAddress] public string Email { get; set; }
-	[Required] public string Password { get; set; }
-	[Required] [MaxLength(40)] public string FirstName { get; set; }
-	[Required] [MaxLength(40)] public string LastName { get; set; }
-	[Required] [Phone] public string Phone { get; set; }
-
 	public CreateStaffRequest(
 		StaffRole role,
 		string email,
@@ -27,4 +20,11 @@ public class CreateStaffRequest
 		LastName = lastName;
 		Phone = phone;
 	}
+
+	[Required] public StaffRole Role { get; }
+	[Required] [EmailAddress] public string Email { get; }
+	[Required] public string Password { get; }
+	[Required] [MaxLength(40)] public string FirstName { get; }
+	[Required] [MaxLength(40)] public string LastName { get; }
+	[Required] [Phone] public string Phone { get; }
 }

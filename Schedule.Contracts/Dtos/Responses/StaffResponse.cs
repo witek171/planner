@@ -4,12 +4,6 @@ namespace Schedule.Contracts.Dtos.Responses;
 
 public class StaffResponse
 {
-	[Required] public string Role { get; set; }
-	[Required] public string Email { get; set; }
-	[Required] public string FirstName { get; set; }
-	[Required] public string LastName { get; set; }
-	[Required] public string Phone { get; set; }
-
 	public StaffResponse(
 		string role,
 		string email,
@@ -23,4 +17,10 @@ public class StaffResponse
 		LastName = lastName;
 		Phone = phone;
 	}
+
+	[Required] public string Role { get; }
+	[Required] public string Email { get; }
+	[Required] public string FirstName { get; }
+	[Required] public string LastName { get; }
+	[Required] public string Phone { get; }
 }

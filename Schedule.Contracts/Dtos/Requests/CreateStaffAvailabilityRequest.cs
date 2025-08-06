@@ -4,12 +4,6 @@ namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateStaffAvailabilityRequest
 {
-	[Required] public Guid StaffId { get; set; }
-	[Required] public DateOnly Date { get; set; }
-	[Required] public DateTime StartTime { get; set; }
-	[Required] public DateTime EndTime { get; set; }
-	[Required] public bool IsAvailable { get; set; }
-
 	public CreateStaffAvailabilityRequest(
 		Guid staffId,
 		DateOnly date,
@@ -23,4 +17,10 @@ public class CreateStaffAvailabilityRequest
 		EndTime = endTime;
 		IsAvailable = isAvailable;
 	}
+
+	[Required] public Guid StaffId { get; }
+	[Required] public DateOnly Date { get; }
+	[Required] public DateTime StartTime { get; }
+	[Required] public DateTime EndTime { get; }
+	[Required] public bool IsAvailable { get; }
 }

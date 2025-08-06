@@ -4,9 +4,6 @@ namespace Schedule.Contracts.Dtos.Requests;
 
 public class CreateEventScheduleStaffRequest
 {
-	[Required] public Guid EventScheduleId { get; set; }
-	[Required] public Guid StaffId { get; set; }
-
 	public CreateEventScheduleStaffRequest(
 		Guid eventScheduleId,
 		Guid staffId)
@@ -14,4 +11,7 @@ public class CreateEventScheduleStaffRequest
 		EventScheduleId = eventScheduleId;
 		StaffId = staffId;
 	}
+
+	[Required] public Guid EventScheduleId { get; }
+	[Required] public Guid StaffId { get; }
 }

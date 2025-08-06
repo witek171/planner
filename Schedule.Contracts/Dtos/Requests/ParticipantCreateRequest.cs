@@ -4,16 +4,6 @@ namespace Schedule.Contracts.Dtos.Requests;
 
 public class ParticipantCreateRequest
 {
-	[Required] [EmailAddress] public string Email { get; set; }
-
-	[Required] [StringLength(40)] public string FirstName { get; set; }
-
-	[Required] [StringLength(40)] public string LastName { get; set; }
-
-	[Required] [Phone] public string Phone { get; set; }
-
-	[Required] public bool GdprConsent { get; set; }
-
 	public ParticipantCreateRequest(
 		string email,
 		string firstName,
@@ -28,4 +18,14 @@ public class ParticipantCreateRequest
 		Phone = phone;
 		GdprConsent = gdprConsent;
 	}
+
+	[Required] [EmailAddress] public string Email { get; }
+
+	[Required] [StringLength(40)] public string FirstName { get; }
+
+	[Required] [StringLength(40)] public string LastName { get; }
+
+	[Required] [Phone] public string Phone { get; }
+
+	[Required] public bool GdprConsent { get; }
 }

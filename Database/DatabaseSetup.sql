@@ -86,6 +86,7 @@ CREATE TABLE Staff
     LastName  NVARCHAR(100)    NOT NULL,
     Phone     NVARCHAR(30)     NOT NULL UNIQUE,
     CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
+    IsDeleted BIT                          DEFAULT 0,
     CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT chk_staff_role CHECK (Role IN ('ReceptionEmployee', 'Trainer', 'Manager'))

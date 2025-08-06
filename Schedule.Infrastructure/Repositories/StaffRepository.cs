@@ -46,7 +46,7 @@ public class StaffRepository : IStaffRepository
 			FirstName = @FirstName,
 			LastName = @LastName,
 			Phone = @Phone
-			WHERE Id = @Id
+			WHERE Id = @Id AND CompanyId = @CompanyId
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -86,17 +86,21 @@ public class StaffRepository : IStaffRepository
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<Staff>> GetAllAsync()
+	public async Task<List<Staff>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt
+			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt, IsDeleted
 			FROM Staff
+			WHERE CompanyId = @CompanyId AND IsDeleted = 0
+			ORDER BY CreatedAt DESC
 		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		List<Staff> staves = new();
@@ -111,18 +115,21 @@ public class StaffRepository : IStaffRepository
 				reader.GetString(reader.GetOrdinal("FirstName")),
 				reader.GetString(reader.GetOrdinal("LastName")),
 				reader.GetString(reader.GetOrdinal("Phone")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
+				reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+				reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
 			));
 
 		return staves;
 	}
 
-	public async Task<Staff?> GetByIdAsync(Guid staffId)
+	public async Task<Staff?> GetByIdAsync(
+		Guid staffId,
+		Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt
+			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt, IsDeleted
 			FROM Staff 
-			WHERE Id = @Id
+			WHERE Id = @Id AND CompanyId = @CompanyId AND IsDeleted = 0
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -130,6 +137,7 @@ public class StaffRepository : IStaffRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
@@ -145,7 +153,39 @@ public class StaffRepository : IStaffRepository
 			reader.GetString(reader.GetOrdinal("FirstName")),
 			reader.GetString(reader.GetOrdinal("LastName")),
 			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
+			reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+			reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
 		);
+	}
+
+	public async Task<bool> HasRelatedRecordsAsync(
+		Guid staffId,
+		Guid companyId)
+	{
+		const string sql = @"
+			SELECT CASE 
+			WHEN EXISTS (
+			    SELECT 1 FROM EventScheduleStaff WHERE StaffId = @StaffId AND CompanyId = @CompanyId
+			) 
+			OR EXISTS (
+			    SELECT 1 FROM StaffAvailability WHERE StaffId = @StaffId AND CompanyId = @CompanyId  
+			)
+			OR EXISTS (
+			    SELECT 1 FROM StaffSpecializations WHERE StaffId = @StaffId AND CompanyId = @CompanyId
+			)
+			THEN CAST(1 AS BIT)
+			ELSE CAST(0 AS BIT)
+			END
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@StaffId", staffId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		object result = (await command.ExecuteScalarAsync())!;
+		return (bool)result;
 	}
 }

@@ -5,7 +5,7 @@ namespace Schedule.Domain.Models.StaffRelated;
 public class Staff
 {
 	public Guid Id { get; }
-	public Guid CompanyId { get; }
+	public Guid CompanyId { get; private set; }
 	public StaffRole Role { get; }
 	public string Email { get; }
 	public string Password { get; }
@@ -34,5 +34,14 @@ public class Staff
 		LastName = lastName;
 		Phone = phone;
 		CreatedAt = createdAt;
+	}
+
+	public void SetCompanyId(Guid companyId)
+	{
+		if (CompanyId != Guid.Empty)
+			throw new InvalidOperationException(
+				$"CompanyId is already set to {CompanyId} and cannot be changed");
+
+		CompanyId = companyId;
 	}
 }

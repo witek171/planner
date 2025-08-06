@@ -13,6 +13,7 @@ public class Staff
 	public string LastName { get; }
 	public string Phone { get; }
 	public DateTime CreatedAt { get; }
+	public bool IsDeleted { get; }
 
 	public Staff(
 		Guid id,
@@ -23,7 +24,8 @@ public class Staff
 		string firstName,
 		string lastName,
 		string phone,
-		DateTime createdAt)
+		DateTime createdAt,
+		bool isDeleted)
 	{
 		Id = id;
 		CompanyId = companyId;
@@ -34,6 +36,7 @@ public class Staff
 		LastName = lastName;
 		Phone = phone;
 		CreatedAt = createdAt;
+		IsDeleted = isDeleted;
 	}
 
 	public void SetCompanyId(Guid companyId)

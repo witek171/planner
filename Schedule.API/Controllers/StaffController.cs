@@ -8,7 +8,7 @@ using Schedule.Domain.Models.StaffRelated;
 namespace PlannerNet.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/[controller]/{companyId:guid}")]
 public class StaffController : ControllerBase
 {
 	private readonly IStaffService _staffService;
@@ -18,11 +18,11 @@ public class StaffController : ControllerBase
 	private readonly IMapper _mapper;
 
 	public StaffController(
-	IStaffService staffService,
-	IStaffSpecializationService specializationService,
-	IStaffAvailabilityService availabilityService,
-	IEventScheduleStaffService eventScheduleStaffService,
-	IMapper mapper)
+		IStaffService staffService,
+		IStaffSpecializationService specializationService,
+		IStaffAvailabilityService availabilityService,
+		IEventScheduleStaffService eventScheduleStaffService,
+		IMapper mapper)
 	{
 		_staffService = staffService;
 		_specializationService = specializationService;
@@ -31,51 +31,54 @@ public class StaffController : ControllerBase
 		_mapper = mapper;
 	}
 
-	[HttpGet]
+	[HttpGet("all")]
 	public async Task<ActionResult<List<StaffResponse>>> GetAll()
 	{
 		List<Staff> staffList = await _staffService.GetAllAsync();
-		return Ok(_mapper.Map<List<StaffResponse>>(staffList));
+
+		List<StaffResponse> response = _mapper.Map<List<StaffResponse>>(staffList);
+		return Ok(response);
 	}
 
-	[HttpGet("{id}")]
-	public async Task<ActionResult<StaffResponse>> GetById(Guid id)
+	[HttpGet("byId")]
+	public async Task<ActionResult<StaffResponse>> GetById(Guid staffId)
 	{
-		Staff? staff = await _staffService.GetByIdAsync(id);
-		if (staff == null)
-			return NotFound();
+		Staff? staff = await _staffService.GetByIdAsync(staffId);
 
-		return Ok(_mapper.Map<StaffResponse>(staff));
+		StaffResponse response = _mapper.Map<StaffResponse>(staff);
+		return Ok(response);
 	}
 
 	[HttpPost]
-	public async Task<ActionResult<Guid>> Create([FromBody] CreateStaffRequest request)
+	public async Task<ActionResult<Guid>> Create(
+		Guid companyId,
+		[FromBody] CreateStaffRequest request)
 	{
 		Staff? staff = _mapper.Map<Staff>(request);
-		Guid id = await _staffService.CreateAsync(staff);
-		return Ok(id);
+		staff.SetCompanyId(companyId);
+
+		Guid staffId = await _staffService.CreateAsync(staff);
+		return CreatedAtAction(nameof(Create), staffId);
 	}
 
-	[HttpPut("{id}")]
-	public async Task<ActionResult> Update(Guid id, [FromBody] UpdateStaffRequest request)
+	[HttpPut("{staffId:guid}")]
+	public async Task<ActionResult> Put(
+		Guid staffId,
+		[FromBody] UpdateStaffRequest request)
 	{
-		Staff? existing = await _staffService.GetByIdAsync(id);
-		if (existing == null)
-			return NotFound();
+		Staff? staff = await _staffService.GetByIdAsync(staffId);
 
-		existing.Role = request.Role;
-		existing.FirstName = request.FirstName;
-		existing.LastName = request.LastName;
-		existing.Phone = request.Phone;
 
-		await _staffService.UpdateAsync(existing);
+		await _staffService.UpdateAsync(staff);
 		return NoContent();
 	}
 
-	[HttpDelete("{id}")]
-	public async Task<ActionResult> Delete(Guid id)
+	[HttpDelete("{staffId:guid}")]
+	public async Task<ActionResult> Delete(
+		Guid companyId,
+		Guid staffId)
 	{
-		await _staffService.DeleteAsync(id);
+		await _staffService.DeleteAsync(staffId, companyId);
 		return NoContent();
 	}
 
@@ -83,11 +86,14 @@ public class StaffController : ControllerBase
 	public async Task<ActionResult<List<StaffSpecializationResponse>>> GetSpecializations(Guid staffId)
 	{
 		List<StaffSpecialization> list = await _specializationService.GetByStaffIdAsync(staffId);
-		return Ok(_mapper.Map<List<StaffSpecializationResponse>>(list));
+		
+		List<StaffSpecializationResponse> responses = _mapper.Map<List<StaffSpecializationResponse>>(list);
+		return Ok(responses);
 	}
 
 	[HttpPost("{staffId}/specializations")]
-	public async Task<ActionResult<Guid>> AddSpecialization(Guid staffId, [FromBody] CreateStaffSpecializationRequest request)
+	public async Task<ActionResult<Guid>> AddSpecialization(Guid staffId,
+		[FromBody] CreateStaffSpecializationRequest request)
 	{
 		if (staffId != request.StaffId)
 			return BadRequest("StaffId in route does not match body.");
@@ -108,21 +114,24 @@ public class StaffController : ControllerBase
 	public async Task<ActionResult<List<StaffAvailabilityResponse>>> GetAvailabilityByStaffId(Guid staffId)
 	{
 		List<StaffAvailability> list = await _availabilityService.GetByStaffIdAsync(staffId);
-		return Ok(_mapper.Map<List<StaffAvailabilityResponse>>(list));
+		
+		List<StaffAvailabilityResponse> responses = _mapper.Map<List<StaffAvailabilityResponse>>(list);
+		return Ok(responses);
 	}
 
 	[HttpGet("availability/{id}")]
 	public async Task<ActionResult<StaffAvailabilityResponse>> GetAvailabilityById(Guid id)
 	{
 		StaffAvailability? availability = await _availabilityService.GetByIdAsync(id);
-		if (availability == null)
-			return NotFound();
 
-		return Ok(_mapper.Map<StaffAvailabilityResponse>(availability));
+		StaffAvailabilityResponse response = _mapper.Map<StaffAvailabilityResponse>(availability);
+		return Ok(response);
 	}
 
 	[HttpPost("{staffId}/availability")]
-	public async Task<ActionResult<Guid>> CreateAvailability(Guid staffId, [FromBody] CreateStaffAvailabilityRequest request)
+	public async Task<ActionResult<Guid>> CreateAvailability(
+		Guid staffId,
+		[FromBody] CreateStaffAvailabilityRequest request)
 	{
 		if (staffId != request.StaffId)
 			return BadRequest("StaffId in route does not match body.");
@@ -133,7 +142,9 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpPut("availability/{id}")]
-	public async Task<ActionResult> UpdateAvailability(Guid id, [FromBody] UpdateStaffAvailabilityRequest request)
+	public async Task<ActionResult> UpdateAvailability(
+		Guid id,
+		[FromBody] UpdateStaffAvailabilityRequest request)
 	{
 		StaffAvailability? existing = await _availabilityService.GetByIdAsync(id);
 		if (existing == null)
@@ -163,7 +174,8 @@ public class StaffController : ControllerBase
 	}
 
 	[HttpPost("eventschedules/{eventId}/staff")]
-	public async Task<ActionResult<Guid>> AssignStaffToEvent(Guid eventId, [FromBody] CreateEventScheduleStaffRequest request)
+	public async Task<ActionResult<Guid>> AssignStaffToEvent(Guid eventId,
+		[FromBody] CreateEventScheduleStaffRequest request)
 	{
 		if (eventId != request.EventScheduleId)
 			return BadRequest("EventScheduleId in route does not match body.");

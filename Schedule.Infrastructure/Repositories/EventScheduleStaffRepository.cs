@@ -1,73 +1,84 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models.StaffRelated;
-using Schedule.Infrastructure.Repositories.Common;
-using Schedule.Infrastructure.Services;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class EventScheduleStaffRepository : BaseRepository, IEventScheduleStaffRepository
+public class EventScheduleStaffRepository : IEventScheduleStaffRepository
 {
-	public EventScheduleStaffRepository() : base(new SqlConnection(EnvironmentService.SqlConnectionString)) { }
+	private readonly string _connectionString;
 
-	public async Task<List<EventScheduleStaff>> GetByEventIdAsync(Guid eventId)
+	public EventScheduleStaffRepository(string connectionString)
 	{
-		List<EventScheduleStaff> result = new List<EventScheduleStaff>();
+		_connectionString = connectionString;
+	}
 
-		using SqlCommand command = _connection.CreateCommand();
-		command.CommandText = """
+	public async Task<Guid> CreateAsync(EventScheduleStaff eventScheduleStaff)
+	{
+		const string sql = @"
+			INSERT INTO EventScheduleStaff (CompanyId, EventScheduleId, StaffId)
+			OUTPUT INSERTED.Id
+			VALUES (@CompanyId, @EventScheduleId, @StaffId)
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", eventScheduleStaff.CompanyId);
+		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleStaff.EventScheduleId);
+		command.Parameters.AddWithValue("@StaffId", eventScheduleStaff.StaffId);
+
+		object result = (await command.ExecuteScalarAsync())!;
+		return (Guid)result;
+	}
+
+	public async Task<bool> DeleteByIdAsync(
+		Guid eventScheduleStaffId,
+		Guid companyId)
+	{
+		const string sql = @"
+			DELETE FROM EventScheduleStaff 
+			WHERE CompanyId = @CompanyId AND Id = @Id
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Id", eventScheduleStaffId);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
+
+	public async Task<List<EventScheduleStaff>> GetByEventScheduleIdAsync(Guid eventId)
+	{
+		const string sql = @"
 			SELECT Id, CompanyId, EventScheduleId, StaffId
 			FROM EventScheduleStaff
 			WHERE EventScheduleId = @EventScheduleId
-		""";
-		AddParameter(command, "@EventScheduleId", eventId);
+		";
 
-		_connection.Open();
-		using SqlDataReader reader = await command.ExecuteReaderAsync();
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@EventScheduleId", eventId);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		List<EventScheduleStaff> eventScheduleStaves = new();
+
 		while (await reader.ReadAsync())
-		{
-			result.Add(new EventScheduleStaff
-			{
-				Id = reader.GetGuid(0),
-				CompanyId = reader.GetGuid(1),
-				EventScheduleId = reader.GetGuid(2),
-				StaffId = reader.GetGuid(3)
-			});
-		}
-		_connection.Close();
+			eventScheduleStaves.Add(new EventScheduleStaff(
+				reader.GetGuid(reader.GetOrdinal("Id")),
+				reader.GetGuid(reader.GetOrdinal("CompanyId")),
+				reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
+				reader.GetGuid(reader.GetOrdinal("StaffId"))
+			));
 
-		return result;
-	}
-
-	public async Task<Guid> CreateAsync(EventScheduleStaff entity)
-	{
-		entity.Id = Guid.NewGuid();
-
-		using SqlCommand command = _connection.CreateCommand();
-		command.CommandText = """
-			INSERT INTO EventScheduleStaff (Id, CompanyId, EventScheduleId, StaffId)
-			VALUES (@Id, @CompanyId, @EventScheduleId, @StaffId)
-		""";
-		AddParameter(command, "@Id", entity.Id);
-		AddParameter(command, "@CompanyId", entity.CompanyId);
-		AddParameter(command, "@EventScheduleId", entity.EventScheduleId);
-		AddParameter(command, "@StaffId", entity.StaffId);
-
-		_connection.Open();
-		await command.ExecuteNonQueryAsync();
-		_connection.Close();
-
-		return entity.Id;
-	}
-
-	public async Task DeleteAsync(Guid id)
-	{
-		using SqlCommand command = _connection.CreateCommand();
-		command.CommandText = "DELETE FROM EventScheduleStaff WHERE Id = @Id";
-		AddParameter(command, "@Id", id);
-
-		_connection.Open();
-		await command.ExecuteNonQueryAsync();
-		_connection.Close();
+		return eventScheduleStaves;
 	}
 }

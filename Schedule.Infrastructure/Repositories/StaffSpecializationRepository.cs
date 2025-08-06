@@ -1,74 +1,83 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models.StaffRelated;
-using Schedule.Infrastructure.Repositories.Common;
-using Schedule.Infrastructure.Services;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffSpecializationRepository : BaseRepository, IStaffSpecializationRepository
+public class StaffSpecializationRepository : IStaffSpecializationRepository
 {
-	public StaffSpecializationRepository() : base(new SqlConnection(EnvironmentService.SqlConnectionString)) { }
+	private readonly string _connectionString;
 
-	public async Task<List<StaffSpecialization>> GetByStaffIdAsync(Guid staffId)
+	public StaffSpecializationRepository(string connectionString)
 	{
-        List<StaffSpecialization> result = new List<StaffSpecialization>();
-
-		using SqlCommand command = _connection.CreateCommand();
-		command.CommandText = """
-			SELECT Id, CompanyId, StaffId, SpecializationId
-			FROM StaffSpecializations
-			WHERE StaffId = @StaffId
-		""";
-		AddParameter(command, "@StaffId", staffId);
-
-		await _connection.OpenAsync();
-		using SqlDataReader reader = await command.ExecuteReaderAsync();
-		while (await reader.ReadAsync())
-		{
-			result.Add(new StaffSpecialization
-			{
-				Id = reader.GetGuid(0),
-				CompanyId = reader.GetGuid(1),
-				StaffId = reader.GetGuid(2),
-				SpecializationId = reader.GetGuid(3)
-			});
-		}
-		await _connection.CloseAsync();
-
-		return result;
+		_connectionString = connectionString;
 	}
 
 	public async Task<Guid> CreateAsync(StaffSpecialization specialization)
 	{
-		using SqlCommand command = _connection.CreateCommand();
-		command.CommandText = """
-			INSERT INTO StaffSpecializations (Id, CompanyId, StaffId, SpecializationId)
-			VALUES (@Id, @CompanyId, @StaffId, @SpecializationId)
-		""";
+		const string sql = @"
+			INSERT INTO StaffSpecializations (CompanyId, StaffId, SpecializationId)
+			VALUES (@CompanyId, @StaffId, @SpecializationId)
+		";
 
-		specialization.Id = Guid.NewGuid();
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
 
-		AddParameter(command, "@Id", specialization.Id);
-		AddParameter(command, "@CompanyId", specialization.CompanyId);
-		AddParameter(command, "@StaffId", specialization.StaffId);
-		AddParameter(command, "@SpecializationId", specialization.SpecializationId);
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", specialization.CompanyId);
+		command.Parameters.AddWithValue("@StaffId", specialization.StaffId);
+		command.Parameters.AddWithValue("@SpecializationId", specialization.SpecializationId);
 
-		await _connection.OpenAsync();
-		await command.ExecuteNonQueryAsync();
-		await _connection.CloseAsync();
-
-		return specialization.Id;
+		object result = (await command.ExecuteScalarAsync())!;
+		return (Guid)result;
 	}
 
-	public async Task DeleteAsync(Guid id)
+	public async Task<bool> DeleteByIdAsync(
+		Guid companyId,
+		Guid staffSpecializationId)
 	{
-		using SqlCommand command = _connection.CreateCommand();
-		command.CommandText = "DELETE FROM StaffSpecializations WHERE Id = @Id";
-		AddParameter(command, "@Id", id);
+		const string sql = @"
+			DELETE FROM StaffSpecializations 
+			WHERE CompanyId = @CompanyId AND Id = @Id
+		";
 
-		await _connection.OpenAsync();
-		await command.ExecuteNonQueryAsync();
-		await _connection.CloseAsync();
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Id", staffSpecializationId);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
+
+	public async Task<List<StaffSpecialization>> GetByStaffIdAsync(Guid staffId)
+	{
+		const string sql = @"
+			SELECT Id, CompanyId, StaffId, SpecializationId
+			FROM StaffSpecializations
+			WHERE StaffId = @StaffId
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@StaffId", staffId);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		List<StaffSpecialization> specializations = new();
+
+		while (await reader.ReadAsync())
+			specializations.Add(new StaffSpecialization(
+				reader.GetGuid(reader.GetOrdinal("Id")),
+				reader.GetGuid(reader.GetOrdinal("CompanyId")),
+				reader.GetGuid(reader.GetOrdinal("StaffId")),
+				reader.GetGuid(reader.GetOrdinal("SpecializationId"))
+			));
+
+		return specializations;
 	}
 }

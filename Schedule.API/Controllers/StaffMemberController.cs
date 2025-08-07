@@ -105,10 +105,9 @@ public class StaffMemberController : ControllerBase
 	[HttpGet("specializations/all")]
 	// zwracanie wszystkich pracownikow z ich specjalizacjami,
 	// jakie dane pracownikow zwracamy?(imie, nazwisko, id, rola)
-	
+
 	// czy robic put gdzie bede w staffMemberSpecializations
 	// edytowal specializationId dla pracownika?
-	
 	[HttpPost("specializations")]
 	public async Task<ActionResult<Guid>> CreateStaffMemberSpecialization(
 		Guid companyId,
@@ -134,88 +133,104 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	// od tad jeszcze nie do konca poprawione
-	[HttpGet("{staffMemberId}/availability")]
+	[HttpGet("availability/{staffMemberId:guid}")]
 	public async Task<ActionResult<List<StaffMemberAvailabilityResponse>>> GetAvailabilityByStaffMemberId(
+		Guid companyId,
 		Guid staffMemberId)
 	{
 		List<StaffMemberAvailability> list =
-			await _staffMemberAvailabilityService.GetByStaffMemberIdAsync(staffMemberId);
+			await _staffMemberAvailabilityService
+				.GetByStaffMemberIdAsync(companyId, staffMemberId);
 
-		List<StaffMemberAvailabilityResponse> responses = _mapper.Map<List<StaffMemberAvailabilityResponse>>(list);
+		List<StaffMemberAvailabilityResponse> responses = _mapper
+			.Map<List<StaffMemberAvailabilityResponse>>(list);
 		return Ok(responses);
 	}
 
 	[HttpGet("availability/{id}")]
-	public async Task<ActionResult<StaffMemberAvailabilityResponse>> GetAvailabilityById(Guid id)
+	public async Task<ActionResult<StaffMemberAvailabilityResponse>> GetAvailabilityById(
+		Guid companyId,
+		Guid id)
 	{
-		StaffMemberAvailability? availability = await _staffMemberAvailabilityService.GetByIdAsync(id);
+		StaffMemberAvailability? availability = await _staffMemberAvailabilityService
+			.GetByIdAsync(companyId, id);
 
-		StaffMemberAvailabilityResponse response = _mapper.Map<StaffMemberAvailabilityResponse>(availability);
+		StaffMemberAvailabilityResponse response = _mapper
+			.Map<StaffMemberAvailabilityResponse>(availability);
 		return Ok(response);
 	}
 
-	[HttpPost("{staffMemberId}/availability")]
+	[HttpPost("availability/{staffMemberId:guid}")]
 	public async Task<ActionResult<Guid>> CreateAvailability(
+		Guid companyId,
 		Guid staffMemberId,
 		[FromBody] CreateStaffMemberAvailabilityRequest request)
 	{
-		if (staffMemberId != request.StaffMemberId)
-			return BadRequest("StaffMemberId in route does not match body.");
-
-		StaffMemberAvailability? entity = _mapper.Map<StaffMemberAvailability>(request);
-		Guid id = await _staffMemberAvailabilityService.CreateAsync(entity);
-		return Ok(id);
+		StaffMemberAvailability? availability = _mapper.Map<StaffMemberAvailability>(request);
+		availability.SetCompanyId(companyId);
+		availability.SetStaffMemberId(staffMemberId);
+		
+		Guid id = await _staffMemberAvailabilityService.CreateAsync(availability);
+		return CreatedAtAction(nameof(Create), id);
 	}
 
 	[HttpPut("availability/{id}")]
 	public async Task<ActionResult> UpdateAvailability(
+		Guid companyId,
 		Guid id,
 		[FromBody] UpdateStaffMemberAvailabilityRequest request)
 	{
-		StaffMemberAvailability? existing = await _staffMemberAvailabilityService.GetByIdAsync(id);
-		if (existing == null)
-			return NotFound();
-
-		existing.Date = request.Date;
-		existing.StartTime = request.StartTime;
-		existing.EndTime = request.EndTime;
-		existing.IsAvailable = request.IsAvailable;
-
-		await _staffMemberAvailabilityService.UpdateAsync(existing);
+		StaffMemberAvailability? availability = await _staffMemberAvailabilityService
+			.GetByIdAsync(companyId, id);
+		
+			_mapper.Map(request, availability);
+			
+		await _staffMemberAvailabilityService.UpdateAsync(availability!);
 		return NoContent();
 	}
 
-	[HttpDelete("availability/{id}")]
-	public async Task<ActionResult> DeleteAvailability(Guid id)
+	[HttpDelete("availability/{id:guid}")]
+	public async Task<ActionResult> DeleteAvailability(
+		Guid companyId,
+		Guid id)
 	{
-		await _staffMemberAvailabilityService.DeleteAsync(id);
+		await _staffMemberAvailabilityService.DeleteAsync(companyId, id);
 		return NoContent();
 	}
 
-	[HttpGet("eventschedules/{eventId}/staffMember")]
-	public async Task<ActionResult<List<EventScheduleStaffMemberResponse>>> GetStaffMemberAssignedToEvent(Guid eventId)
+	[HttpGet("eventschedules/{eventId}")]
+	public async Task<ActionResult<List<EventScheduleStaffMemberResponse>>> GetStaffMemberAssignedToEvent(
+		Guid companyId,
+		Guid eventId)
 	{
-		List<EventScheduleStaffMember> list = await _eventScheduleStaffMemberService.GetByEventIdAsync(eventId);
-		return Ok(_mapper.Map<List<EventScheduleStaffMemberResponse>>(list));
+		List<EventScheduleStaffMember> list = await _eventScheduleStaffMemberService
+			.GetByEventIdAsync(eventId);
+		
+		List<EventScheduleStaffMemberResponse> responses = _mapper
+			.Map<List<EventScheduleStaffMemberResponse>>(list);
+		return Ok(responses);
 	}
 
-	[HttpPost("eventschedules/{eventId}/staffMember")]
-	public async Task<ActionResult<Guid>> AssignStaffMemberToEvent(Guid eventId,
+	[HttpPost("eventschedules")]
+	public async Task<ActionResult<Guid>> AssignStaffMemberToEvent(
+		Guid companyId,
 		[FromBody] CreateEventScheduleStaffMemberRequest request)
 	{
-		if (eventId != request.EventScheduleId)
-			return BadRequest("EventScheduleId in route does not match body.");
-
-		EventScheduleStaffMember? entity = _mapper.Map<EventScheduleStaffMember>(request);
-		Guid id = await _eventScheduleStaffMemberService.CreateAsync(entity);
+		EventScheduleStaffMember? eventScheduleStaffMember = _mapper
+			.Map<EventScheduleStaffMember>(request);
+		eventScheduleStaffMember.SetCompanyId(companyId);
+		
+		Guid id = await _eventScheduleStaffMemberService
+			.CreateAsync(eventScheduleStaffMember);
 		return Ok(id);
 	}
 
-	[HttpDelete("eventschedules/staffMember/{id}")]
-	public async Task<ActionResult> UnassignStaffMemberFromEvent(Guid id)
+	[HttpDelete("eventschedules/{id:guid}")]
+	public async Task<ActionResult> UnassignStaffMemberFromEvent(
+		Guid companyId,
+		Guid id)
 	{
-		await _eventScheduleStaffMemberService.DeleteAsync(id);
+		await _eventScheduleStaffMemberService.DeleteAsync(companyId, id);
 		return NoContent();
 	}
 }

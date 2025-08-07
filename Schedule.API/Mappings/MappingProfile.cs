@@ -31,10 +31,11 @@ public class MappingProfile : Profile
 		CreateMap<UpdateStaffMemberRequest, StaffMember>();
 
 		CreateMap<CreateStaffMemberSpecializationRequest, StaffMemberSpecialization>();
-		CreateMap<StaffMemberSpecialization, StaffMemberSpecializationResponse>();
 
 		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
 		CreateMap<UpdateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
 		CreateMap<StaffMemberAvailability, StaffMemberAvailabilityResponse>();
+
+		CreateMap<Specialization, SpecializationResponse>();
 	}
 }

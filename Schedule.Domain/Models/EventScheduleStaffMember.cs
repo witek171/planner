@@ -3,7 +3,7 @@
 public class EventScheduleStaffMember
 {
 	public Guid Id { get; }
-	public Guid CompanyId { get; }
+	public Guid CompanyId { get; private set;}
 	public Guid EventScheduleId { get; }
 	public Guid StaffMemberId { get; }
 
@@ -17,5 +17,14 @@ public class EventScheduleStaffMember
 		CompanyId = companyId;
 		EventScheduleId = eventScheduleId;
 		StaffMemberId = staffMemberId;
+	}
+	
+	public void SetCompanyId(Guid companyId)
+	{
+		if (CompanyId != Guid.Empty)
+			throw new InvalidOperationException(
+				$"CompanyId is already set to {CompanyId} and cannot be changed");
+
+		CompanyId = companyId;
 	}
 }

@@ -6,5 +6,7 @@ public interface IEventScheduleStaffMemberService
 {
 	Task<List<EventScheduleStaffMember>> GetByEventIdAsync(Guid eventId);
 	Task<Guid> CreateAsync(EventScheduleStaffMember entity);
-	Task DeleteAsync(Guid id);
+	Task DeleteAsync(
+		Guid companyId,
+		Guid id);
 }

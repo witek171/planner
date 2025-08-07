@@ -23,9 +23,10 @@ public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 		return await _repository.CreateAsync(entity);
 	}
 
-	public async Task DeleteAsync(Guid id)
+	public async Task DeleteAsync(
+		Guid companyId,
+		Guid id)
 	{
-		await _repository.DeleteByIdAsync(id);
+		await _repository.DeleteByIdAsync(companyId, id);
 	}
 }
-

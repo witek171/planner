@@ -12,21 +12,21 @@ namespace PlannerNet.Controllers;
 public class StaffMemberController : ControllerBase
 {
 	private readonly IStaffMemberService _staffMemberService;
-	private readonly IStaffMemberSpecializationService _specializationService;
-	private readonly IStaffMemberAvailabilityService _availabilityService;
+	private readonly IStaffMemberSpecializationService _staffMemberSpecializationService;
+	private readonly IStaffMemberAvailabilityService _staffMemberAvailabilityService;
 	private readonly IEventScheduleStaffMemberService _eventScheduleStaffMemberService;
 	private readonly IMapper _mapper;
 
 	public StaffMemberController(
 		IStaffMemberService staffMemberService,
-		IStaffMemberSpecializationService specializationService,
-		IStaffMemberAvailabilityService availabilityService,
+		IStaffMemberSpecializationService staffMemberSpecializationService,
+		IStaffMemberAvailabilityService staffMemberAvailabilityService,
 		IEventScheduleStaffMemberService eventScheduleStaffMemberService,
 		IMapper mapper)
 	{
 		_staffMemberService = staffMemberService;
-		_specializationService = specializationService;
-		_availabilityService = availabilityService;
+		_staffMemberSpecializationService = staffMemberSpecializationService;
+		_staffMemberAvailabilityService = staffMemberAvailabilityService;
 		_eventScheduleStaffMemberService = eventScheduleStaffMemberService;
 		_mapper = mapper;
 	}
@@ -36,16 +36,18 @@ public class StaffMemberController : ControllerBase
 	{
 		List<StaffMember> staffMemberList = await _staffMemberService.GetAllAsync(companyId);
 
-		List<StaffMemberResponse> response = _mapper.Map<List<StaffMemberResponse>>(staffMemberList);
+		List<StaffMemberResponse> response = _mapper
+			.Map<List<StaffMemberResponse>>(staffMemberList);
 		return Ok(response);
 	}
 
 	[HttpGet("byId")]
 	public async Task<ActionResult<StaffMemberResponse>> GetById(
-		Guid staffMemberId,
+		[FromQuery] Guid staffMemberId,
 		Guid companyId)
 	{
-		StaffMember? staffMember = await _staffMemberService.GetByIdAsync(staffMemberId, companyId);
+		StaffMember? staffMember = await _staffMemberService
+			.GetByIdAsync(staffMemberId, companyId);
 
 		StaffMemberResponse response = _mapper.Map<StaffMemberResponse>(staffMember);
 		return Ok(response);
@@ -69,10 +71,12 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		[FromBody] UpdateStaffMemberRequest request)
 	{
-		StaffMember? staffMember = await _staffMemberService.GetByIdAsync(staffMemberId, companyId);
-		// StaffMember staffMember = _mapper.Map<StaffMember>(request);
+		StaffMember? staffMember = await _staffMemberService
+			.GetByIdAsync(staffMemberId, companyId);
 
-		await _staffMemberService.PutAsync(staffMember);
+		_mapper.Map(request, staffMember);
+
+		await _staffMemberService.PutAsync(staffMember!);
 		return NoContent();
 	}
 
@@ -85,39 +89,59 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet("{staffMemberId}/specializations")]
-	public async Task<ActionResult<List<StaffMemberSpecializationResponse>>> GetSpecializations(Guid staffMemberId)
+	[HttpGet("staffMemberSpecializations")]
+	public async Task<ActionResult<List<SpecializationResponse>>> GetStaffMemberSpecializations(
+		[FromQuery] Guid staffMemberId,
+		Guid companyId)
 	{
-		List<StaffMemberSpecialization> list = await _specializationService.GetByStaffMemberIdAsync(staffMemberId);
-		
-		List<StaffMemberSpecializationResponse> responses = _mapper.Map<List<StaffMemberSpecializationResponse>>(list);
+		List<Specialization> specializations = await _staffMemberSpecializationService
+			.GetStaffMemberSpecializationsAsync(staffMemberId, companyId);
+
+		List<SpecializationResponse> responses = _mapper
+			.Map<List<SpecializationResponse>>(specializations);
 		return Ok(responses);
 	}
 
-	[HttpPost("{staffMemberId}/specializations")]
-	public async Task<ActionResult<Guid>> AddSpecialization(Guid staffMemberId,
+	[HttpGet("staffMemberSpecializations/all")]
+	// zwracanie wszystkich pracownikow z ich specjalizacjami,
+	// jakie dane pracownikow zwracamy?(imie, nazwisko, id, rola)
+	
+	// czy robic put gdzie bede w staffMemberSpecializations
+	// edytowal specializationId dla pracownika?
+	
+	[HttpPost("staffMemberSpecializations")]
+	public async Task<ActionResult<Guid>> CreateStaffMemberSpecialization(
+		Guid companyId,
 		[FromBody] CreateStaffMemberSpecializationRequest request)
 	{
-		if (staffMemberId != request.StaffMemberId)
-			return BadRequest("StaffMemberId in route does not match body.");
+		StaffMemberSpecialization? staffMemberSpecialization = _mapper
+			.Map<StaffMemberSpecialization>(request);
 
-		StaffMemberSpecialization? specialization = _mapper.Map<StaffMemberSpecialization>(request);
-		Guid id = await _specializationService.CreateAsync(specialization);
-		return Ok(id);
+		staffMemberSpecialization.SetCompanyId(companyId);
+
+		Guid id = await _staffMemberSpecializationService
+			.CreateAsync(companyId, staffMemberSpecialization);
+		return CreatedAtAction(nameof(Create), id);
 	}
 
-	[HttpDelete("specializations/{id}")]
-	public async Task<ActionResult> DeleteSpecialization(Guid id)
+	[HttpDelete("staffMemberSpecializations/{staffMemberSpecializationId:guid}")]
+	public async Task<ActionResult> DeleteStaffMemberSpecialization(
+		Guid companyId,
+		Guid staffMemberSpecializationId)
 	{
-		await _specializationService.DeleteAsync(id);
+		await _staffMemberSpecializationService
+			.DeleteAsync(companyId, staffMemberSpecializationId);
 		return NoContent();
 	}
 
+	// od tad jeszcze nie do konca poprawione
 	[HttpGet("{staffMemberId}/availability")]
-	public async Task<ActionResult<List<StaffMemberAvailabilityResponse>>> GetAvailabilityByStaffMemberId(Guid staffMemberId)
+	public async Task<ActionResult<List<StaffMemberAvailabilityResponse>>> GetAvailabilityByStaffMemberId(
+		Guid staffMemberId)
 	{
-		List<StaffMemberAvailability> list = await _availabilityService.GetByStaffMemberIdAsync(staffMemberId);
-		
+		List<StaffMemberAvailability> list =
+			await _staffMemberAvailabilityService.GetByStaffMemberIdAsync(staffMemberId);
+
 		List<StaffMemberAvailabilityResponse> responses = _mapper.Map<List<StaffMemberAvailabilityResponse>>(list);
 		return Ok(responses);
 	}
@@ -125,7 +149,7 @@ public class StaffMemberController : ControllerBase
 	[HttpGet("availability/{id}")]
 	public async Task<ActionResult<StaffMemberAvailabilityResponse>> GetAvailabilityById(Guid id)
 	{
-		StaffMemberAvailability? availability = await _availabilityService.GetByIdAsync(id);
+		StaffMemberAvailability? availability = await _staffMemberAvailabilityService.GetByIdAsync(id);
 
 		StaffMemberAvailabilityResponse response = _mapper.Map<StaffMemberAvailabilityResponse>(availability);
 		return Ok(response);
@@ -140,7 +164,7 @@ public class StaffMemberController : ControllerBase
 			return BadRequest("StaffMemberId in route does not match body.");
 
 		StaffMemberAvailability? entity = _mapper.Map<StaffMemberAvailability>(request);
-		Guid id = await _availabilityService.CreateAsync(entity);
+		Guid id = await _staffMemberAvailabilityService.CreateAsync(entity);
 		return Ok(id);
 	}
 
@@ -149,7 +173,7 @@ public class StaffMemberController : ControllerBase
 		Guid id,
 		[FromBody] UpdateStaffMemberAvailabilityRequest request)
 	{
-		StaffMemberAvailability? existing = await _availabilityService.GetByIdAsync(id);
+		StaffMemberAvailability? existing = await _staffMemberAvailabilityService.GetByIdAsync(id);
 		if (existing == null)
 			return NotFound();
 
@@ -158,14 +182,14 @@ public class StaffMemberController : ControllerBase
 		existing.EndTime = request.EndTime;
 		existing.IsAvailable = request.IsAvailable;
 
-		await _availabilityService.UpdateAsync(existing);
+		await _staffMemberAvailabilityService.UpdateAsync(existing);
 		return NoContent();
 	}
 
 	[HttpDelete("availability/{id}")]
 	public async Task<ActionResult> DeleteAvailability(Guid id)
 	{
-		await _availabilityService.DeleteAsync(id);
+		await _staffMemberAvailabilityService.DeleteAsync(id);
 		return NoContent();
 	}
 

@@ -103,10 +103,10 @@ public class StaffMemberRepository : IStaffMemberRepository
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<StaffMember> staves = new();
+		List<StaffMember> staff = new();
 
 		while (await reader.ReadAsync())
-			staves.Add(new StaffMember(
+			staff.Add(new StaffMember(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
 				Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
@@ -119,7 +119,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 				reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
 			));
 
-		return staves;
+		return staff;
 	}
 
 	public async Task<StaffMember?> GetByIdAsync(
@@ -165,13 +165,13 @@ public class StaffMemberRepository : IStaffMemberRepository
 		const string sql = @"
 			SELECT CASE 
 			WHEN EXISTS (
-			    SELECT 1 FROM EventScheduleStaff WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
+				SELECT 1 FROM EventScheduleStaff WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			) 
 			OR EXISTS (
-			    SELECT 1 FROM StaffAvailability WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId  
+				SELECT 1 FROM StaffAvailability WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId  
 			)
 			OR EXISTS (
-			    SELECT 1 FROM StaffSpecializations WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
+				SELECT 1 FROM StaffSpecializations WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			)
 			THEN CAST(1 AS BIT)
 			ELSE CAST(0 AS BIT)

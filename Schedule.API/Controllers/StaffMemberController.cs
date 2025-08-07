@@ -89,7 +89,7 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet("staffMemberSpecializations")]
+	[HttpGet("specializations")]
 	public async Task<ActionResult<List<SpecializationResponse>>> GetStaffMemberSpecializations(
 		[FromQuery] Guid staffMemberId,
 		Guid companyId)
@@ -102,14 +102,14 @@ public class StaffMemberController : ControllerBase
 		return Ok(responses);
 	}
 
-	[HttpGet("staffMemberSpecializations/all")]
+	[HttpGet("specializations/all")]
 	// zwracanie wszystkich pracownikow z ich specjalizacjami,
 	// jakie dane pracownikow zwracamy?(imie, nazwisko, id, rola)
 	
 	// czy robic put gdzie bede w staffMemberSpecializations
 	// edytowal specializationId dla pracownika?
 	
-	[HttpPost("staffMemberSpecializations")]
+	[HttpPost("specializations")]
 	public async Task<ActionResult<Guid>> CreateStaffMemberSpecialization(
 		Guid companyId,
 		[FromBody] CreateStaffMemberSpecializationRequest request)
@@ -124,7 +124,7 @@ public class StaffMemberController : ControllerBase
 		return CreatedAtAction(nameof(Create), id);
 	}
 
-	[HttpDelete("staffMemberSpecializations/{staffMemberSpecializationId:guid}")]
+	[HttpDelete("specializations/{staffMemberSpecializationId:guid}")]
 	public async Task<ActionResult> DeleteStaffMemberSpecialization(
 		Guid companyId,
 		Guid staffMemberSpecializationId)

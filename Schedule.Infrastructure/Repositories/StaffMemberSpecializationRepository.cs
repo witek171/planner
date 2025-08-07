@@ -13,7 +13,9 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 		_connectionString = connectionString;
 	}
 
-	public async Task<Guid> CreateAsync(StaffMemberSpecialization specialization)
+	public async Task<Guid> CreateAsync(
+		Guid companyId,
+		StaffMemberSpecialization staffMemberSpecialization)
 	{
 		const string sql = @"
 			INSERT INTO StaffSpecializations (CompanyId, StaffMemberId, SpecializationId)
@@ -24,9 +26,12 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@CompanyId", specialization.CompanyId);
-		command.Parameters.AddWithValue("@StaffMemberId", specialization.StaffMemberId);
-		command.Parameters.AddWithValue("@SpecializationId", specialization.SpecializationId);
+		command.Parameters.AddWithValue(
+			"@CompanyId", companyId);
+		command.Parameters.AddWithValue(
+			"@StaffMemberId", staffMemberSpecialization.StaffMemberId);
+		command.Parameters.AddWithValue(
+			"@SpecializationId", staffMemberSpecialization.SpecializationId);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;
@@ -52,12 +57,17 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<StaffMemberSpecialization>> GetByStaffMemberIdAsync(Guid staffMemberId)
+	public async Task<List<Specialization>> GetStaffMemberSpecializationsAsync(
+		Guid staffMemberId,
+		Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, StaffMemberId, SpecializationId
-			FROM StaffSpecializations
-			WHERE StaffMemberId = @StaffMemberId
+			SELECT s.Id, s.CompanyId, s.Name, s.Description
+			FROM StaffSpecializations ss
+			INNER JOIN Specializations s ON ss.SpecializationId = s.Id
+			WHERE ss.StaffMemberId = @StaffMemberId 
+			AND ss.CompanyId = @CompanyId
+			AND s.CompanyId = @CompanyId
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -65,18 +75,21 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<StaffMemberSpecialization> specializations = new();
+		List<Specialization> specializations = new();
 
 		while (await reader.ReadAsync())
-			specializations.Add(new StaffMemberSpecialization(
+		{
+			specializations.Add(new Specialization(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
-				reader.GetGuid(reader.GetOrdinal("SpecializationId"))
+				reader.GetString(reader.GetOrdinal("Name")),
+				reader.GetString(reader.GetOrdinal("Description"))
 			));
+		}
 
 		return specializations;
 	}

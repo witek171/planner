@@ -4,9 +4,15 @@ namespace Schedule.Application.Interfaces.Repositories;
 
 public interface IStaffMemberSpecializationRepository
 {
-	Task<List<StaffMemberSpecialization>> GetByStaffMemberIdAsync(Guid staffMemberId);
-	Task<Guid> CreateAsync(StaffMemberSpecialization specialization);
+	Task<Guid> CreateAsync(
+		Guid companyId,
+		StaffMemberSpecialization specialization);
+
 	Task<bool> DeleteByIdAsync(
 		Guid companyId,
 		Guid id);
+
+	Task<List<Specialization>> GetStaffMemberSpecializationsAsync(
+		Guid staffMemberId,
+		Guid companyId);
 }

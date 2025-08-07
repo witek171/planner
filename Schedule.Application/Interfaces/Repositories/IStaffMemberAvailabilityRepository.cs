@@ -4,8 +4,14 @@ namespace Schedule.Application.Interfaces.Repositories;
 
 public interface IStaffMemberAvailabilityRepository
 {
-	Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(Guid staffMemberId);
-	Task<StaffMemberAvailability?> GetByIdAsync(Guid staffMemberAvailabilityId);
+	Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId);
+
+	Task<StaffMemberAvailability?> GetByIdAsync(
+		Guid companyId,
+		Guid staffMemberAvailabilityId);
+
 	Task<Guid> CreateAsync(StaffMemberAvailability availability);
 	Task<bool> PutAsync(StaffMemberAvailability availability);
 

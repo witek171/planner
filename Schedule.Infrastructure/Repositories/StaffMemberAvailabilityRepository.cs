@@ -79,12 +79,14 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		return rowsAffected > 0;
 	}
 
-	public async Task<StaffMemberAvailability?> GetByIdAsync(Guid staffMemberAvailabilityId)
+	public async Task<StaffMemberAvailability?> GetByIdAsync(
+		Guid companyId,
+		Guid staffMemberAvailabilityId)
 	{
 		const string sql = @"
 			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability 
-			WHERE Id = @Id
+			WHERE Id = @Id AND CompanyId = @CompanyId AND IsAvailable = 1
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -92,6 +94,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMemberAvailabilityId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
@@ -109,12 +112,15 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		);
 	}
 
-	public async Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(Guid staffMemberId)
+	public async Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId)
 	{
 		const string sql = @"
 			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability
-			WHERE StaffMemberId = @StaffMemberId
+			WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
+			AND IsAvailable = 1
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -122,6 +128,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 

@@ -122,11 +122,11 @@ CREATE TABLE StaffSpecializations
 (
     Id               UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId        UNIQUEIDENTIFIER NOT NULL,
-    StaffId          UNIQUEIDENTIFIER NOT NULL,
+    StaffMemberId          UNIQUEIDENTIFIER NOT NULL,
     SpecializationId UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_staffspec_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT fk_staffspec_staff FOREIGN KEY (StaffId)
+    CONSTRAINT fk_staffspec_staff FOREIGN KEY (StaffMemberId)
         REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_staffspec_specialization FOREIGN KEY (SpecializationId)
         REFERENCES Specializations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -137,14 +137,14 @@ CREATE TABLE StaffAvailability
 (
     Id          UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId   UNIQUEIDENTIFIER NOT NULL,
-    StaffId     UNIQUEIDENTIFIER NOT NULL,
+    StaffMemberId     UNIQUEIDENTIFIER NOT NULL,
     Date        DATE             NOT NULL,
     StartTime   DATETIME         NOT NULL,
     EndTime     DATETIME         NOT NULL,
     IsAvailable BIT                          DEFAULT 1,
     CONSTRAINT fk_staffavail_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffId)
+    CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffMemberId)
         REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -188,12 +188,12 @@ CREATE TABLE EventScheduleStaff
     Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId       UNIQUEIDENTIFIER NOT NULL,
     EventScheduleId UNIQUEIDENTIFIER NOT NULL,
-    StaffId         UNIQUEIDENTIFIER NOT NULL,
+    StaffMemberId         UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_eventstaff_company FOREIGN KEY (CompanyId)
         REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_eventstaff_schedule FOREIGN KEY (EventScheduleId)
         REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_eventstaff_staff FOREIGN KEY (StaffId)
+    CONSTRAINT fk_eventstaff_staff FOREIGN KEY (StaffMemberId)
         REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 

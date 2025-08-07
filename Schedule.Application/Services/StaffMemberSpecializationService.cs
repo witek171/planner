@@ -13,18 +13,25 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 		_repository = repository;
 	}
 
-	public async Task<List<StaffMemberSpecialization>> GetByStaffMemberIdAsync(Guid staffMemberId)
+	public async Task<List<Specialization>> GetStaffMemberSpecializationsAsync(
+		Guid staffMemberId,
+		Guid companyId)
 	{
-		return await _repository.GetByStaffMemberIdAsync(staffMemberId);
+		return await _repository.GetStaffMemberSpecializationsAsync(staffMemberId, companyId);
 	}
 
-	public async Task<Guid> CreateAsync(StaffMemberSpecialization specialization)
+	public async Task<Guid> CreateAsync(
+		Guid companyId,
+		StaffMemberSpecialization specialization)
 	{
-		return await _repository.CreateAsync(specialization);
+		// sprwadzic czy staffMember ma juz specjalizacje o danym id
+		return await _repository.CreateAsync(companyId, specialization);
 	}
 
-	public async Task DeleteAsync(Guid id)
+	public async Task DeleteAsync(
+		Guid id,
+		Guid companyId)
 	{
-		await _repository.DeleteByIdAsync(id);
+		await _repository.DeleteByIdAsync(id, companyId);
 	}
 }

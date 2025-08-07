@@ -4,7 +4,15 @@ namespace Schedule.Application.Interfaces.Services;
 
 public interface IStaffMemberSpecializationService
 {
-	Task<List<StaffMemberSpecialization>> GetByStaffMemberIdAsync(Guid staffMemberId);
-	Task<Guid> CreateAsync(StaffMemberSpecialization specialization);
-	Task DeleteAsync(Guid id);
+	Task<List<Specialization>> GetStaffMemberSpecializationsAsync(
+		Guid staffMemberId,
+		Guid companyId);
+
+	Task<Guid> CreateAsync(
+		Guid companyId,
+		StaffMemberSpecialization specialization);
+
+	Task DeleteAsync(
+		Guid id,
+		Guid companyId);
 }

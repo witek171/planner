@@ -4,20 +4,20 @@ using Schedule.Domain.Models;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffSpecializationRepository : IStaffSpecializationRepository
+public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRepository
 {
 	private readonly string _connectionString;
 
-	public StaffSpecializationRepository(string connectionString)
+	public StaffMemberSpecializationRepository(string connectionString)
 	{
 		_connectionString = connectionString;
 	}
 
-	public async Task<Guid> CreateAsync(StaffSpecialization specialization)
+	public async Task<Guid> CreateAsync(StaffMemberSpecialization specialization)
 	{
 		const string sql = @"
-			INSERT INTO StaffSpecializations (CompanyId, StaffId, SpecializationId)
-			VALUES (@CompanyId, @StaffId, @SpecializationId)
+			INSERT INTO StaffSpecializations (CompanyId, StaffMemberId, SpecializationId)
+			VALUES (@CompanyId, @StaffMemberId, @SpecializationId)
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -25,7 +25,7 @@ public class StaffSpecializationRepository : IStaffSpecializationRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", specialization.CompanyId);
-		command.Parameters.AddWithValue("@StaffId", specialization.StaffId);
+		command.Parameters.AddWithValue("@StaffMemberId", specialization.StaffMemberId);
 		command.Parameters.AddWithValue("@SpecializationId", specialization.SpecializationId);
 
 		object result = (await command.ExecuteScalarAsync())!;
@@ -34,7 +34,7 @@ public class StaffSpecializationRepository : IStaffSpecializationRepository
 
 	public async Task<bool> DeleteByIdAsync(
 		Guid companyId,
-		Guid staffSpecializationId)
+		Guid staffMemberSpecializationId)
 	{
 		const string sql = @"
 			DELETE FROM StaffSpecializations 
@@ -46,35 +46,35 @@ public class StaffSpecializationRepository : IStaffSpecializationRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@Id", staffSpecializationId);
+		command.Parameters.AddWithValue("@Id", staffMemberSpecializationId);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<StaffSpecialization>> GetByStaffIdAsync(Guid staffId)
+	public async Task<List<StaffMemberSpecialization>> GetByStaffMemberIdAsync(Guid staffMemberId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, StaffId, SpecializationId
+			SELECT Id, CompanyId, StaffMemberId, SpecializationId
 			FROM StaffSpecializations
-			WHERE StaffId = @StaffId
+			WHERE StaffMemberId = @StaffMemberId
 		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@StaffId", staffId);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<StaffSpecialization> specializations = new();
+		List<StaffMemberSpecialization> specializations = new();
 
 		while (await reader.ReadAsync())
-			specializations.Add(new StaffSpecialization(
+			specializations.Add(new StaffMemberSpecialization(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("StaffId")),
+				reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
 				reader.GetGuid(reader.GetOrdinal("SpecializationId"))
 			));
 

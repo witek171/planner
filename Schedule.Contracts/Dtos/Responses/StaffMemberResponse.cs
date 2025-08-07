@@ -2,9 +2,9 @@
 
 namespace Schedule.Contracts.Dtos.Responses;
 
-public class StaffResponse
+public class StaffMemberResponse
 {
-	public StaffResponse(
+	public StaffMemberResponse(
 		string role,
 		string email,
 		string firstName,

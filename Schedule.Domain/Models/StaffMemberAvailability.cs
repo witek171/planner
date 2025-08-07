@@ -1,19 +1,19 @@
 ﻿namespace Schedule.Domain.Models;
 
-public class StaffAvailability
+public class StaffMemberAvailability
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; }
-	public Guid StaffId { get; }
+	public Guid StaffMemberId { get; }
 	public DateOnly Date { get; }
 	public DateTime StartTime { get; }
 	public DateTime EndTime { get; }
 	public bool IsAvailable { get; }
 
-	public StaffAvailability(
+	public StaffMemberAvailability(
 		Guid id,
 		Guid companyId,
-		Guid staffId,
+		Guid staffMemberId,
 		DateOnly date,
 		DateTime startTime,
 		DateTime endTime,
@@ -21,7 +21,7 @@ public class StaffAvailability
 	{
 		Id = id;
 		CompanyId = companyId;
-		StaffId = staffId;
+		StaffMemberId = staffMemberId;
 		Date = date;
 		StartTime = startTime;
 		EndTime = endTime;

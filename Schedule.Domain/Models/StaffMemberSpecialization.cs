@@ -1,21 +1,21 @@
 ﻿namespace Schedule.Domain.Models;
 
-public class StaffSpecialization
+public class StaffMemberSpecialization
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; }
-	public Guid StaffId { get; }
+	public Guid StaffMemberId { get; }
 	public Guid SpecializationId { get; }
 
-	public StaffSpecialization(
+	public StaffMemberSpecialization(
 		Guid id,
 		Guid companyId,
-		Guid staffId,
+		Guid staffMemberId,
 		Guid specializationId)
 	{
 		Id = id;
 		CompanyId = companyId;
-		StaffId = staffId;
+		StaffMemberId = staffMemberId;
 		SpecializationId = specializationId;
 	}
 }

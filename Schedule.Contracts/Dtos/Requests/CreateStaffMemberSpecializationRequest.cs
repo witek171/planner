@@ -2,16 +2,16 @@
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class CreateStaffSpecializationRequest
+public class CreateStaffMemberSpecializationRequest
 {
-	public CreateStaffSpecializationRequest(
-		Guid staffId,
+	public CreateStaffMemberSpecializationRequest(
+		Guid staffMemberId,
 		Guid specializationId)
 	{
-		StaffId = staffId;
+		StaffMemberId = staffMemberId;
 		SpecializationId = specializationId;
 	}
 
-	[Required] public Guid StaffId { get; }
+	[Required] public Guid StaffMemberId { get; }
 	[Required] public Guid SpecializationId { get; }
 }

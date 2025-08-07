@@ -5,16 +5,16 @@ using Schedule.Domain.Models.Enums;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffRepository : IStaffRepository
+public class StaffMemberRepository : IStaffMemberRepository
 {
 	private readonly string _connectionString;
 
-	public StaffRepository(string connectionString)
+	public StaffMemberRepository(string connectionString)
 	{
 		_connectionString = connectionString;
 	}
 
-	public async Task<Guid> CreateAsync(Staff staff)
+	public async Task<Guid> CreateAsync(StaffMember staffMember)
 	{
 		const string sql = @"
 			INSERT INTO Staff (CompanyId, Role, Email, Password, FirstName, LastName, Phone)
@@ -25,19 +25,19 @@ public class StaffRepository : IStaffRepository
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@CompanyId", staff.CompanyId);
-		command.Parameters.AddWithValue("@Role", staff.Role.ToString());
-		command.Parameters.AddWithValue("@Email", staff.Email);
-		command.Parameters.AddWithValue("@Password", staff.Password);
-		command.Parameters.AddWithValue("@FirstName", staff.FirstName);
-		command.Parameters.AddWithValue("@LastName", staff.LastName);
-		command.Parameters.AddWithValue("@Phone", staff.Phone);
+		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
+		command.Parameters.AddWithValue("@Role", staffMember.Role.ToString());
+		command.Parameters.AddWithValue("@Email", staffMember.Email);
+		command.Parameters.AddWithValue("@Password", staffMember.Password);
+		command.Parameters.AddWithValue("@FirstName", staffMember.FirstName);
+		command.Parameters.AddWithValue("@LastName", staffMember.LastName);
+		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;
 	}
 
-	public async Task<bool> PutAsync(Staff staff)
+	public async Task<bool> PutAsync(StaffMember staffMember)
 	{
 		const string sql = @"
 			UPDATE Staff SET
@@ -53,14 +53,14 @@ public class StaffRepository : IStaffRepository
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", staff.Id);
-		command.Parameters.AddWithValue("@CompanyId", staff.CompanyId);
-		command.Parameters.AddWithValue("@Role", staff.Role);
-		command.Parameters.AddWithValue("@Email", staff.Email);
-		command.Parameters.AddWithValue("@Password", staff.Password);
-		command.Parameters.AddWithValue("@FirstName", staff.FirstName);
-		command.Parameters.AddWithValue("@LastName", staff.LastName);
-		command.Parameters.AddWithValue("@Phone", staff.Phone);
+		command.Parameters.AddWithValue("@Id", staffMember.Id);
+		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
+		command.Parameters.AddWithValue("@Role", staffMember.Role);
+		command.Parameters.AddWithValue("@Email", staffMember.Email);
+		command.Parameters.AddWithValue("@Password", staffMember.Password);
+		command.Parameters.AddWithValue("@FirstName", staffMember.FirstName);
+		command.Parameters.AddWithValue("@LastName", staffMember.LastName);
+		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
@@ -68,7 +68,7 @@ public class StaffRepository : IStaffRepository
 
 	public async Task<bool> DeleteByIdAsync(
 		Guid companyId,
-		Guid staffId)
+		Guid staffMemberId)
 	{
 		const string sql = @"
 			DELETE FROM Staff 
@@ -80,13 +80,13 @@ public class StaffRepository : IStaffRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@Id", staffId);
+		command.Parameters.AddWithValue("@Id", staffMemberId);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<Staff>> GetAllAsync(Guid companyId)
+	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
 			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt, IsDeleted
@@ -103,10 +103,10 @@ public class StaffRepository : IStaffRepository
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<Staff> staves = new();
+		List<StaffMember> staves = new();
 
 		while (await reader.ReadAsync())
-			staves.Add(new Staff(
+			staves.Add(new StaffMember(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
 				Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
@@ -122,8 +122,8 @@ public class StaffRepository : IStaffRepository
 		return staves;
 	}
 
-	public async Task<Staff?> GetByIdAsync(
-		Guid staffId,
+	public async Task<StaffMember?> GetByIdAsync(
+		Guid staffMemberId,
 		Guid companyId)
 	{
 		const string sql = @"
@@ -136,7 +136,7 @@ public class StaffRepository : IStaffRepository
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", staffId);
+		command.Parameters.AddWithValue("@Id", staffMemberId);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -144,7 +144,7 @@ public class StaffRepository : IStaffRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Staff(
+		return new StaffMember(
 			reader.GetGuid(reader.GetOrdinal("Id")),
 			reader.GetGuid(reader.GetOrdinal("CompanyId")),
 			Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
@@ -159,19 +159,19 @@ public class StaffRepository : IStaffRepository
 	}
 
 	public async Task<bool> HasRelatedRecordsAsync(
-		Guid staffId,
+		Guid staffMemberId,
 		Guid companyId)
 	{
 		const string sql = @"
 			SELECT CASE 
 			WHEN EXISTS (
-			    SELECT 1 FROM EventScheduleStaff WHERE StaffId = @StaffId AND CompanyId = @CompanyId
+			    SELECT 1 FROM EventScheduleStaff WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			) 
 			OR EXISTS (
-			    SELECT 1 FROM StaffAvailability WHERE StaffId = @StaffId AND CompanyId = @CompanyId  
+			    SELECT 1 FROM StaffAvailability WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId  
 			)
 			OR EXISTS (
-			    SELECT 1 FROM StaffSpecializations WHERE StaffId = @StaffId AND CompanyId = @CompanyId
+			    SELECT 1 FROM StaffSpecializations WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			)
 			THEN CAST(1 AS BIT)
 			ELSE CAST(0 AS BIT)
@@ -182,7 +182,7 @@ public class StaffRepository : IStaffRepository
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@StaffId", staffId);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		object result = (await command.ExecuteScalarAsync())!;

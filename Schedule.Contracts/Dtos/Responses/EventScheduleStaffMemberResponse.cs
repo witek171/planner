@@ -2,16 +2,16 @@
 
 namespace Schedule.Contracts.Dtos.Responses;
 
-public class EventScheduleStaffResponse
+public class EventScheduleStaffMemberResponse
 {
-	public EventScheduleStaffResponse(
+	public EventScheduleStaffMemberResponse(
 		Guid eventScheduleId,
-		Guid staffId)
+		Guid staffMemberId)
 	{
 		EventScheduleId = eventScheduleId;
-		StaffId = staffId;
+		StaffMemberId = staffMemberId;
 	}
 
 	[Required] public Guid EventScheduleId { get; }
-	[Required] public Guid StaffId { get; }
+	[Required] public Guid StaffMemberId { get; }
 }

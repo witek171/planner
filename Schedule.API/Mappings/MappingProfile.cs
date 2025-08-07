@@ -26,15 +26,15 @@ public class MappingProfile : Profile
 		CreateMap<Participant, ParticipantResponse>();
 		CreateMap<ParticipantUpdateRequest, Participant>();
 
-		CreateMap<Staff, StaffResponse>();
-		CreateMap<CreateStaffRequest, Staff>();
-		CreateMap<UpdateStaffRequest, Staff>();
+		CreateMap<StaffMember, StaffMemberResponse>();
+		CreateMap<CreateStaffMemberRequest, StaffMember>();
+		CreateMap<UpdateStaffMemberRequest, StaffMember>();
 
-		CreateMap<CreateStaffSpecializationRequest, StaffSpecialization>();
-		CreateMap<StaffSpecialization, StaffSpecializationResponse>();
+		CreateMap<CreateStaffMemberSpecializationRequest, StaffMemberSpecialization>();
+		CreateMap<StaffMemberSpecialization, StaffMemberSpecializationResponse>();
 
-		CreateMap<CreateStaffAvailabilityRequest, StaffAvailability>();
-		CreateMap<UpdateStaffAvailabilityRequest, StaffAvailability>();
-		CreateMap<StaffAvailability, StaffAvailabilityResponse>();
+		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
+		CreateMap<UpdateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
+		CreateMap<StaffMemberAvailability, StaffMemberAvailabilityResponse>();
 	}
 }

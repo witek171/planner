@@ -1,21 +1,21 @@
 ﻿namespace Schedule.Domain.Models;
 
-public class EventScheduleStaff
+public class EventScheduleStaffMember
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; }
 	public Guid EventScheduleId { get; }
-	public Guid StaffId { get; }
+	public Guid StaffMemberId { get; }
 
-	public EventScheduleStaff(
+	public EventScheduleStaffMember(
 		Guid id,
 		Guid companyId,
 		Guid eventScheduleId,
-		Guid staffId)
+		Guid staffMemberId)
 	{
 		Id = id;
 		CompanyId = companyId;
 		EventScheduleId = eventScheduleId;
-		StaffId = staffId;
+		StaffMemberId = staffMemberId;
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Schedule.Domain.Models;
 
-public class Staff
+public class StaffMember
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
@@ -15,7 +15,7 @@ public class Staff
 	public DateTime CreatedAt { get; }
 	public bool IsDeleted { get; private set; }
 
-	public Staff(
+	public StaffMember(
 		Guid id,
 		Guid companyId,
 		StaffRole role,
@@ -60,7 +60,7 @@ public class Staff
 	{
 		if (IsDeleted)
 			throw new InvalidOperationException(
-				$"Staff member is already marked as deleted for company {CompanyId}");
+				$"StaffMember member is already marked as deleted for company {CompanyId}");
 
 		IsDeleted = true;
 	}

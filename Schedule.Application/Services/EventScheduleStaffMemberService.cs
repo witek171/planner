@@ -4,21 +4,21 @@ using Schedule.Domain.Models;
 
 namespace Schedule.Application.Services;
 
-public class EventScheduleStaffService : IEventScheduleStaffService
+public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 {
-	private readonly IEventScheduleStaffRepository _repository;
+	private readonly IEventScheduleStaffMemberRepository _repository;
 
-	public EventScheduleStaffService(IEventScheduleStaffRepository repository)
+	public EventScheduleStaffMemberService(IEventScheduleStaffMemberRepository repository)
 	{
 		_repository = repository;
 	}
 
-	public async Task<List<EventScheduleStaff>> GetByEventIdAsync(Guid eventId)
+	public async Task<List<EventScheduleStaffMember>> GetByEventIdAsync(Guid eventId)
 	{
 		return await _repository.GetByEventScheduleIdAsync(eventId);
 	}
 
-	public async Task<Guid> CreateAsync(EventScheduleStaff entity)
+	public async Task<Guid> CreateAsync(EventScheduleStaffMember entity)
 	{
 		return await _repository.CreateAsync(entity);
 	}

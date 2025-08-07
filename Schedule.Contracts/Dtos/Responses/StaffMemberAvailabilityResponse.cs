@@ -1,24 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Schedule.Contracts.Dtos.Requests;
+namespace Schedule.Contracts.Dtos.Responses;
 
-public class CreateStaffAvailabilityRequest
+public class StaffMemberAvailabilityResponse
 {
-	public CreateStaffAvailabilityRequest(
-		Guid staffId,
+	public StaffMemberAvailabilityResponse(
 		DateOnly date,
 		DateTime startTime,
 		DateTime endTime,
 		bool isAvailable)
 	{
-		StaffId = staffId;
 		Date = date;
 		StartTime = startTime;
 		EndTime = endTime;
 		IsAvailable = isAvailable;
 	}
 
-	[Required] public Guid StaffId { get; }
 	[Required] public DateOnly Date { get; }
 	[Required] public DateTime StartTime { get; }
 	[Required] public DateTime EndTime { get; }

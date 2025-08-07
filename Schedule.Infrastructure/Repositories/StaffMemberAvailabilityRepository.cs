@@ -4,21 +4,21 @@ using Schedule.Domain.Models;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class StaffAvailabilityRepository : IStaffAvailabilityRepository
+public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityRepository
 {
 	private readonly string _connectionString;
 
-	public StaffAvailabilityRepository(string connectionString)
+	public StaffMemberAvailabilityRepository(string connectionString)
 	{
 		_connectionString = connectionString;
 	}
 
-	public async Task<Guid> CreateAsync(StaffAvailability availability)
+	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
 	{
 		const string sql = @"
 			INSERT INTO StaffAvailability 
-			(CompanyId, StaffId, Date, StartTime, EndTime, IsAvailable)
-			VALUES (@CompanyId, @StaffId, @Date, @StartTime, @EndTime, @IsAvailable)
+			(CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable)
+			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime, @IsAvailable)
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -26,7 +26,7 @@ public class StaffAvailabilityRepository : IStaffAvailabilityRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", availability.CompanyId);
-		command.Parameters.AddWithValue("@StaffId", availability.StaffId);
+		command.Parameters.AddWithValue("@StaffMemberId", availability.StaffMemberId);
 		command.Parameters.AddWithValue("@Date", availability.Date.ToDateTime(TimeOnly.MinValue));
 		command.Parameters.AddWithValue("@StartTime", availability.StartTime);
 		command.Parameters.AddWithValue("@EndTime", availability.EndTime);
@@ -36,7 +36,7 @@ public class StaffAvailabilityRepository : IStaffAvailabilityRepository
 		return (Guid)result;
 	}
 
-	public async Task<bool> PutAsync(StaffAvailability availability)
+	public async Task<bool> PutAsync(StaffMemberAvailability availability)
 	{
 		const string sql = @"
 			UPDATE StaffAvailability SET
@@ -60,7 +60,7 @@ public class StaffAvailabilityRepository : IStaffAvailabilityRepository
 	}
 
 	public async Task<bool> DeleteByIdAsync(
-		Guid staffAvailabilityId,
+		Guid staffMemberAvailabilityId,
 		Guid companyId)
 	{
 		const string sql = @"
@@ -73,16 +73,16 @@ public class StaffAvailabilityRepository : IStaffAvailabilityRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@Id", staffAvailabilityId);
+		command.Parameters.AddWithValue("@Id", staffMemberAvailabilityId);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
 
-	public async Task<StaffAvailability?> GetByIdAsync(Guid staffAvailabilityId)
+	public async Task<StaffMemberAvailability?> GetByIdAsync(Guid staffMemberAvailabilityId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, StaffId, Date, StartTime, EndTime, IsAvailable
+			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability 
 			WHERE Id = @Id
 		";
@@ -91,17 +91,17 @@ public class StaffAvailabilityRepository : IStaffAvailabilityRepository
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", staffAvailabilityId);
+		command.Parameters.AddWithValue("@Id", staffMemberAvailabilityId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new StaffAvailability(
+		return new StaffMemberAvailability(
 			reader.GetGuid(reader.GetOrdinal("Id")),
 			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			reader.GetGuid(reader.GetOrdinal("StaffId")),
+			reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
 			DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("Date"))),
 			reader.GetDateTime(reader.GetOrdinal("StartTime")),
 			reader.GetDateTime(reader.GetOrdinal("EndTime")),
@@ -109,29 +109,29 @@ public class StaffAvailabilityRepository : IStaffAvailabilityRepository
 		);
 	}
 
-	public async Task<List<StaffAvailability>> GetByStaffIdAsync(Guid staffId)
+	public async Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(Guid staffMemberId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, StaffId, Date, StartTime, EndTime, IsAvailable
+			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability
-			WHERE StaffId = @StaffId
+			WHERE StaffMemberId = @StaffMemberId
 		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@StaffId", staffId);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<StaffAvailability> availabilities = new();
+		List<StaffMemberAvailability> availabilities = new();
 
 		while (await reader.ReadAsync())
-			availabilities.Add(new StaffAvailability(
+			availabilities.Add(new StaffMemberAvailability(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("StaffId")),
+				reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
 				DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("Date"))),
 				reader.GetDateTime(reader.GetOrdinal("StartTime")),
 				reader.GetDateTime(reader.GetOrdinal("EndTime")),

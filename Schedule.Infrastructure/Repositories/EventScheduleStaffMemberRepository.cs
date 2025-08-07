@@ -4,41 +4,41 @@ using Schedule.Domain.Models;
 
 namespace Schedule.Infrastructure.Repositories;
 
-public class EventScheduleStaffRepository : IEventScheduleStaffRepository
+public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepository
 {
 	private readonly string _connectionString;
 
-	public EventScheduleStaffRepository(string connectionString)
+	public EventScheduleStaffMemberRepository(string connectionString)
 	{
 		_connectionString = connectionString;
 	}
 
-	public async Task<Guid> CreateAsync(EventScheduleStaff eventScheduleStaff)
+	public async Task<Guid> CreateAsync(EventScheduleStaffMember eventScheduleStaffMember)
 	{
 		const string sql = @"
-			INSERT INTO EventScheduleStaff (CompanyId, EventScheduleId, StaffId)
+			INSERT INTO EventScheduleStaff (CompanyId, EventScheduleId, StaffMemberId)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @EventScheduleId, @StaffId)
+			VALUES (@CompanyId, @EventScheduleId, @StaffMemberId)
 		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@CompanyId", eventScheduleStaff.CompanyId);
-		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleStaff.EventScheduleId);
-		command.Parameters.AddWithValue("@StaffId", eventScheduleStaff.StaffId);
+		command.Parameters.AddWithValue("@CompanyId", eventScheduleStaffMember.CompanyId);
+		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleStaffMember.EventScheduleId);
+		command.Parameters.AddWithValue("@StaffMemberId", eventScheduleStaffMember.StaffMemberId);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;
 	}
 
 	public async Task<bool> DeleteByIdAsync(
-		Guid eventScheduleStaffId,
+		Guid eventScheduleStaffMemberId,
 		Guid companyId)
 	{
 		const string sql = @"
-			DELETE FROM EventScheduleStaff 
+			DELETE FROM EventScheduleStaff
 			WHERE CompanyId = @CompanyId AND Id = @Id
 		";
 
@@ -47,16 +47,16 @@ public class EventScheduleStaffRepository : IEventScheduleStaffRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@Id", eventScheduleStaffId);
+		command.Parameters.AddWithValue("@Id", eventScheduleStaffMemberId);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<EventScheduleStaff>> GetByEventScheduleIdAsync(Guid eventId)
+	public async Task<List<EventScheduleStaffMember>> GetByEventScheduleIdAsync(Guid eventId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, EventScheduleId, StaffId
+			SELECT Id, CompanyId, EventScheduleId, StaffMemberId
 			FROM EventScheduleStaff
 			WHERE EventScheduleId = @EventScheduleId
 		";
@@ -69,14 +69,14 @@ public class EventScheduleStaffRepository : IEventScheduleStaffRepository
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<EventScheduleStaff> eventScheduleStaves = new();
+		List<EventScheduleStaffMember> eventScheduleStaves = new();
 
 		while (await reader.ReadAsync())
-			eventScheduleStaves.Add(new EventScheduleStaff(
+			eventScheduleStaves.Add(new EventScheduleStaffMember(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
 				reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
-				reader.GetGuid(reader.GetOrdinal("StaffId"))
+				reader.GetGuid(reader.GetOrdinal("StaffMemberId"))
 			));
 
 		return eventScheduleStaves;

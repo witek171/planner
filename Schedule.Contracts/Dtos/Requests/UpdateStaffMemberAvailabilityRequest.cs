@@ -2,9 +2,9 @@
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class UpdateStaffAvailabilityRequest
+public class UpdateStaffMemberAvailabilityRequest
 {
-	public UpdateStaffAvailabilityRequest(
+	public UpdateStaffMemberAvailabilityRequest(
 		DateOnly date,
 		DateTime startTime,
 		DateTime endTime,

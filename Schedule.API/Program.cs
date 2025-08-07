@@ -24,14 +24,14 @@ public class Program
 		// Repositories
 		builder.Services.AddScoped<IParticipantRepository>(provider =>
 			new ParticipantRepository(EnvironmentService.SqlConnectionString));
-		builder.Services.AddScoped<IStaffRepository>(provider =>
-			new StaffRepository(EnvironmentService.SqlConnectionString));
-		builder.Services.AddScoped<IStaffSpecializationRepository>(provider =>
-			new StaffSpecializationRepository(EnvironmentService.SqlConnectionString));
-		builder.Services.AddScoped<IStaffAvailabilityRepository>(provider =>
-			new StaffAvailabilityRepository(EnvironmentService.SqlConnectionString));
-		builder.Services.AddScoped<IEventScheduleStaffRepository>(provider =>
-			new EventScheduleStaffRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffMemberRepository>(provider =>
+			new StaffMemberRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffMemberSpecializationRepository>(provider =>
+			new StaffMemberSpecializationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffMemberAvailabilityRepository>(provider =>
+			new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventScheduleStaffMemberRepository>(provider =>
+			new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString));
 
 		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>
@@ -43,10 +43,10 @@ public class Program
 			return new HealthCheckService(healthCheckUtils, logger, connectionString);
 		});
 		builder.Services.AddScoped<IParticipantService, ParticipantService>();
-		builder.Services.AddScoped<IStaffService, StaffService>();
-		builder.Services.AddScoped<IStaffSpecializationService, StaffSpecializationService>();
-		builder.Services.AddScoped<IStaffAvailabilityService, StaffAvailabilityService>();
-		builder.Services.AddScoped<IEventScheduleStaffService, EventScheduleStaffService>();
+		builder.Services.AddScoped<IStaffMemberService, StaffMemberService>();
+		builder.Services.AddScoped<IStaffMemberSpecializationService, StaffMemberSpecializationService>();
+		builder.Services.AddScoped<IStaffMemberAvailabilityService, StaffMemberAvailabilityService>();
+		builder.Services.AddScoped<IEventScheduleStaffMemberService, EventScheduleStaffMemberService>();
 
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 

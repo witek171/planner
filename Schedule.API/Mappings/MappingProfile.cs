@@ -33,7 +33,6 @@ public class MappingProfile : Profile
 		CreateMap<CreateStaffMemberSpecializationRequest, StaffMemberSpecialization>();
 
 		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
-		CreateMap<UpdateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
 		CreateMap<StaffMemberAvailability, StaffMemberAvailabilityResponse>();
 
 		CreateMap<Specialization, SpecializationResponse>();

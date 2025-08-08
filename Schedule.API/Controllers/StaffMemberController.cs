@@ -174,21 +174,6 @@ public class StaffMemberController : ControllerBase
 		return CreatedAtAction(nameof(Create), id);
 	}
 
-	[HttpPut("availability/{id}")]
-	public async Task<ActionResult> UpdateAvailability(
-		Guid companyId,
-		Guid id,
-		[FromBody] UpdateStaffMemberAvailabilityRequest request)
-	{
-		StaffMemberAvailability? availability = await _staffMemberAvailabilityService
-			.GetByIdAsync(companyId, id);
-		
-			_mapper.Map(request, availability);
-			
-		await _staffMemberAvailabilityService.UpdateAsync(availability!);
-		return NoContent();
-	}
-
 	[HttpDelete("availability/{id:guid}")]
 	public async Task<ActionResult> DeleteAvailability(
 		Guid companyId,

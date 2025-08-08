@@ -15,7 +15,16 @@ public class Specialization
 	}
 
 	public Guid Id { get; }
-	public Guid CompanyId { get; }
+	public Guid CompanyId { get; private set; }
 	public string Name { get; }
 	public string Description { get; }
+
+	public void SetCompanyId(Guid companyId)
+	{
+		if (CompanyId != Guid.Empty)
+			throw new InvalidOperationException(
+				$"CompanyId is already set to {CompanyId} and cannot be changed");
+
+		CompanyId = companyId;
+	}
 }

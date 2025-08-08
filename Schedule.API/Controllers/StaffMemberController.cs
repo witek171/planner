@@ -89,23 +89,6 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet("specializations")]
-	public async Task<ActionResult<List<SpecializationResponse>>> GetStaffMemberSpecializations(
-		[FromQuery] Guid staffMemberId,
-		Guid companyId)
-	{
-		List<Specialization> specializations = await _staffMemberSpecializationService
-			.GetStaffMemberSpecializationsAsync(staffMemberId, companyId);
-
-		List<SpecializationResponse> responses = _mapper
-			.Map<List<SpecializationResponse>>(specializations);
-		return Ok(responses);
-	}
-
-	[HttpGet("specializations/all")]
-	// zwracanie wszystkich pracownikow z ich specjalizacjami,
-	// jakie dane pracownikow zwracamy?(imie, nazwisko, id, rola)
-
 	// czy robic put gdzie bede w staffMemberSpecializations
 	// edytowal specializationId dla pracownika?
 	[HttpPost("specializations")]

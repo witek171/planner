@@ -203,11 +203,11 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		Guid eventId)
 	{
-		List<EventScheduleStaffMember> list = await _eventScheduleStaffMemberService
+		List<EventScheduleStaffMember> events = await _eventScheduleStaffMemberService
 			.GetByEventIdAsync(eventId);
 		
 		List<EventScheduleStaffMemberResponse> responses = _mapper
-			.Map<List<EventScheduleStaffMemberResponse>>(list);
+			.Map<List<EventScheduleStaffMemberResponse>>(events);
 		return Ok(responses);
 	}
 

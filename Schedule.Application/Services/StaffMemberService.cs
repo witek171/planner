@@ -43,8 +43,8 @@ public class StaffMemberService : IStaffMemberService
 	{
 		if (await _repository.HasRelatedRecordsAsync(id, companyId))
 		{
-			StaffMember staffMemberMember = (await _repository.GetByIdAsync(id, companyId))!;
-			staffMemberMember.SoftDelete();
+			StaffMember staffMember = (await _repository.GetByIdAsync(id, companyId))!;
+			staffMember.SoftDelete();
 		}
 		else
 		{

@@ -69,7 +69,7 @@ CREATE TABLE CompanyHierarchy
     CompanyId       UNIQUEIDENTIFIER PRIMARY KEY,
     ParentCompanyId UNIQUEIDENTIFIER,
     CONSTRAINT fk_ch_company FOREIGN KEY (CompanyId) 
-            REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+            REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_ch_parent FOREIGN KEY (ParentCompanyId) 
             REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );

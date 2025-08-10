@@ -34,10 +34,11 @@ public class StaffMemberController : ControllerBase
 	[HttpGet("all")]
 	public async Task<ActionResult<List<StaffMemberResponse>>> GetAll(Guid companyId)
 	{
-		List<StaffMember> staffMemberList = await _staffMemberService.GetAllAsync(companyId);
-
-		List<StaffMemberResponse> response = _mapper
-			.Map<List<StaffMemberResponse>>(staffMemberList);
+		List<StaffMember> staff = await _staffMemberService.GetAllAsync(companyId);
+		if (staff.Any() == false)
+			return NotFound();
+		
+		List<StaffMemberResponse> response = _mapper.Map<List<StaffMemberResponse>>(staff);
 		return Ok(response);
 	}
 
@@ -48,6 +49,8 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
+		if (staffMember == null)
+			return NotFound();
 
 		StaffMemberResponse response = _mapper.Map<StaffMemberResponse>(staffMember);
 		return Ok(response);
@@ -152,7 +155,7 @@ public class StaffMemberController : ControllerBase
 		StaffMemberAvailability? availability = _mapper.Map<StaffMemberAvailability>(request);
 		availability.SetCompanyId(companyId);
 		availability.SetStaffMemberId(staffMemberId);
-		
+
 		Guid id = await _staffMemberAvailabilityService.CreateAsync(availability);
 		return CreatedAtAction(nameof(Create), id);
 	}
@@ -166,14 +169,14 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet("eventschedules/{eventId}")]
+	[HttpGet("eventschedules")]
 	public async Task<ActionResult<List<EventScheduleStaffMemberResponse>>> GetStaffMemberAssignedToEvent(
 		Guid companyId,
-		Guid eventId)
+		[FromQuery] Guid staffMemberId)
 	{
 		List<EventScheduleStaffMember> events = await _eventScheduleStaffMemberService
-			.GetByEventIdAsync(eventId);
-		
+			.GetByStaffMemberIdAsync(companyId, staffMemberId);
+
 		List<EventScheduleStaffMemberResponse> responses = _mapper
 			.Map<List<EventScheduleStaffMemberResponse>>(events);
 		return Ok(responses);
@@ -187,7 +190,7 @@ public class StaffMemberController : ControllerBase
 		EventScheduleStaffMember? eventScheduleStaffMember = _mapper
 			.Map<EventScheduleStaffMember>(request);
 		eventScheduleStaffMember.SetCompanyId(companyId);
-		
+
 		Guid id = await _eventScheduleStaffMemberService
 			.CreateAsync(eventScheduleStaffMember);
 		return Ok(id);

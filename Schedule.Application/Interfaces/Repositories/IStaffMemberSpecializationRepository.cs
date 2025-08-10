@@ -12,7 +12,7 @@ public interface IStaffMemberSpecializationRepository
 		Guid companyId,
 		Guid id);
 
-	Task<List<Specialization>> GetStaffMemberSpecializationsAsync(
+	Task<bool> ExistsAsync(
 		Guid staffMemberId,
-		Guid companyId);
+		Guid specializationId);
 }

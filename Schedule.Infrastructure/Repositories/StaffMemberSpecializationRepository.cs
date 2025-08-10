@@ -57,17 +57,15 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<Specialization>> GetStaffMemberSpecializationsAsync(
+	public async Task<bool> ExistsAsync(
 		Guid staffMemberId,
-		Guid companyId)
+		Guid specializationId)
 	{
 		const string sql = @"
-			SELECT s.Id, s.CompanyId, s.Name, s.Description
-			FROM StaffSpecializations ss
-			INNER JOIN Specializations s ON ss.SpecializationId = s.Id
-			WHERE ss.StaffMemberId = @StaffMemberId 
-			AND ss.CompanyId = @CompanyId
-			AND s.CompanyId = @CompanyId
+			SELECT 1
+			FROM StaffSpecializations
+			WHERE StaffMemberId = @StaffMemberId
+			AND SpecializationId = @SpecializationId
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -75,22 +73,10 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@SpecializationId", specializationId);
 
-		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+		object? result = await command.ExecuteScalarAsync();
 
-		List<Specialization> specializations = new();
-
-		while (await reader.ReadAsync())
-		{
-			specializations.Add(new Specialization(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("Description"))
-			));
-		}
-
-		return specializations;
+		return result != null;
 	}
 }

@@ -4,11 +4,11 @@ public class StaffMemberAvailability
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
-	public Guid StaffMemberId { get; private set;}
+	public Guid StaffMemberId { get; private set; }
 	public DateOnly Date { get; }
 	public DateTime StartTime { get; }
 	public DateTime EndTime { get; }
-	public bool IsAvailable { get; }
+	public bool IsAvailable { get; private set; }
 
 	public StaffMemberAvailability(
 		Guid id,
@@ -36,7 +36,7 @@ public class StaffMemberAvailability
 
 		CompanyId = companyId;
 	}
-	
+
 	public void SetStaffMemberId(Guid staffMemberId)
 	{
 		if (StaffMemberId != Guid.Empty)
@@ -44,5 +44,16 @@ public class StaffMemberAvailability
 				$"StaffMemberId is already set to {StaffMemberId} and cannot be changed");
 
 		StaffMemberId = staffMemberId;
+	}
+
+	public void SoftDelete()
+	{
+		if (!IsAvailable)
+			throw new InvalidOperationException(
+				$"Staff member {StaffMemberId} is already marked as unavailable " +
+				$"on {Date:yyyy-MM-dd} " +
+				$"from {StartTime:HH:mm} to {EndTime:HH:mm}");
+
+		IsAvailable = false;
 	}
 }

@@ -13,9 +13,12 @@ public interface IStaffMemberAvailabilityRepository
 		Guid staffMemberAvailabilityId);
 
 	Task<Guid> CreateAsync(StaffMemberAvailability availability);
-	Task<bool> PutAsync(StaffMemberAvailability availability);
 
 	Task<bool> DeleteByIdAsync(
 		Guid staffMemberAvailabilityId,
 		Guid companyId);
+
+	Task<bool> IsAssignedToEvent(
+		Guid companyId,
+		Guid id);
 }

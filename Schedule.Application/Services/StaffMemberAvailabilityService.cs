@@ -32,15 +32,20 @@ public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 		return await _repository.CreateAsync(availability);
 	}
 
-	public async Task UpdateAsync(StaffMemberAvailability availability)
-	{
-		await _repository.PutAsync(availability);
-	}
-
 	public async Task DeleteAsync(
 		Guid companyId,
 		Guid id)
 	{
-		await _repository.DeleteByIdAsync(companyId, id);
+		if (await _repository.IsAssignedToEvent(companyId, id))
+		{
+			StaffMemberAvailability? staffMemberAvailability = await _repository
+				.GetByIdAsync(id, companyId);
+
+			staffMemberAvailability!.SoftDelete();
+		}
+		else
+		{
+			await _repository.DeleteByIdAsync(companyId, id);
+		}
 	}
 }

@@ -78,6 +78,34 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
+// do poprawy
+	public async Task<bool> IsAssignedToEvent(
+		Guid companyId,
+		Guid id)
+	{
+		const string sql = @"
+			SELECT 1
+			FROM StaffAvailability sa
+			INNER JOIN EventScheduleStaff ess ON sa.StaffMemberId = ess.StaffMemberId
+			INNER JOIN EventSchedules es ON ess.EventScheduleId = es.Id
+			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
+			WHERE sa.Id = @Id 
+			AND sa.CompanyId = @CompanyId
+			AND (
+				(es.StartTime < sa.EndTime AND DATEADD(MINUTE, et.Duration, es.StartTime) > sa.StartTime)
+			) 
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", id);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
 
 	public async Task<StaffMemberAvailability?> GetByIdAsync(
 		Guid companyId,

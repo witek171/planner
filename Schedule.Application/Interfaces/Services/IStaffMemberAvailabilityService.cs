@@ -13,7 +13,6 @@ public interface IStaffMemberAvailabilityService
 		Guid id);
 
 	Task<Guid> CreateAsync(StaffMemberAvailability availability);
-	Task UpdateAsync(StaffMemberAvailability availability);
 
 	Task DeleteAsync(
 		Guid companyId,

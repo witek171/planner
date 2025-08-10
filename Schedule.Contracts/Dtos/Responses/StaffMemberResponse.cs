@@ -9,13 +9,15 @@ public class StaffMemberResponse
 		string email,
 		string firstName,
 		string lastName,
-		string phone)
+		string phone,
+		List<SpecializationResponse> specializations)
 	{
 		Role = role;
 		Email = email;
 		FirstName = firstName;
 		LastName = lastName;
 		Phone = phone;
+		Specializations = specializations;
 	}
 
 	[Required] public string Role { get; }
@@ -23,4 +25,5 @@ public class StaffMemberResponse
 	[Required] public string FirstName { get; }
 	[Required] public string LastName { get; }
 	[Required] public string Phone { get; }
+	[Required] public List<SpecializationResponse> Specializations { get; }
 }

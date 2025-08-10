@@ -26,7 +26,8 @@ public class MappingProfile : Profile
 		CreateMap<Participant, ParticipantResponse>();
 		CreateMap<ParticipantUpdateRequest, Participant>();
 
-		CreateMap<StaffMember, StaffMemberResponse>();
+		CreateMap<StaffMember, StaffMemberResponse>()
+			.ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
 		CreateMap<CreateStaffMemberRequest, StaffMember>();
 		CreateMap<UpdateStaffMemberRequest, StaffMember>();
 

@@ -36,29 +36,6 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		return (Guid)result;
 	}
 
-	public async Task<bool> PutAsync(StaffMemberAvailability availability)
-	{
-		const string sql = @"
-			UPDATE StaffAvailability SET
-			StartTime = @StartTime,
-			EndTime = @EndTime,
-			IsAvailable = @IsAvailable
-			WHERE Id = @Id
-		";
-
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
-
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", availability.Id);
-		command.Parameters.AddWithValue("@StartTime", availability.StartTime);
-		command.Parameters.AddWithValue("@EndTime", availability.EndTime);
-		command.Parameters.AddWithValue("@IsAvailable", availability.IsAvailable);
-
-		int rowsAffected = await command.ExecuteNonQueryAsync();
-		return rowsAffected > 0;
-	}
-
 	public async Task<bool> DeleteByIdAsync(
 		Guid staffMemberAvailabilityId,
 		Guid companyId)

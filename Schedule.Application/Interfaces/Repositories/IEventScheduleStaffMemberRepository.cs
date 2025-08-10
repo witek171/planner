@@ -10,5 +10,7 @@ public interface IEventScheduleStaffMemberRepository
 		Guid eventScheduleStaffMemberId,
 		Guid companyId);
 
-	Task<List<EventScheduleStaffMember>> GetByEventScheduleIdAsync(Guid eventId);
+	Task<List<EventScheduleStaffMember>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId);
 }

@@ -13,9 +13,11 @@ public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 		_repository = repository;
 	}
 
-	public async Task<List<EventScheduleStaffMember>> GetByEventIdAsync(Guid eventId)
+	public async Task<List<EventScheduleStaffMember>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId)
 	{
-		return await _repository.GetByEventScheduleIdAsync(eventId);
+		return await _repository.GetByStaffMemberIdAsync(companyId, staffMemberId);
 	}
 
 	public async Task<Guid> CreateAsync(EventScheduleStaffMember entity)

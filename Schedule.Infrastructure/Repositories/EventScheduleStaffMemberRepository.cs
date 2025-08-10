@@ -53,19 +53,21 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<EventScheduleStaffMember>> GetByEventScheduleIdAsync(Guid eventId)
+	public async Task<List<EventScheduleStaffMember>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId)
 	{
 		const string sql = @"
 			SELECT Id, CompanyId, EventScheduleId, StaffMemberId
 			FROM EventScheduleStaff
-			WHERE EventScheduleId = @EventScheduleId
+			WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@EventScheduleId", eventId);
+		command.Parameters.AddWithValue("@EventScheduleId", staffMemberId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 

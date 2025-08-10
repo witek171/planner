@@ -14,6 +14,7 @@ public class StaffMember
 	public string Phone { get; private set; }
 	public DateTime CreatedAt { get; }
 	public bool IsDeleted { get; private set; }
+	public List<Specialization> Specializations { get; private set; } 
 
 	public StaffMember(
 		Guid id,
@@ -25,7 +26,8 @@ public class StaffMember
 		string lastName,
 		string phone,
 		DateTime createdAt,
-		bool isDeleted)
+		bool isDeleted, 
+		List<Specialization> specializations)
 	{
 		Id = id;
 		CompanyId = companyId;
@@ -37,6 +39,7 @@ public class StaffMember
 		Phone = phone;
 		CreatedAt = createdAt;
 		IsDeleted = isDeleted;
+		Specializations = specializations;
 	}
 
 	public void SetCompanyId(Guid companyId)
@@ -56,11 +59,16 @@ public class StaffMember
 		Phone = Phone.Trim();
 	}
 
+	public void AddSpecialization(Specialization specialization)
+	{
+		Specializations.Add(specialization);
+	}
+
 	public void SoftDelete()
 	{
 		if (IsDeleted)
 			throw new InvalidOperationException(
-				$"StaffMember member is already marked as deleted for company {CompanyId}");
+				$"Staff member is already marked as deleted for company {CompanyId}");
 
 		IsDeleted = true;
 	}

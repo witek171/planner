@@ -89,11 +89,18 @@ public class StaffMemberRepository : IStaffMemberRepository
 	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt, IsDeleted
-			FROM Staff
-			WHERE CompanyId = @CompanyId AND IsDeleted = 0
-			ORDER BY CreatedAt DESC
-		";
+		SELECT 
+			s.Id, s.CompanyId, s.Role, s.Email, s.Password, 
+			s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
+			sp.Id as SpecId, sp.Name as SpecName, sp.Description as SpecDescription
+		FROM Staff s
+		LEFT JOIN StaffSpecializations ss 
+			ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
+		LEFT JOIN Specializations sp 
+			ON ss.SpecializationId = sp.Id
+		WHERE s.CompanyId = @CompanyId AND s.IsDeleted = 0
+		ORDER BY s.CreatedAt DESC
+	";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -103,23 +110,45 @@ public class StaffMemberRepository : IStaffMemberRepository
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<StaffMember> staff = new();
-
+		Dictionary<Guid, StaffMember> staffMap = new();
+		
 		while (await reader.ReadAsync())
-			staff.Add(new StaffMember(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
-				reader.GetString(reader.GetOrdinal("Email")),
-				reader.GetString(reader.GetOrdinal("Password")),
-				reader.GetString(reader.GetOrdinal("FirstName")),
-				reader.GetString(reader.GetOrdinal("LastName")),
-				reader.GetString(reader.GetOrdinal("Phone")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
-				reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
-			));
+		{
+			Guid staffId = reader.GetGuid(reader.GetOrdinal("Id"));
+			List<Specialization> specializations = new();
 
-		return staff;
+			if (!staffMap.ContainsKey(staffId))
+			{
+				StaffMember staffMember = new(
+					staffId,
+					reader.GetGuid(reader.GetOrdinal("CompanyId")),
+					Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
+					reader.GetString(reader.GetOrdinal("Email")),
+					reader.GetString(reader.GetOrdinal("Password")),
+					reader.GetString(reader.GetOrdinal("FirstName")),
+					reader.GetString(reader.GetOrdinal("LastName")),
+					reader.GetString(reader.GetOrdinal("Phone")),
+					reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+					reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
+					specializations
+				);
+
+				staffMap.Add(staffId, staffMember);
+			}
+
+			if (!reader.IsDBNull(reader.GetOrdinal("SpecId")))
+			{
+				Specialization specialization = new(
+					reader.GetGuid(reader.GetOrdinal("SpecId")),
+					companyId,
+					reader.GetString(reader.GetOrdinal("SpecName")),
+					reader.GetString(reader.GetOrdinal("SpecDescription"))
+				);
+				staffMap[staffId].AddSpecialization(specialization);
+			}
+		}
+
+		return staffMap.Values.ToList();
 	}
 
 	public async Task<StaffMember?> GetByIdAsync(
@@ -127,10 +156,15 @@ public class StaffMemberRepository : IStaffMemberRepository
 		Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone, CreatedAt, IsDeleted
-			FROM Staff 
-			WHERE Id = @Id AND CompanyId = @CompanyId AND IsDeleted = 0
-		";
+		SELECT 
+			s.Id, s.CompanyId, s.Role, s.Email, s.Password, 
+			s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
+			sp.Id as SpecId, sp.Name as SpecName, sp.Description as SpecDescription
+		FROM Staff s
+		LEFT JOIN StaffSpecializations ss ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
+		LEFT JOIN Specializations sp ON ss.SpecializationId = sp.Id
+		WHERE s.Id = @Id AND s.CompanyId = @CompanyId AND s.IsDeleted = 0
+	";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -141,21 +175,40 @@ public class StaffMemberRepository : IStaffMemberRepository
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		if (!await reader.ReadAsync())
-			return null;
+		List<Specialization> specializations = new();
+		StaffMember? staffMember = null;
 
-		return new StaffMember(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetString(reader.GetOrdinal("Password")),
-			reader.GetString(reader.GetOrdinal("FirstName")),
-			reader.GetString(reader.GetOrdinal("LastName")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
-			reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
-		);
+		while (await reader.ReadAsync())
+		{
+			if (staffMember == null)
+			{
+				staffMember = new StaffMember(
+					reader.GetGuid(reader.GetOrdinal("Id")),
+					reader.GetGuid(reader.GetOrdinal("CompanyId")),
+					Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
+					reader.GetString(reader.GetOrdinal("Email")),
+					reader.GetString(reader.GetOrdinal("Password")),
+					reader.GetString(reader.GetOrdinal("FirstName")),
+					reader.GetString(reader.GetOrdinal("LastName")),
+					reader.GetString(reader.GetOrdinal("Phone")),
+					reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+					reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
+					specializations
+				);
+			}
+
+			if (!reader.IsDBNull(reader.GetOrdinal("SpecId")))
+			{
+				specializations.Add(new Specialization(
+					reader.GetGuid(reader.GetOrdinal("SpecId")),
+					companyId,
+					reader.GetString(reader.GetOrdinal("SpecName")),
+					reader.GetString(reader.GetOrdinal("SpecDescription"))
+				));
+			}
+		}
+
+		return staffMember;
 	}
 
 	public async Task<bool> HasRelatedRecordsAsync(
@@ -163,7 +216,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		Guid companyId)
 	{
 		const string sql = @"
-			SELECT CASE 
+			SELECT 
 			WHEN EXISTS (
 				SELECT 1 FROM EventScheduleStaff WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			) 
@@ -173,9 +226,6 @@ public class StaffMemberRepository : IStaffMemberRepository
 			OR EXISTS (
 				SELECT 1 FROM StaffSpecializations WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			)
-			THEN CAST(1 AS BIT)
-			ELSE CAST(0 AS BIT)
-			END
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -185,7 +235,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 
-		object result = (await command.ExecuteScalarAsync())!;
-		return (bool)result;
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
 	}
 }

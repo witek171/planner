@@ -72,7 +72,7 @@ public class StaffMember
 	{
 		if (IsDeleted)
 			throw new InvalidOperationException(
-				$"Staff member is already marked as deleted for company {CompanyId}");
+				$"Staff member {Id} is already marked as deleted for company {CompanyId}");
 
 		IsDeleted = true;
 	}

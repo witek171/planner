@@ -239,4 +239,50 @@ public class StaffMemberRepository : IStaffMemberRepository
 		object? result = await command.ExecuteScalarAsync();
 		return result != null;
 	}
+	
+	public async Task<bool> EmailExistsAsync(
+		Guid companyId,
+		string email)
+	{
+		const string sql = @"
+			SELECT 1 
+			FROM Staff
+			WHERE CompanyId = @CompanyId 
+			AND Email = @Email 
+			AND IsDeleted = 0
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Email", email);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
+
+	public async Task<bool> PhoneExistsAsync(
+		Guid companyId,
+		string phone)
+	{
+		const string sql = @"
+			SELECT 1 
+			FROM Staff
+			WHERE CompanyId = @CompanyId 
+			AND Phone = @Phone 
+			AND IsDeleted = 0
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Phone", phone);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
 }

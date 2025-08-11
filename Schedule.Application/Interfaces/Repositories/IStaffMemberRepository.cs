@@ -20,4 +20,12 @@ public interface IStaffMemberRepository
 	Task<bool> HasRelatedRecordsAsync(
 		Guid staffMemberId,
 		Guid companyId);
+
+	Task<bool> EmailExistsAsync(
+		Guid companyId,
+		string email);
+
+	Task<bool> PhoneExistsAsync(
+		Guid companyId,
+		string phone);
 }

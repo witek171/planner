@@ -28,6 +28,22 @@ public class StaffMemberService : IStaffMemberService
 	public async Task<Guid> CreateAsync(StaffMember staffMember)
 	{
 		staffMember.Normalize();
+
+		Guid companyId = staffMember.CompanyId;
+		string email = staffMember.Email;
+		string phone = staffMember.Phone;
+		if (await _repository.EmailExistsAsync(companyId, email))
+		{
+			throw new InvalidOperationException(
+				$"Email {email} already exists for this company");
+		}
+
+		if (await _repository.PhoneExistsAsync(companyId, phone))
+		{
+			throw new InvalidOperationException(
+				$"Phone {phone} already exists for this company");
+		}
+
 		return await _repository.CreateAsync(staffMember);
 	}
 

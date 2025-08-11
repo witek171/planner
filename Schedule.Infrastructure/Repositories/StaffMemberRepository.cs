@@ -47,8 +47,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			Password = @Password,
 			FirstName = @FirstName,
 			LastName = @LastName,
-			Phone = @Phone,
-			IsDeleted = @IsDeleted
+			Phone = @Phone
 			WHERE Id = @Id AND CompanyId = @CompanyId
 		";
 
@@ -58,13 +57,12 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMember.Id);
 		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
-		command.Parameters.AddWithValue("@Role", staffMember.Role);
+		command.Parameters.AddWithValue("@Role", staffMember.Role.ToString());
 		command.Parameters.AddWithValue("@Email", staffMember.Email);
 		command.Parameters.AddWithValue("@Password", staffMember.Password);
 		command.Parameters.AddWithValue("@FirstName", staffMember.FirstName);
 		command.Parameters.AddWithValue("@LastName", staffMember.LastName);
 		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
-		command.Parameters.AddWithValue("@IsDeleted", staffMember.IsDeleted);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
@@ -247,17 +245,19 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return result == 1;
 	}
 
-	public async Task<bool> EmailExistsAsync(
+	public async Task<bool> EmailExistsForOtherAsync(
 		Guid companyId,
+		Guid staffMemberId,
 		string email)
 	{
 		const string sql = @"
-			SELECT 1 
-			FROM Staff
-			WHERE CompanyId = @CompanyId 
-			AND Email = @Email 
-			AND IsDeleted = 0
-		";
+        SELECT 1 
+        FROM Staff
+        WHERE CompanyId = @CompanyId 
+        AND Email = @Email 
+        AND IsDeleted = 0
+        AND Id <> @StaffMemberId
+    ";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -265,22 +265,25 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@Email", email);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 
 		object? result = await command.ExecuteScalarAsync();
 		return result != null;
 	}
 
-	public async Task<bool> PhoneExistsAsync(
+	public async Task<bool> PhoneExistsForOtherAsync(
 		Guid companyId,
+		Guid staffMemberId,
 		string phone)
 	{
 		const string sql = @"
-			SELECT 1 
-			FROM Staff
-			WHERE CompanyId = @CompanyId 
-			AND Phone = @Phone 
-			AND IsDeleted = 0
-		";
+        SELECT 1 
+        FROM Staff
+        WHERE CompanyId = @CompanyId 
+        AND Phone = @Phone 
+        AND IsDeleted = 0
+        AND Id <> @StaffMemberId
+    ";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -288,8 +291,29 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@Phone", phone);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 
 		object? result = await command.ExecuteScalarAsync();
 		return result != null;
+	}
+
+	public async Task<bool> UpdateIsDeletedFlagAsync(StaffMember staffMember)
+	{
+		const string sql = @"
+			UPDATE Staff SET
+			IsDeleted = @IsDeleted
+			WHERE Id = @Id AND CompanyId = @CompanyId
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", staffMember.Id);
+		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
+		command.Parameters.AddWithValue("@IsDeleted", staffMember.IsDeleted);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
 	}
 }

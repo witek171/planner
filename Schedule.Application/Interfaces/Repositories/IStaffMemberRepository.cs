@@ -21,11 +21,15 @@ public interface IStaffMemberRepository
 		Guid staffMemberId,
 		Guid companyId);
 
-	Task<bool> EmailExistsAsync(
+	Task<bool> EmailExistsForOtherAsync(
 		Guid companyId,
+		Guid staffMemberId,
 		string email);
 
-	Task<bool> PhoneExistsAsync(
+	Task<bool> PhoneExistsForOtherAsync(
 		Guid companyId,
+		Guid staffMemberId,
 		string phone);
+
+	Task<bool> UpdateIsDeletedFlagAsync(StaffMember staffMember);
 }

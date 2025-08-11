@@ -8,13 +8,17 @@ public class StaffMember
 	public Guid CompanyId { get; private set; }
 	public StaffRole Role { get; }
 	public string Email { get; private set; }
-	public string Password { get; }
+	public string Password { get; private set; }
 	public string FirstName { get; private set; }
 	public string LastName { get; private set; }
 	public string Phone { get; private set; }
 	public DateTime CreatedAt { get; }
 	public bool IsDeleted { get; private set; }
-	public List<Specialization> Specializations { get; private set; } 
+	public List<Specialization> Specializations { get; private set; }
+
+	public StaffMember()
+	{
+	}
 
 	public StaffMember(
 		Guid id,
@@ -26,7 +30,7 @@ public class StaffMember
 		string lastName,
 		string phone,
 		DateTime createdAt,
-		bool isDeleted, 
+		bool isDeleted,
 		List<Specialization> specializations)
 	{
 		Id = id;

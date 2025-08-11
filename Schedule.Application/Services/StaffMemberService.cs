@@ -59,8 +59,13 @@ public class StaffMemberService : IStaffMemberService
 	{
 		if (await _repository.HasRelatedRecordsAsync(id, companyId))
 		{
-			StaffMember staffMember = (await _repository.GetByIdAsync(id, companyId))!;
+			StaffMember? staffMember = await _repository.GetByIdAsync(id, companyId);
+			if (staffMember == null)
+				throw new InvalidOperationException(
+					$"Staff member {id} is already marked as deleted for company {companyId}");
+
 			staffMember.SoftDelete();
+			await _repository.PutAsync(staffMember);
 		}
 		else
 		{

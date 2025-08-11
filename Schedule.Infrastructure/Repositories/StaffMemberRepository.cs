@@ -42,11 +42,13 @@ public class StaffMemberRepository : IStaffMemberRepository
 	{
 		const string sql = @"
 			UPDATE Staff SET
+			Role = @Role,
 			Email = @Email,
 			Password = @Password,
 			FirstName = @FirstName,
 			LastName = @LastName,
-			Phone = @Phone
+			Phone = @Phone,
+			IsDeleted = @IsDeleted
 			WHERE Id = @Id AND CompanyId = @CompanyId
 		";
 
@@ -62,14 +64,15 @@ public class StaffMemberRepository : IStaffMemberRepository
 		command.Parameters.AddWithValue("@FirstName", staffMember.FirstName);
 		command.Parameters.AddWithValue("@LastName", staffMember.LastName);
 		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
+		command.Parameters.AddWithValue("@IsDeleted", staffMember.IsDeleted);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
 
 	public async Task<bool> DeleteByIdAsync(
-		Guid companyId,
-		Guid staffMemberId)
+		Guid staffMemberId,
+		Guid companyId)
 	{
 		const string sql = @"
 			DELETE FROM Staff 
@@ -80,8 +83,8 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
 		command.Parameters.AddWithValue("@Id", staffMemberId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
@@ -112,7 +115,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		Dictionary<Guid, StaffMember> staffMap = new();
-		
+
 		while (await reader.ReadAsync())
 		{
 			Guid staffId = reader.GetGuid(reader.GetOrdinal("Id"));
@@ -217,7 +220,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		Guid companyId)
 	{
 		const string sql = @"
-			SELECT 
+			SELECT CASE 
 			WHEN EXISTS (
 				SELECT 1 FROM EventScheduleStaff WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			) 
@@ -227,6 +230,10 @@ public class StaffMemberRepository : IStaffMemberRepository
 			OR EXISTS (
 				SELECT 1 FROM StaffSpecializations WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
 			)
+			OR EXISTS (
+				SELECT 1 FROM Messages WHERE SenderId = @StaffMemberId AND CompanyId = @CompanyId
+			)
+			THEN 1 ELSE 0 END
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -236,10 +243,10 @@ public class StaffMemberRepository : IStaffMemberRepository
 		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 
-		object? result = await command.ExecuteScalarAsync();
-		return result != null;
+		int result = (int)(await command.ExecuteScalarAsync())!;
+		return result == 1;
 	}
-	
+
 	public async Task<bool> EmailExistsAsync(
 		Guid companyId,
 		string email)

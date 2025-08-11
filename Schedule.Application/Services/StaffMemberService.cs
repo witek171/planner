@@ -28,21 +28,7 @@ public class StaffMemberService : IStaffMemberService
 	public async Task<Guid> CreateAsync(StaffMember staffMember)
 	{
 		staffMember.Normalize();
-
-		Guid companyId = staffMember.CompanyId;
-		string email = staffMember.Email;
-		string phone = staffMember.Phone;
-		if (await _repository.EmailExistsAsync(companyId, email))
-		{
-			throw new InvalidOperationException(
-				$"Email {email} already exists for this company");
-		}
-
-		if (await _repository.PhoneExistsAsync(companyId, phone))
-		{
-			throw new InvalidOperationException(
-				$"Phone {phone} already exists for this company");
-		}
+		await ValidateEmailAndPhoneAsync(staffMember);
 
 		return await _repository.CreateAsync(staffMember);
 	}
@@ -50,6 +36,7 @@ public class StaffMemberService : IStaffMemberService
 	public async Task PutAsync(StaffMember staffMember)
 	{
 		staffMember.Normalize();
+		await ValidateEmailAndPhoneAsync(staffMember);
 		await _repository.PutAsync(staffMember);
 	}
 
@@ -65,11 +52,31 @@ public class StaffMemberService : IStaffMemberService
 					$"Staff member {id} is already marked as deleted for company {companyId}");
 
 			staffMember.SoftDelete();
-			await _repository.PutAsync(staffMember);
+			await _repository.UpdateIsDeletedFlagAsync(staffMember);
 		}
 		else
 		{
 			await _repository.DeleteByIdAsync(id, companyId);
+		}
+	}
+
+	private async Task ValidateEmailAndPhoneAsync(StaffMember staffMember)
+	{
+		Guid companyId = staffMember.CompanyId;
+		Guid staffMemberId = staffMember.Id;
+		string email = staffMember.Email;
+		string phone = staffMember.Phone;
+
+		if (await _repository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
+		{
+			throw new ArgumentException(
+				$"Email {email} already exists for company {companyId}");
+		}
+
+		if (await _repository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
+		{
+			throw new ArgumentException(
+				$"Phone {phone} already exists for company {companyId}");
 		}
 	}
 }

@@ -18,7 +18,8 @@ public class StaffMemberRepository : IStaffMemberRepository
 	{
 		const string sql = @"
 			INSERT INTO Staff (CompanyId, Role, Email, Password, FirstName, LastName, Phone)
-			VALUES (@CompanyId, @Role, @Email, @Password, @FirstName, @LastName, @Phone)
+			OUTPUT INSERTED.Id
+			VALUES (@CompanyId, @Role, @Email, @Password, @FirstName, @LastName, @Phone);
 		";
 
 		await using SqlConnection connection = new(_connectionString);

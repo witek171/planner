@@ -68,10 +68,10 @@ CREATE TABLE CompanyHierarchy
 (
     CompanyId       UNIQUEIDENTIFIER PRIMARY KEY,
     ParentCompanyId UNIQUEIDENTIFIER,
-    CONSTRAINT fk_ch_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_ch_parent FOREIGN KEY (ParentCompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    CONSTRAINT fk_ch_company FOREIGN KEY (CompanyId) 
+            REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT fk_ch_parent FOREIGN KEY (ParentCompanyId) 
+            REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Staff (personel)
@@ -86,9 +86,9 @@ CREATE TABLE Staff
     LastName  NVARCHAR(100)    NOT NULL,
     Phone     NVARCHAR(30)     NOT NULL UNIQUE,
     CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
+    IsDeleted BIT                          DEFAULT 0,
     CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_staff_role CHECK (Role IN ('ReceptionEmployee', 'Trainer', 'Manager'))
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela Participants (uczestnicy)
@@ -103,7 +103,7 @@ CREATE TABLE Participants
     GdprConsent BIT              NOT NULL,
     CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
     CONSTRAINT fk_participants_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela Specializations (specjalizacje)
@@ -114,7 +114,7 @@ CREATE TABLE Specializations
     Name        NVARCHAR(100)    NOT NULL,
     Description NVARCHAR(MAX),
     CONSTRAINT fk_specializations_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela StaffSpecializations (specjalizacje personelu)
@@ -122,12 +122,12 @@ CREATE TABLE StaffSpecializations
 (
     Id               UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId        UNIQUEIDENTIFIER NOT NULL,
-    StaffId          UNIQUEIDENTIFIER NOT NULL,
+    StaffMemberId          UNIQUEIDENTIFIER NOT NULL,
     SpecializationId UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_staffspec_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_staffspec_staff FOREIGN KEY (StaffId)
-        REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT fk_staffspec_staff FOREIGN KEY (StaffMemberId)
+        REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_staffspec_specialization FOREIGN KEY (SpecializationId)
         REFERENCES Specializations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -137,15 +137,15 @@ CREATE TABLE StaffAvailability
 (
     Id          UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId   UNIQUEIDENTIFIER NOT NULL,
-    StaffId     UNIQUEIDENTIFIER NOT NULL,
+    StaffMemberId     UNIQUEIDENTIFIER NOT NULL,
     Date        DATE             NOT NULL,
     StartTime   DATETIME         NOT NULL,
     EndTime     DATETIME         NOT NULL,
     IsAvailable BIT                          DEFAULT 1,
     CONSTRAINT fk_staffavail_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffId)
-        REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffMemberId)
+        REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela EventTypes (typy wydarzeń)
@@ -160,7 +160,7 @@ CREATE TABLE EventTypes
     MaxParticipants INT,
     MinStaff        INT                          DEFAULT 1,
     CONSTRAINT fk_eventtypes_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- Tabela EventSchedules (harmonogramy wydarzeń)
@@ -174,10 +174,9 @@ CREATE TABLE EventSchedules
     CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
     Status      NVARCHAR(20)                 DEFAULT 'Active',
     CONSTRAINT fk_eventschedules_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_eventschedules_eventtype FOREIGN KEY (EventTypeId)
-        REFERENCES EventTypes (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_eventschedules_status CHECK (Status IN ('Active', 'Completed'))
+        REFERENCES EventTypes (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Indeks na EventSchedules
@@ -189,12 +188,12 @@ CREATE TABLE EventScheduleStaff
     Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId       UNIQUEIDENTIFIER NOT NULL,
     EventScheduleId UNIQUEIDENTIFIER NOT NULL,
-    StaffId         UNIQUEIDENTIFIER NOT NULL,
+    StaffMemberId         UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_eventstaff_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_eventstaff_schedule FOREIGN KEY (EventScheduleId)
         REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_eventstaff_staff FOREIGN KEY (StaffId)
+    CONSTRAINT fk_eventstaff_staff FOREIGN KEY (StaffMemberId)
         REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -212,12 +211,11 @@ CREATE TABLE Reservations
     CancelledAt      DATETIME         NULL,
     PaidAt           DATETIME         NULL,
     CONSTRAINT fk_reservations_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_reservations_participant FOREIGN KEY (ParticipantId)
         REFERENCES Participants (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_reservations_eventschedule FOREIGN KEY (EventScheduleId)
-        REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_reservations_status CHECK (Status IN ('Confirmed', 'Cancelled'))
+        REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Notifications (powiadomienia)
@@ -233,11 +231,9 @@ CREATE TABLE Notifications
     EmailContent  NVARCHAR(MAX),
     SmsContent    NVARCHAR(MAX),
     CONSTRAINT fk_notifications_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_notifications_reservation FOREIGN KEY (ReservationId)
-        REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT chk_notifications_email_status CHECK (EmailStatus IN ('Sent', 'Failed', 'Pending')),
-    CONSTRAINT chk_notifications_sms_status CHECK (SmsStatus IN ('Sent', 'Failed', 'Pending'))
+        REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- Tabela Messages (wiadomości)
@@ -250,7 +246,7 @@ CREATE TABLE Messages
     Content    NVARCHAR(MAX)    NOT NULL,
     CreatedAt  DATETIME                     DEFAULT GETUTCDATE(),
     CONSTRAINT fk_messages_company FOREIGN KEY (CompanyId)
-        REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_messages_sender FOREIGN KEY (SenderId)
         REFERENCES Staff (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_messages_receiver FOREIGN KEY (ReceiverId)

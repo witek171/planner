@@ -251,13 +251,13 @@ public class StaffMemberRepository : IStaffMemberRepository
 		string email)
 	{
 		const string sql = @"
-        SELECT 1 
-        FROM Staff
-        WHERE CompanyId = @CompanyId 
-        AND Email = @Email 
-        AND IsDeleted = 0
-        AND Id <> @StaffMemberId
-    ";
+			SELECT 1 
+			FROM Staff
+			WHERE CompanyId = @CompanyId 
+			AND Email = @Email 
+			AND IsDeleted = 0
+			AND Id <> @StaffMemberId
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -277,13 +277,13 @@ public class StaffMemberRepository : IStaffMemberRepository
 		string phone)
 	{
 		const string sql = @"
-        SELECT 1 
-        FROM Staff
-        WHERE CompanyId = @CompanyId 
-        AND Phone = @Phone 
-        AND IsDeleted = 0
-        AND Id <> @StaffMemberId
-    ";
+			SELECT 1 
+			FROM Staff
+			WHERE CompanyId = @CompanyId 
+			AND Phone = @Phone 
+			AND IsDeleted = 0
+			AND Id <> @StaffMemberId
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

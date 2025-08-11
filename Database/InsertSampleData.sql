@@ -553,7 +553,7 @@ VALUES
 -- 6. StaffSpecializations - przypisanie specjalizacji do trenerów 
 -- =============================================
 
-INSERT INTO StaffSpecializations (Id, CompanyId, StaffId, SpecializationId)
+INSERT INTO StaffSpecializations (Id, CompanyId, StaffMemberId, SpecializationId)
 VALUES
     -- SportFit Centrum
     (NEWID(), @Branch1Id, @Trainer1Id, @Spec1Id),
@@ -613,7 +613,7 @@ VALUES
 -- 7. StaffAvailability - dodanie dostępności personelu 
 -- =============================================
 
-INSERT INTO StaffAvailability (Id, CompanyId, StaffId, Date, StartTime, EndTime, IsAvailable)
+INSERT INTO StaffAvailability (Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable)
 VALUES
     -- Dostępność trenerów SportFit Centrum
     (NEWID(), @Branch1Id, @Trainer1Id, '2025-07-28', '2025-07-28 08:00:00', '2025-07-28 16:00:00', 1),
@@ -935,7 +935,7 @@ VALUES
 -- 10. EventScheduleStaff - przypisanie personelu do wydarzeń 
 -- =============================================
 
-INSERT INTO EventScheduleStaff (Id, CompanyId, EventScheduleId, StaffId)
+INSERT INTO EventScheduleStaff (Id, CompanyId, EventScheduleId, StaffMemberId)
 VALUES
     -- Przypisanie trenerów SportFit Centrum
     (NEWID(), @Branch1Id, @Event1Id, @Trainer1Id),

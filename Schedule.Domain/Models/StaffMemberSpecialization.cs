@@ -7,6 +7,10 @@ public class StaffMemberSpecialization
 	public Guid StaffMemberId { get; }
 	public Guid SpecializationId { get; }
 
+	public StaffMemberSpecialization()
+	{
+	}
+
 	public StaffMemberSpecialization(
 		Guid id,
 		Guid companyId,
@@ -18,7 +22,7 @@ public class StaffMemberSpecialization
 		StaffMemberId = staffMemberId;
 		SpecializationId = specializationId;
 	}
-	
+
 	public void SetCompanyId(Guid companyId)
 	{
 		if (CompanyId != Guid.Empty)

@@ -78,7 +78,7 @@ public class StaffMemberController : ControllerBase
 			.GetByIdAsync(staffMemberId, companyId);
 
 		_mapper.Map(request, staffMember);
-
+// zwracac not found gdy pracownik jest oznaczony jako deleted
 		await _staffMemberService.PutAsync(staffMember!);
 		return NoContent();
 	}

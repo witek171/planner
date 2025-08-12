@@ -31,7 +31,12 @@ public class MappingProfile : Profile
 		CreateMap<CreateStaffMemberRequest, StaffMember>();
 		CreateMap<UpdateStaffMemberRequest, StaffMember>();
 
-		CreateMap<CreateStaffMemberSpecializationRequest, StaffMemberSpecialization>();
+		CreateMap<CreateStaffMemberSpecializationRequest, StaffMemberSpecialization>()
+			.ConstructUsing(src => new StaffMemberSpecialization(
+				Guid.Empty,
+				Guid.Empty,
+				src.StaffMemberId,
+				src.SpecializationId));
 
 		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
 		CreateMap<StaffMemberAvailability, StaffMemberAvailabilityResponse>();

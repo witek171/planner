@@ -65,6 +65,7 @@ public class StaffMember
 
 	public void AddSpecialization(Specialization specialization)
 	{
+		// raczej lepiej byloby przypisac cala liste niz dodac specjalizacje do listy
 		Specializations.Add(specialization);
 	}
 

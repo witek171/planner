@@ -23,6 +23,7 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 				staffMemberSpecialization.SpecializationId)
 		)
 		{
+			// zamiast poprawnego id specjalizacji jest zwracany guid empty
 			throw new InvalidOperationException(
 				$"Staff member {staffMemberSpecialization.StaffMemberId}" +
 				$" already has specialization {staffMemberSpecialization.Id} assigned");

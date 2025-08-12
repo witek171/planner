@@ -34,8 +34,8 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 	}
 
 	public async Task<bool> DeleteByIdAsync(
-		Guid eventScheduleStaffMemberId,
-		Guid companyId)
+		Guid companyId,
+		Guid eventScheduleStaffMemberId)
 	{
 		const string sql = @"
 			DELETE FROM EventScheduleStaff
@@ -67,20 +67,21 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@EventScheduleId", staffMemberId);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<EventScheduleStaffMember> eventScheduleStaves = new();
+		List<EventScheduleStaffMember> eventSchedules = new();
 
 		while (await reader.ReadAsync())
-			eventScheduleStaves.Add(new EventScheduleStaffMember(
+			eventSchedules.Add(new EventScheduleStaffMember(
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
 				reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
 				reader.GetGuid(reader.GetOrdinal("StaffMemberId"))
 			));
 
-		return eventScheduleStaves;
+		return eventSchedules;
 	}
 }

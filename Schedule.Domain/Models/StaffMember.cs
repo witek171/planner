@@ -74,7 +74,7 @@ public class StaffMember
 		if (IsDeleted)
 			throw new InvalidOperationException(
 				$"Staff member {Id} is already marked as deleted for company {CompanyId}");
-
+// zmienic emial na deleted i phone na 000000000
 		IsDeleted = true;
 	}
 }

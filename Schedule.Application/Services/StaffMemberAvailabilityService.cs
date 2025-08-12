@@ -36,16 +36,18 @@ public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 		Guid companyId,
 		Guid id)
 	{
-		if (await _repository.IsAssignedToEvent(companyId, id))
-		{
-			StaffMemberAvailability? staffMemberAvailability = await _repository
-				.GetByIdAsync(id, companyId);
-
-			staffMemberAvailability!.SoftDelete();
-		}
-		else
-		{
+		// if (await _repository.IsAssignedToEvent(companyId, id))
+		// {
+		// 	StaffMemberAvailability? staffMemberAvailability = await _repository
+		// 		.GetByIdAsync(id, companyId);
+		//
+		// 	staffMemberAvailability!.SoftDelete();
+		// }
+		// else
+		// {
+		// 	await _repository.DeleteByIdAsync(companyId, id);
+		// }
+		
 			await _repository.DeleteByIdAsync(companyId, id);
-		}
 	}
 }

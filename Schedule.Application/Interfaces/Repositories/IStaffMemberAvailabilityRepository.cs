@@ -17,8 +17,4 @@ public interface IStaffMemberAvailabilityRepository
 	Task<bool> DeleteByIdAsync(
 		Guid staffMemberAvailabilityId,
 		Guid companyId);
-
-	Task<bool> IsAssignedToEvent(
-		Guid companyId,
-		Guid id);
 }

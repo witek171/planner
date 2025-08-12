@@ -10,6 +10,10 @@ public class StaffMemberAvailability
 	public DateTime EndTime { get; }
 	public bool IsAvailable { get; private set; }
 
+	public StaffMemberAvailability()
+	{
+	}
+
 	public StaffMemberAvailability(
 		Guid id,
 		Guid companyId,

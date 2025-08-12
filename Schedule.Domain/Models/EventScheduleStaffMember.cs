@@ -7,6 +7,10 @@ public class EventScheduleStaffMember
 	public Guid EventScheduleId { get; }
 	public Guid StaffMemberId { get; }
 
+	public EventScheduleStaffMember()
+	{
+	}
+
 	public EventScheduleStaffMember(
 		Guid id,
 		Guid companyId,

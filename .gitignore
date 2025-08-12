@@ -7,6 +7,8 @@
 node_modules/
 dist/
 
+Schedule.API/Properties/launchSettings.json
+
 # Compiled Java class files
 *.class
 

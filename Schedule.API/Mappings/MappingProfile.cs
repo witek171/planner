@@ -38,9 +38,25 @@ public class MappingProfile : Profile
 				src.StaffMemberId,
 				src.SpecializationId));
 
-		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>();
+		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>()
+			.ConstructUsing(src => new StaffMemberAvailability(
+				Guid.Empty,
+				Guid.Empty,
+				Guid.Empty,
+				src.Date,
+				src.StartTime,
+				src.EndTime,
+				true));
 		CreateMap<StaffMemberAvailability, StaffMemberAvailabilityResponse>();
 
 		CreateMap<Specialization, SpecializationResponse>();
+		
+		CreateMap<EventScheduleStaffMember, EventScheduleStaffMemberResponse>();
+		CreateMap<CreateEventScheduleStaffMemberRequest, EventScheduleStaffMember>()
+			.ConstructUsing(src => new EventScheduleStaffMember(
+				Guid.Empty,
+				Guid.Empty,
+				Guid.Empty,
+				Guid.Empty));
 	}
 }

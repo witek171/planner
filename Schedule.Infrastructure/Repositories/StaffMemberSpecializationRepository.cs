@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
 
@@ -18,9 +19,10 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 		StaffMemberSpecialization staffMemberSpecialization)
 	{
 		const string sql = @"
-			INSERT INTO StaffSpecializations (CompanyId, StaffMemberId, SpecializationId)
-			VALUES (@CompanyId, @StaffMemberId, @SpecializationId)
-		";
+        INSERT INTO StaffSpecializations (CompanyId, StaffMemberId, SpecializationId)
+        OUTPUT INSERTED.Id
+        VALUES (@CompanyId, @StaffMemberId, @SpecializationId)
+    ";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

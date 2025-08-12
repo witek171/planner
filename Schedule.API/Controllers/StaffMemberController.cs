@@ -37,7 +37,7 @@ public class StaffMemberController : ControllerBase
 		List<StaffMember> staff = await _staffMemberService.GetAllAsync(companyId);
 		if (staff.Any() == false)
 			return NotFound();
-		
+
 		List<StaffMemberResponse> response = _mapper.Map<List<StaffMemberResponse>>(staff);
 		return Ok(response);
 	}
@@ -85,16 +85,14 @@ public class StaffMemberController : ControllerBase
 
 	[HttpDelete("{staffMemberId:guid}")]
 	public async Task<ActionResult> Delete(
-		Guid companyId,
-		Guid staffMemberId)
+		Guid staffMemberId,
+		Guid companyId)
 	{
 		await _staffMemberService.DeleteAsync(staffMemberId, companyId);
 		return NoContent();
 	}
 
-	// czy robic put gdzie bede w staffMemberSpecializations
-	// edytowal specializationId dla pracownika?
-	[HttpPost("specializations")]
+	[HttpPost("specialization")]
 	public async Task<ActionResult<Guid>> CreateStaffMemberSpecialization(
 		Guid companyId,
 		[FromBody] CreateStaffMemberSpecializationRequest request)
@@ -106,10 +104,10 @@ public class StaffMemberController : ControllerBase
 
 		Guid id = await _staffMemberSpecializationService
 			.CreateAsync(companyId, staffMemberSpecialization);
-		return CreatedAtAction(nameof(Create), id);
+		return Created(string.Empty, id);
 	}
 
-	[HttpDelete("specializations/{staffMemberSpecializationId:guid}")]
+	[HttpDelete("specialization/{staffMemberSpecializationId:guid}")]
 	public async Task<ActionResult> DeleteStaffMemberSpecialization(
 		Guid companyId,
 		Guid staffMemberSpecializationId)
@@ -119,10 +117,10 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpGet("availability/{staffMemberId:guid}")]
+	[HttpGet("availability/byStaffMemberId")]
 	public async Task<ActionResult<List<StaffMemberAvailabilityResponse>>> GetAvailabilityByStaffMemberId(
 		Guid companyId,
-		Guid staffMemberId)
+		[FromQuery] Guid staffMemberId)
 	{
 		List<StaffMemberAvailability> list =
 			await _staffMemberAvailabilityService
@@ -133,10 +131,10 @@ public class StaffMemberController : ControllerBase
 		return Ok(responses);
 	}
 
-	[HttpGet("availability/{id}")]
+	[HttpGet("availability/byId")]
 	public async Task<ActionResult<StaffMemberAvailabilityResponse>> GetAvailabilityById(
 		Guid companyId,
-		Guid id)
+		[FromQuery] Guid id)
 	{
 		StaffMemberAvailability? availability = await _staffMemberAvailabilityService
 			.GetByIdAsync(companyId, id);
@@ -157,20 +155,22 @@ public class StaffMemberController : ControllerBase
 		availability.SetStaffMemberId(staffMemberId);
 
 		Guid id = await _staffMemberAvailabilityService.CreateAsync(availability);
-		return CreatedAtAction(nameof(Create), id);
+		// zwracane jest nie poprawane id
+		return Created(string.Empty, id);
 	}
 
-	[HttpDelete("availability/{id:guid}")]
+	[HttpDelete("availability/{availabilityId:guid}")]
 	public async Task<ActionResult> DeleteAvailability(
 		Guid companyId,
-		Guid id)
+		Guid availabilityId)
 	{
-		await _staffMemberAvailabilityService.DeleteAsync(companyId, id);
+		await _staffMemberAvailabilityService.DeleteAsync(companyId, availabilityId);
 		return NoContent();
 	}
 
-	[HttpGet("eventschedules")]
-	public async Task<ActionResult<List<EventScheduleStaffMemberResponse>>> GetStaffMemberAssignedToEvent(
+	// trzeba by zrobic encje eventSchedule i eventScheduleRespone ktore bylo by tu zwracane
+	[HttpGet("eventschedule")]
+	public async Task<ActionResult<List<EventScheduleStaffMemberResponse>>> GetStaffMemberEventSchedules(
 		Guid companyId,
 		[FromQuery] Guid staffMemberId)
 	{
@@ -182,7 +182,8 @@ public class StaffMemberController : ControllerBase
 		return Ok(responses);
 	}
 
-	[HttpPost("eventschedules")]
+	// nie dziala, raczej problem z mapowaniem
+	[HttpPost("eventschedule")]
 	public async Task<ActionResult<Guid>> AssignStaffMemberToEvent(
 		Guid companyId,
 		[FromBody] CreateEventScheduleStaffMemberRequest request)
@@ -196,12 +197,12 @@ public class StaffMemberController : ControllerBase
 		return Ok(id);
 	}
 
-	[HttpDelete("eventschedules/{id:guid}")]
+	[HttpDelete("eventschedule/{eventScheduleStaffMember:guid}")]
 	public async Task<ActionResult> UnassignStaffMemberFromEvent(
 		Guid companyId,
-		Guid id)
+		Guid eventScheduleStaffMember)
 	{
-		await _eventScheduleStaffMemberService.DeleteAsync(companyId, id);
+		await _eventScheduleStaffMemberService.DeleteAsync(companyId, eventScheduleStaffMember);
 		return NoContent();
 	}
 }

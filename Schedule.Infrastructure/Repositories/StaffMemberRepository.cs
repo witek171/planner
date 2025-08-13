@@ -91,18 +91,18 @@ public class StaffMemberRepository : IStaffMemberRepository
 	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
-		SELECT 
-			s.Id, s.CompanyId, s.Role, s.Email, s.Password, 
-			s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
-			sp.Id as SpecId, sp.Name as SpecName, sp.Description as SpecDescription
-		FROM Staff s
-		LEFT JOIN StaffSpecializations ss 
-			ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
-		LEFT JOIN Specializations sp 
-			ON ss.SpecializationId = sp.Id
-		WHERE s.CompanyId = @CompanyId AND s.IsDeleted = 0
-		ORDER BY s.CreatedAt DESC
-	";
+			SELECT 
+				s.Id, s.CompanyId, s.Role, s.Email, s.Password, 
+				s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
+				sp.Id as SpecId, sp.Name as SpecName, sp.Description as SpecDescription
+			FROM Staff s
+			LEFT JOIN StaffSpecializations ss 
+				ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
+			LEFT JOIN Specializations sp 
+				ON ss.SpecializationId = sp.Id
+			WHERE s.CompanyId = @CompanyId AND s.IsDeleted = 0
+			ORDER BY s.CreatedAt DESC
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -113,16 +113,16 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		Dictionary<Guid, StaffMember> staffMap = new();
+		Dictionary<Guid, List<Specialization>> staffMemberSpecializationsMap = new();
 
 		while (await reader.ReadAsync())
 		{
-			Guid staffId = reader.GetGuid(reader.GetOrdinal("Id"));
-			List<Specialization> specializations = new();
+			Guid staffMemberId = reader.GetGuid(reader.GetOrdinal("Id"));
 
-			if (!staffMap.ContainsKey(staffId))
+			if (!staffMap.ContainsKey(staffMemberId))
 			{
-				StaffMember staffMember = new(
-					staffId,
+				staffMap[staffMemberId] = new StaffMember(
+					staffMemberId,
 					reader.GetGuid(reader.GetOrdinal("CompanyId")),
 					Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
 					reader.GetString(reader.GetOrdinal("Email")),
@@ -132,23 +132,28 @@ public class StaffMemberRepository : IStaffMemberRepository
 					reader.GetString(reader.GetOrdinal("Phone")),
 					reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
 					reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
-					specializations
+					new List<Specialization>()
 				);
 
-				staffMap.Add(staffId, staffMember);
+				staffMemberSpecializationsMap[staffMemberId] = new List<Specialization>();
 			}
 
 			if (!reader.IsDBNull(reader.GetOrdinal("SpecId")))
 			{
-				Specialization specialization = new(
+				staffMemberSpecializationsMap[staffMemberId].Add(new Specialization(
 					reader.GetGuid(reader.GetOrdinal("SpecId")),
 					companyId,
 					reader.GetString(reader.GetOrdinal("SpecName")),
 					reader.GetString(reader.GetOrdinal("SpecDescription"))
-				);
-				staffMap[staffId].AddSpecialization(specialization);
+				));
 			}
 		}
+
+		foreach (
+			(Guid staffMemberId, List<Specialization> specializations)
+			in staffMemberSpecializationsMap
+		)
+			staffMap[staffMemberId].SetSpecializations(specializations);
 
 		return staffMap.Values.ToList();
 	}
@@ -158,15 +163,15 @@ public class StaffMemberRepository : IStaffMemberRepository
 		Guid companyId)
 	{
 		const string sql = @"
-		SELECT 
-			s.Id, s.CompanyId, s.Role, s.Email, s.Password, 
-			s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
-			sp.Id as SpecId, sp.Name as SpecName, sp.Description as SpecDescription
-		FROM Staff s
-		LEFT JOIN StaffSpecializations ss ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
-		LEFT JOIN Specializations sp ON ss.SpecializationId = sp.Id
-		WHERE s.Id = @Id AND s.CompanyId = @CompanyId AND s.IsDeleted = 0
-	";
+			SELECT 
+				s.Id, s.CompanyId, s.Role, s.Email, s.Password, 
+				s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
+				sp.Id as SpecId, sp.Name as SpecName, sp.Description as SpecDescription
+			FROM Staff s
+			LEFT JOIN StaffSpecializations ss ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
+			LEFT JOIN Specializations sp ON ss.SpecializationId = sp.Id
+			WHERE s.Id = @Id AND s.CompanyId = @CompanyId AND s.IsDeleted = 0
+		";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -195,7 +200,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 					reader.GetString(reader.GetOrdinal("Phone")),
 					reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
 					reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
-					specializations
+					new List<Specialization>()
 				);
 			}
 
@@ -210,6 +215,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			}
 		}
 
+		staffMember!.SetSpecializations(specializations);
 		return staffMember;
 	}
 
@@ -255,7 +261,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FROM Staff
 			WHERE CompanyId = @CompanyId 
 			AND Email = @Email 
-			AND IsDeleted = 0
+			AND Phone <> '(deleted)'
 			AND Id <> @StaffMemberId
 		";
 
@@ -281,7 +287,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FROM Staff
 			WHERE CompanyId = @CompanyId 
 			AND Phone = @Phone 
-			AND IsDeleted = 0
+			AND Phone <> '(deleted)'
 			AND Id <> @StaffMemberId
 		";
 
@@ -297,10 +303,12 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return result != null;
 	}
 
-	public async Task<bool> UpdateIsDeletedFlagAsync(StaffMember staffMember)
+	public async Task<bool> UpdateSoftDeleteAsync(StaffMember staffMember)
 	{
 		const string sql = @"
 			UPDATE Staff SET
+			Email = @Email,
+			Phone = @Phone,
 			IsDeleted = @IsDeleted
 			WHERE Id = @Id AND CompanyId = @CompanyId
 		";
@@ -311,6 +319,8 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMember.Id);
 		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
+		command.Parameters.AddWithValue("@Email", staffMember.Email);
+		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
 		command.Parameters.AddWithValue("@IsDeleted", staffMember.IsDeleted);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();

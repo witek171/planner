@@ -35,9 +35,6 @@ public class StaffMemberController : ControllerBase
 	public async Task<ActionResult<List<StaffMemberResponse>>> GetAll(Guid companyId)
 	{
 		List<StaffMember> staff = await _staffMemberService.GetAllAsync(companyId);
-		if (staff.Any() == false)
-			return NotFound();
-
 		List<StaffMemberResponse> response = _mapper.Map<List<StaffMemberResponse>>(staff);
 		return Ok(response);
 	}
@@ -76,9 +73,9 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
+		if (staffMember == null) return NotFound();
 
 		_mapper.Map(request, staffMember);
-// zwracac not found gdy pracownik jest oznaczony jako deleted
 		await _staffMemberService.PutAsync(staffMember!);
 		return NoContent();
 	}
@@ -104,7 +101,7 @@ public class StaffMemberController : ControllerBase
 
 		Guid id = await _staffMemberSpecializationService
 			.CreateAsync(companyId, staffMemberSpecialization);
-		return Created(string.Empty, id);
+		return CreatedAtAction(nameof(CreateStaffMemberSpecialization), id);
 	}
 
 	[HttpDelete("specialization/{staffMemberSpecializationId:guid}")]
@@ -122,6 +119,10 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		[FromQuery] Guid staffMemberId)
 	{
+		StaffMember? staffMember = await _staffMemberService
+			.GetByIdAsync(staffMemberId, companyId);
+		if (staffMember == null) return NotFound();
+
 		List<StaffMemberAvailability> list =
 			await _staffMemberAvailabilityService
 				.GetByStaffMemberIdAsync(companyId, staffMemberId);
@@ -138,9 +139,23 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMemberAvailability? availability = await _staffMemberAvailabilityService
 			.GetByIdAsync(companyId, id);
+		if (availability == null) return NotFound();
 
-		StaffMemberAvailabilityResponse response = _mapper
+		StaffMember staffMember = (await _staffMemberService
+			.GetByIdAsync(availability.StaffMemberId, companyId))!;
+		StaffMemberResponse staffMemberResponse = _mapper
+			.Map<StaffMemberResponse>(staffMember);
+
+		StaffMemberAvailabilityResponse baseResponse = _mapper
 			.Map<StaffMemberAvailabilityResponse>(availability);
+
+		StaffMemberAvailabilityResponse response = new(
+			baseResponse.Date,
+			baseResponse.StartTime,
+			baseResponse.EndTime,
+			staffMemberResponse
+		);
+
 		return Ok(response);
 	}
 
@@ -150,13 +165,16 @@ public class StaffMemberController : ControllerBase
 		Guid staffMemberId,
 		[FromBody] CreateStaffMemberAvailabilityRequest request)
 	{
+		StaffMember? staffMember = await _staffMemberService
+			.GetByIdAsync(staffMemberId, companyId);
+		if (staffMember == null) return NotFound();
+
 		StaffMemberAvailability? availability = _mapper.Map<StaffMemberAvailability>(request);
 		availability.SetCompanyId(companyId);
 		availability.SetStaffMemberId(staffMemberId);
 
 		Guid id = await _staffMemberAvailabilityService.CreateAsync(availability);
-		// zwracane jest nie poprawane id
-		return Created(string.Empty, id);
+		return CreatedAtAction(nameof(CreateAvailability), id);
 	}
 
 	[HttpDelete("availability/{availabilityId:guid}")]
@@ -197,12 +215,12 @@ public class StaffMemberController : ControllerBase
 		return Ok(id);
 	}
 
-	[HttpDelete("eventschedule/{eventScheduleStaffMember:guid}")]
+	[HttpDelete("eventschedule/{eventScheduleStaffMemberId:guid}")]
 	public async Task<ActionResult> UnassignStaffMemberFromEvent(
 		Guid companyId,
-		Guid eventScheduleStaffMember)
+		Guid eventScheduleStaffMemberId)
 	{
-		await _eventScheduleStaffMemberService.DeleteAsync(companyId, eventScheduleStaffMember);
+		await _eventScheduleStaffMemberService.DeleteAsync(companyId, eventScheduleStaffMemberId);
 		return NoContent();
 	}
 }

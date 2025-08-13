@@ -75,6 +75,10 @@ public class StaffMember
 
 	public void SoftDelete()
 	{
+		if (IsDeleted)
+			throw new InvalidOperationException(
+				$"Staff member {Id} is already marked as deleted for company {CompanyId}");
+
 		IsDeleted = true;
 	}
 }

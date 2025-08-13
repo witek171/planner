@@ -52,7 +52,7 @@ public class StaffMemberService : IStaffMemberService
 					$"Staff member {id} is already marked as deleted for company {companyId}");
 
 			staffMember.SoftDelete();
-			await _repository.UpdateIsDeletedFlagAsync(staffMember);
+			await _repository.UpdateSoftDeleteAsync(staffMember);
 		}
 		else
 		{
@@ -68,15 +68,11 @@ public class StaffMemberService : IStaffMemberService
 		string phone = staffMember.Phone;
 
 		if (await _repository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
-		{
 			throw new ArgumentException(
 				$"Email {email} already exists for company {companyId}");
-		}
 
 		if (await _repository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
-		{
 			throw new ArgumentException(
 				$"Phone {phone} already exists for company {companyId}");
-		}
 	}
 }

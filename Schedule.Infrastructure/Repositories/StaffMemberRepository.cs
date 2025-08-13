@@ -215,7 +215,9 @@ public class StaffMemberRepository : IStaffMemberRepository
 			}
 		}
 
-		staffMember!.SetSpecializations(specializations);
+		if (staffMember == null) return null;
+		
+		staffMember.SetSpecializations(specializations);
 		return staffMember;
 	}
 
@@ -307,8 +309,6 @@ public class StaffMemberRepository : IStaffMemberRepository
 	{
 		const string sql = @"
 			UPDATE Staff SET
-			Email = @Email,
-			Phone = @Phone,
 			IsDeleted = @IsDeleted
 			WHERE Id = @Id AND CompanyId = @CompanyId
 		";
@@ -319,8 +319,6 @@ public class StaffMemberRepository : IStaffMemberRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMember.Id);
 		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
-		command.Parameters.AddWithValue("@Email", staffMember.Email);
-		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
 		command.Parameters.AddWithValue("@IsDeleted", staffMember.IsDeleted);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();

@@ -31,5 +31,5 @@ public interface IStaffMemberRepository
 		Guid staffMemberId,
 		string phone);
 
-	Task<bool> UpdateIsDeletedFlagAsync(StaffMember staffMember);
+	Task<bool> UpdateSoftDeleteAsync(StaffMember staffMember);
 }

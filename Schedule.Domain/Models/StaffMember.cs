@@ -75,8 +75,6 @@ public class StaffMember
 
 	public void SoftDelete()
 	{
-		Email = "(deleted)";
-		Phone = "(deleted)";
 		IsDeleted = true;
 	}
 }

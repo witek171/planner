@@ -22,12 +22,10 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 				staffMemberSpecialization.StaffMemberId,
 				staffMemberSpecialization.SpecializationId)
 		)
-		{
-			// zamiast poprawnego id specjalizacji jest zwracany guid empty
 			throw new InvalidOperationException(
 				$"Staff member {staffMemberSpecialization.StaffMemberId}" +
-				$" already has specialization {staffMemberSpecialization.Id} assigned");
-		}
+				$" already has specialization {staffMemberSpecialization.SpecializationId}" +
+				$" assigned");
 
 		return await _repository.CreateAsync(companyId, staffMemberSpecialization);
 	}

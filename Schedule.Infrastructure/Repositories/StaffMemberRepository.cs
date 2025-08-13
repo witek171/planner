@@ -261,8 +261,8 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FROM Staff
 			WHERE CompanyId = @CompanyId 
 			AND Email = @Email 
-			AND Phone <> '(deleted)'
 			AND Id <> @StaffMemberId
+			AND isDeleted = 0
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -287,8 +287,8 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FROM Staff
 			WHERE CompanyId = @CompanyId 
 			AND Phone = @Phone 
-			AND Phone <> '(deleted)'
 			AND Id <> @StaffMemberId
+			AND isDeleted = 0
 		";
 
 		await using SqlConnection connection = new(_connectionString);

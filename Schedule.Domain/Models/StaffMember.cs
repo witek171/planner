@@ -14,7 +14,7 @@ public class StaffMember
 	public string Phone { get; private set; }
 	public DateTime CreatedAt { get; }
 	public bool IsDeleted { get; private set; }
-	public List<Specialization> Specializations { get; private set; }
+	public IReadOnlyList<Specialization> Specializations { get; private set; }
 
 	public StaffMember()
 	{
@@ -63,18 +63,20 @@ public class StaffMember
 		Phone = Phone.Trim();
 	}
 
-	public void AddSpecialization(Specialization specialization)
+	public void SetSpecializations(List<Specialization> specializations)
 	{
-		// raczej lepiej byloby przypisac cala liste niz dodac specjalizacje do listy
-		Specializations.Add(specialization);
+		if (Specializations.Any())
+			throw new InvalidOperationException(
+				$"List of specializations is already set" +
+				$" and cannot be changed");
+
+		Specializations = specializations;
 	}
 
 	public void SoftDelete()
 	{
-		if (IsDeleted)
-			throw new InvalidOperationException(
-				$"Staff member {Id} is already marked as deleted for company {CompanyId}");
-// zmienic emial na deleted i phone na 000000000
+		Email = "(deleted)";
+		Phone = "(deleted)";
 		IsDeleted = true;
 	}
 }

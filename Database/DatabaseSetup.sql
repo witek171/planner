@@ -51,13 +51,13 @@ DROP TABLE IF EXISTS Companies;
 CREATE TABLE Companies
 (
     Id           UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    Name         NVARCHAR(255) NOT NULL UNIQUE,
+    Name         NVARCHAR(255) NOT NULL,
     TaxCode      NCHAR(20)     NOT NULL,
     Street       NVARCHAR(255) NOT NULL,
     City         NVARCHAR(100) NOT NULL,
     PostalCode   NCHAR(10)     NOT NULL,
-    Phone        NCHAR(20)     NOT NULL UNIQUE,
-    Email        NVARCHAR(255) NOT NULL UNIQUE,
+    Phone        NCHAR(20)     NOT NULL,
+    Email        NVARCHAR(255) NOT NULL,
     IsParentNode BIT                          DEFAULT 0,
     IsReception  BIT                          DEFAULT 0,
     CreatedAt    DATETIME                     DEFAULT GETUTCDATE()
@@ -80,11 +80,11 @@ CREATE TABLE Staff
     Id        UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CompanyId UNIQUEIDENTIFIER NOT NULL,
     Role      NVARCHAR(50)     NOT NULL,
-    Email     NVARCHAR(255)    NOT NULL UNIQUE,
+    Email     NVARCHAR(255)    NOT NULL,
     Password  NVARCHAR(255)    NOT NULL,
     FirstName NVARCHAR(100)    NOT NULL,
     LastName  NVARCHAR(100)    NOT NULL,
-    Phone     NVARCHAR(30)     NOT NULL UNIQUE,
+    Phone     NVARCHAR(30)     NOT NULL,
     CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
     IsDeleted BIT                          DEFAULT 0,
     CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)

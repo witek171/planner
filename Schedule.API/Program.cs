@@ -30,6 +30,9 @@ public class Program
 		builder.Services.AddScoped<IParticipantRepository>(provider =>
 			new ParticipantRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IParticipantService, ParticipantService>();
+		builder.Services.AddScoped<ICompanyRepository>(provider =>
+			new CompanyRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<ICompanyService, CompanyService>();
 		builder.Services.AddAutoMapper(typeof(MappingProfile));
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();

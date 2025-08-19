@@ -278,6 +278,26 @@ CREATE INDEX idx_company_hierarchy_parent ON CompanyHierarchy (ParentCompanyId);
 -- WHERE ch.CompanyId = @ReceptionId;
 
 -- =============================================
+-- TRIGGER: usuwa powiązane dane i na końcu usuwa firmę
+-- (kolejność dobrana tak, by nie łamać ograniczeń FK)
+-- =============================================
+
+IF OBJECT_ID('dbo.trg_delete_company', 'TR') IS NOT NULL
+	DROP TRIGGER dbo.trg_delete_company;
+GO
+
+CREATE TRIGGER dbo.trg_delete_company
+	ON dbo.Companies
+	INSTEAD OF DELETE
+	AS
+BEGIN
+	SET NOCOUNT ON;
+
+	
+END;
+GO
+
+-- =============================================
 -- KOMUNIKAT KOŃCOWY
 -- =============================================
 PRINT

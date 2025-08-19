@@ -11,6 +11,9 @@ public class CompanyResponse
 	[Required] public string PostalCode { get; }
 	[Required] public string Phone { get; }
 	[Required] public string Email { get; }
+	[Required] public bool IsParentNode { get; }
+	[Required] public bool IsReception { get; }
+	[Required] public DateTime CreatedAt { get; }
 
 	public CompanyResponse(
 		string name,
@@ -19,7 +22,10 @@ public class CompanyResponse
 		string city,
 		string postalCode,
 		string phone,
-		string email)
+		string email,
+		bool isParentNode,
+		bool isReception,
+		DateTime createdAt)
 	{
 		Name = name;
 		TaxCode = taxCode;
@@ -28,5 +34,8 @@ public class CompanyResponse
 		PostalCode = postalCode;
 		Phone = phone;
 		Email = email;
+		IsParentNode = isParentNode;
+		IsReception = isReception;
+		CreatedAt = createdAt;
 	}
 }

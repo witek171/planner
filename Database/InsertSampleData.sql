@@ -116,8 +116,6 @@ VALUES
 
 INSERT INTO CompanyHierarchy (CompanyId, ParentCompanyId)
 VALUES
-    -- SportFit Group - firma główna bez rodzica
-    (@MainCompanyId, NULL),
     -- SportFit - recepcje podległe firmie głównej
     (@Branch1Id, @MainCompanyId),
     (@Branch2Id, @MainCompanyId),
@@ -125,27 +123,19 @@ VALUES
     (@Branch4Id, @MainCompanyId),
     (@Branch5Id, @MainCompanyId),
 
-    -- FitZone Network - firma główna bez rodzica
-    (@FitZoneMainId, NULL),
     -- FitZone - recepcje podległe firmie głównej
     (@FitZone1Id, @FitZoneMainId),
     (@FitZone2Id, @FitZoneMainId),
     (@FitZone3Id, @FitZoneMainId),
 
-    -- AquaFit Centers - firma główna bez rodzica
-    (@AquaFitMainId, NULL),
     -- AquaFit - recepcje podległe firmie głównej
     (@AquaFit1Id, @AquaFitMainId),
     (@AquaFit2Id, @AquaFitMainId),
 
-    -- PowerGym Chain - firma główna bez rodzica
-    (@PowerGymMainId, NULL),
     -- PowerGym - recepcje podległe firmie głównej
     (@PowerGym1Id, @PowerGymMainId),
     (@PowerGym2Id, @PowerGymMainId),
 
-    -- FlexYoga Studios - firma główna bez rodzica
-    (@FlexYogaMainId, NULL),
     -- FlexYoga - recepcja podległa firmie głównej
     (@FlexYoga1Id, @FlexYogaMainId);
 

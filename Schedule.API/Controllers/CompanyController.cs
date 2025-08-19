@@ -75,8 +75,7 @@ public class CompanyController : ControllerBase
 			.GetByIdAsync(companyId);
 		if (company == null) return NotFound();
 
-		company.MarkAsParentNode();
-		await _companyService.UpdateIsParentNodeFlagAsync(company);
+		await _companyService.MarkAsParentNodeAsync(company);
 		return NoContent();
 	}
 
@@ -87,8 +86,7 @@ public class CompanyController : ControllerBase
 			.GetByIdAsync(companyId);
 		if (company == null) return NotFound();
 
-		company.UnmarkAsParentNode();
-		await _companyService.UpdateIsParentNodeFlagAsync(company);
+		await _companyService.UnmarkAsParentNodeAsync(company);
 		return NoContent();
 	}
 
@@ -99,8 +97,7 @@ public class CompanyController : ControllerBase
 			.GetByIdAsync(companyId);
 		if (company == null) return NotFound();
 
-		company.MarkAsReception();
-		await _companyService.UpdateIsReceptionFlagAsync(company);
+		await _companyService.MarkAsReceptionAsync(company);
 		return NoContent();
 	}
 
@@ -111,29 +108,31 @@ public class CompanyController : ControllerBase
 			.GetByIdAsync(companyId);
 		if (company == null) return NotFound();
 
-		company.UnmarkAsReception();
-		await _companyService.UpdateIsReceptionFlagAsync(company);
+		await _companyService.UnmarkAsReceptionAsync(company);
 		return NoContent();
 	}
-	
-	// [HttpPost("{parentId:guid}/children/{childId:guid}")]
-	// public async Task<ActionResult> AddChildCompany(
-	// 	Guid parentId,
-	// 	Guid childId)
-	// {
-	// 	var success = await _companyService.AddChildCompanyAsync(parentId, childId);
-	// 	if (!success)
-	// 		return BadRequest();
-	//
-	// 	return Ok();
-	// }
-	//
-	// [HttpGet]
-	// public async Task<ActionResult<CompanyResponse>> GetAll(
-	// 	[FromQuery] Guid companyId
-	// )
-	// {
-	// 	// CompanyResponse response = _mapper.Map<CompanyResponse>(company);
-	// 	return Ok(response);
-	// }
+
+	[HttpPost("{companyId:guid}/add/{parentCompanyId:guid}")]
+	public async Task<ActionResult> AddToNode(
+		Guid companyId,
+		Guid parentCompanyId)
+	{
+		Company? company = await _companyService
+			.GetByIdAsync(companyId);
+		if (company == null) return NotFound();
+
+		await _companyService.UnmarkAsReceptionAsync(company);
+		return Ok();
+	}
+
+	[HttpGet("{companyId:guid}/hierarchy")]
+	public async Task<ActionResult> GetHierarchy(Guid companyId)
+	{
+		Company? company = await _companyService
+			.GetByIdAsync(companyId);
+		if (company == null) return NotFound();
+
+		await _companyService.UnmarkAsReceptionAsync(company);
+		return Ok();
+	}
 }

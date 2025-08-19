@@ -8,6 +8,8 @@ public interface ICompanyService
 	Task PutAsync(Company company);
 	Task DeleteByIdAsync(Guid companyId);
 	Task<Company?> GetByIdAsync(Guid companyId);
-	Task UpdateIsParentNodeFlagAsync(Company company);
-	Task UpdateIsReceptionFlagAsync(Company company);
+	Task MarkAsParentNodeAsync(Company company);
+	Task UnmarkAsParentNodeAsync(Company company);
+	Task MarkAsReceptionAsync(Company company);
+	Task UnmarkAsReceptionAsync(Company company);
 }

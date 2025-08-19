@@ -34,14 +34,34 @@ public class CompanyService : ICompanyService
 	{
 		return await _repository.GetByIdAsync(companyId);
 	}
-	
-	public async Task UpdateIsParentNodeFlagAsync(Company company)
+
+	public async Task MarkAsParentNodeAsync(Company company)
 	{
+		company.MarkAsParentNode();
 		await _repository.UpdateIsParentNodeFlagAsync(company);
 	}
-	
-	public async Task UpdateIsReceptionFlagAsync(Company company)
+
+	public async Task UnmarkAsParentNodeAsync(Company company)
 	{
+		bool isUsedAsParent = await _repository.ExistsAsParentAsync(company.Id);
+		if (isUsedAsParent)
+			throw new InvalidOperationException(
+				$"Company {company.Id} cannot be unmarked as parent node, " +
+				$"because it is used as parent node in hierarchy");
+
+		company.UnmarkAsParentNode();
+		await _repository.UpdateIsParentNodeFlagAsync(company);
+	}
+
+	public async Task MarkAsReceptionAsync(Company company)
+	{
+		company.MarkAsReception();
+		await _repository.UpdateIsReceptionFlagAsync(company);
+	}
+
+	public async Task UnmarkAsReceptionAsync(Company company)
+	{
+		company.UnmarkAsReception();
 		await _repository.UpdateIsReceptionFlagAsync(company);
 	}
 }

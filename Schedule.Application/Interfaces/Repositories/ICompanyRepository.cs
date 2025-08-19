@@ -10,4 +10,5 @@ public interface ICompanyRepository
 	Task<Company?> GetByIdAsync(Guid companyId);
 	Task<bool> UpdateIsParentNodeFlagAsync(Company company);
 	Task<bool> UpdateIsReceptionFlagAsync(Company company);
+	Task<bool> ExistsAsParentAsync(Guid companyId);
 }

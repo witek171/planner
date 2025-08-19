@@ -74,64 +74,6 @@ public class CompanyRepository : ICompanyRepository
 	public async Task<bool> DeleteByIdAsync(Guid companyId)
 	{
 		const string sql = @"
-			DELETE n
-			FROM Notifications n
-			INNER JOIN Reservations r ON r.Id = n.ReservationId
-			LEFT JOIN Participants p ON p.Id = r.ParticipantId
-			LEFT JOIN EventSchedules es ON es.Id = r.EventScheduleId
-			WHERE r.CompanyId = @CompanyId
-			OR p.CompanyId = @CompanyId
-			OR es.CompanyId = @CompanyId;
-			
-			DELETE r
-			FROM Reservations r
-			WHERE r.CompanyId = @CompanyId
-			OR r.ParticipantId IN (SELECT Id FROM Participants WHERE CompanyId = @CompanyId)
-			OR r.EventScheduleId IN (SELECT Id FROM EventSchedules WHERE CompanyId = @CompanyId);
-			
-			DELETE ess
-			FROM EventScheduleStaff ess
-			INNER JOIN EventSchedules es ON es.Id = ess.EventScheduleId
-			WHERE es.CompanyId = @CompanyId;
-			
-			DELETE ess
-			FROM EventScheduleStaff ess
-			INNER JOIN Staff s ON s.Id = ess.StaffMemberId
-			WHERE s.CompanyId = @CompanyId;
-			
-			DELETE ss
-			FROM StaffSpecializations ss
-			INNER JOIN Staff s ON s.Id = ss.StaffMemberId
-			WHERE s.CompanyId = @CompanyId;
-			
-			DELETE ss
-			FROM StaffSpecializations ss
-			INNER JOIN Specializations sp ON sp.Id = ss.SpecializationId
-			WHERE sp.CompanyId = @CompanyId;
-			
-			DELETE sa
-			FROM StaffAvailability sa
-			INNER JOIN Staff s ON s.Id = sa.StaffMemberId
-			WHERE s.CompanyId = @CompanyId;
-			
-			DELETE FROM Messages WHERE CompanyId = @CompanyId;
-			DELETE m
-			FROM Messages m
-			WHERE m.SenderId IN (SELECT Id FROM Staff WHERE CompanyId = @CompanyId)
-			OR m.ReceiverId IN (SELECT Id FROM Staff WHERE CompanyId = @CompanyId);
-			
-			DELETE FROM EventSchedules WHERE CompanyId = @CompanyId;
-			DELETE FROM EventTypes    WHERE CompanyId = @CompanyId;
-			
-			DELETE FROM Specializations WHERE CompanyId = @CompanyId;
-			
-			DELETE FROM Participants WHERE CompanyId = @CompanyId;
-			
-			DELETE FROM Staff WHERE CompanyId = @CompanyId;
-			
-			DELETE FROM CompanyHierarchy WHERE ParentCompanyId = @CompanyId;
-			DELETE FROM CompanyHierarchy WHERE CompanyId = @CompanyId;
-			
 			DELETE FROM Companies WHERE Id = @CompanyId; 
 		";
 

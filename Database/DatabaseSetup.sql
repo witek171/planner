@@ -293,7 +293,78 @@ CREATE TRIGGER dbo.trg_delete_company
 BEGIN
 	SET NOCOUNT ON;
 
-	
+	-- Najpierw usuń tabele zależne od innych tabel
+
+	-- Usuń wiadomości
+	DELETE
+	FROM dbo.Messages
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń powiadomienia
+	DELETE
+	FROM dbo.Notifications
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń rezerwacje
+	DELETE
+	FROM dbo.Reservations
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń przypisania personelu do wydarzeń
+	DELETE
+	FROM dbo.EventScheduleStaff
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń harmonogramy wydarzeń
+	DELETE
+	FROM dbo.EventSchedules
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń typy wydarzeń
+	DELETE
+	FROM dbo.EventTypes
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń dostępność personelu
+	DELETE
+	FROM dbo.StaffAvailability
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń specjalizacje personelu
+	DELETE
+	FROM dbo.StaffSpecializations
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń specjalizacje
+	DELETE
+	FROM dbo.Specializations
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń uczestników
+	DELETE
+	FROM dbo.Participants
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń personel
+	DELETE
+	FROM dbo.Staff
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń hierarchię firm (najpierw gdzie firma jest dzieckiem)
+	DELETE
+	FROM dbo.CompanyHierarchy
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń hierarchię firm (gdzie firma jest rodzicem)
+	DELETE
+	FROM dbo.CompanyHierarchy
+	WHERE ParentCompanyId IN (SELECT Id FROM deleted);
+
+	-- Na końcu usuń samą firmę
+	DELETE
+	FROM dbo.Companies
+	WHERE Id IN (SELECT Id FROM deleted);
+
 END;
 GO
 

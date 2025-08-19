@@ -66,8 +66,8 @@ CREATE TABLE Companies
 -- Tabela CompanyHierarchy (hierarchia firm i recepcji)
 CREATE TABLE CompanyHierarchy
 (
-    CompanyId       UNIQUEIDENTIFIER PRIMARY KEY,
-    ParentCompanyId UNIQUEIDENTIFIER,
+    CompanyId       UNIQUEIDENTIFIER PRIMARY KEY NOT NULL,
+    ParentCompanyId UNIQUEIDENTIFIER NOT NULL,
     CONSTRAINT fk_ch_company FOREIGN KEY (CompanyId) 
             REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_ch_parent FOREIGN KEY (ParentCompanyId) 

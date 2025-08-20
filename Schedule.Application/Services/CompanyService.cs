@@ -61,24 +61,22 @@ public class CompanyService : ICompanyService
 		}
 	}
 
-	public async Task RemoveRelationAsync(
-		Guid childId,
-		Guid parentId)
+	public async Task RemoveRelationAsync(Guid companyId)
 	{
-		await _repository.RemoveRelationAsync(childId, parentId);
+		await _repository.RemoveRelationAsync(companyId);
 
-		if (!await _repository.ExistsAsParentAsync(parentId))
+		if (!await _repository.ExistsAsParentAsync(companyId))
 		{
-			Company parent = (await _repository.GetByIdAsync(parentId))!;
+			Company parent = (await _repository.GetByIdAsync(companyId))!;
 			parent.UnmarkAsParentNode();
 			await _repository.UpdateIsParentNodeFlagAsync(parent);
 		}
 	}
 
-	public async Task RemoveAllRelationsAsync(Guid childId)
+	public async Task RemoveAllRelationsAsync(Guid companyId)
 	{
-		await _repository.RemoveAllRelationsAsync(childId);
-		List<Guid> parentIds = await _repository.GetParentIdsAsync(childId);
+		await _repository.RemoveAllRelationsAsync(companyId);
+		List<Guid> parentIds = await _repository.GetParentIdsAsync(companyId);
 
 		foreach (Guid parentId in parentIds)
 		{

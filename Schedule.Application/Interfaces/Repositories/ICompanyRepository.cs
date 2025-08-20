@@ -15,11 +15,8 @@ public interface ICompanyRepository
 		Guid childId,
 		Guid parentId);
 
-	Task<bool> RemoveRelationAsync(
-		Guid childId,
-		Guid parentId);
-
-	Task<bool> RemoveAllRelationsAsync(Guid childId);
+	Task<bool> RemoveRelationAsync(Guid companyId);
+	Task<bool> RemoveAllRelationsAsync(Guid companyId);
 	Task<List<Company>> GetAllRelationsAsync(Guid companyId);
 	Task<bool> UpdateIsParentNodeFlagAsync(Company company);
 	Task<bool> UpdateIsReceptionFlagAsync(Company company);

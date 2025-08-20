@@ -189,27 +189,7 @@ public class CompanyRepository : ICompanyRepository
 		return parentIds;
 	}
 
-	public async Task<bool> RemoveRelationAsync(
-		Guid childId,
-		Guid parentId)
-	{
-		const string sql = @"
-			DELETE FROM CompanyHierarchy 
-			WHERE CompanyId = @ChildId AND ParentCompanyId = @ParentId
-		";
-
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
-
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@ChildId", childId);
-		command.Parameters.AddWithValue("@ParentId", parentId);
-
-		int rowsAffected = await command.ExecuteNonQueryAsync();
-		return rowsAffected > 0;
-	}
-
-	public async Task<bool> RemoveAllRelationsAsync(Guid companyId)
+	public async Task<bool> RemoveRelationAsync(Guid companyId)
 	{
 		const string sql = @"
 			DELETE FROM CompanyHierarchy 
@@ -226,13 +206,30 @@ public class CompanyRepository : ICompanyRepository
 		return rowsAffected > 0;
 	}
 
+	public async Task<bool> RemoveAllRelationsAsync(Guid companyId)
+	{
+		const string sql = @"
+			DELETE FROM CompanyHierarchy 
+			WHERE ParentCompanyId = @ParentCompanyId
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@ParentCompanyId", companyId);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
+
 	public async Task<List<Company>> GetAllRelationsAsync(Guid companyId)
 	{
 		const string sql = @"
 			SELECT DISTINCT Id, Name, TaxCode, Street, City, PostalCode,
 			Phone, Email, IsParentNode, IsReception, CreatedAt
-			FROM CompanyHierarchy
-			WHERE CompanyId <> @CompanyId;
+			FROM Companies
+			WHERE Id <> @CompanyId;
 		";
 
 		List<Company> companies = new();

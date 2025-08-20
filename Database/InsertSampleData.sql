@@ -111,10 +111,10 @@ VALUES
 	 'wilanow@flexyoga.pl', 0, 1);
 
 -- =============================================
--- 2. CompanyHierarchy - dodanie hierarchii firm
+-- 2. CompanyHierarchies - dodanie hierarchii firm
 -- =============================================
 
-INSERT INTO CompanyHierarchy (CompanyId, ParentCompanyId)
+INSERT INTO CompanyHierarchies (CompanyId, ParentCompanyId)
 VALUES
 	-- SportFit - recepcje podległe firmie głównej
 	(@Branch1Id, @MainCompanyId),
@@ -1238,7 +1238,7 @@ PRINT
 	'Dane przykładowe zostały pomyślnie wstawione do bazy danych!'
 PRINT 'Utworzono:'
 PRINT '- 18 firm (Companies) - w tym 5 firm głównych i 13 recepcji'
-PRINT '- Hierarchię firm (CompanyHierarchy)'
+PRINT '- Hierarchię firm (CompanyHierarchies)'
 PRINT '- 43 pracowników (Staff) - 13 recepcjonistów, 20 trenerów, 10 managerów'
 PRINT '- 30 uczestników (Participants)'
 PRINT '- 20 specjalizacji (Specializations)'

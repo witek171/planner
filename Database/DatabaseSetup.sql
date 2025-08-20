@@ -41,6 +41,7 @@ DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS Staff;
 DROP TABLE IF EXISTS Receptions;
 DROP TABLE IF EXISTS CompanyHierarchy;
+DROP TABLE IF EXISTS CompanyHierarchies;
 DROP TABLE IF EXISTS Companies;
 
 -- =============================================
@@ -63,8 +64,8 @@ CREATE TABLE Companies
 	CreatedAt    DATETIME                     DEFAULT GETUTCDATE()
 );
 
--- Tabela CompanyHierarchy (hierarchia firm i recepcji)
-CREATE TABLE CompanyHierarchy
+-- Tabela CompanyHierarchies (hierarchia firm i recepcji)
+CREATE TABLE CompanyHierarchies
 (
 	CompanyId       UNIQUEIDENTIFIER PRIMARY KEY NOT NULL,
 	ParentCompanyId UNIQUEIDENTIFIER             NOT NULL,
@@ -260,8 +261,8 @@ CREATE TABLE Messages
 -- Indeks na flagę IsReception dla szybkiego wyszukiwania recepcji
 CREATE INDEX idx_companies_is_reception ON Companies (IsReception);
 
--- Indeks na CompanyHierarchy dla zapytań hierarchicznych
-CREATE INDEX idx_company_hierarchy_parent ON CompanyHierarchy (ParentCompanyId);
+-- Indeks na CompanyHierarchies dla zapytań hierarchicznych
+CREATE INDEX idx_company_hierarchy_parent ON CompanyHierarchies (ParentCompanyId);
 
 -- =============================================
 -- PRZYKŁADOWE ZAPYTANIA POMOCNICZE
@@ -269,12 +270,12 @@ CREATE INDEX idx_company_hierarchy_parent ON CompanyHierarchy (ParentCompanyId);
 
 -- Przykład: Znajdź wszystkie recepcje należące do danej firmy
 -- SELECT c.* FROM Companies c
--- INNER JOIN CompanyHierarchy ch ON c.Id = ch.CompanyId
+-- INNER JOIN CompanyHierarchies ch ON c.Id = ch.CompanyId
 -- WHERE ch.ParentCompanyId = @ParentCompanyId AND c.IsReception = 1;
 
 -- Przykład: Znajdź firmę główną dla danej recepcji
 -- SELECT parent.* FROM Companies parent
--- INNER JOIN CompanyHierarchy ch ON parent.Id = ch.ParentCompanyId
+-- INNER JOIN CompanyHierarchies ch ON parent.Id = ch.ParentCompanyId
 -- WHERE ch.CompanyId = @ReceptionId;
 
 -- =============================================
@@ -352,12 +353,12 @@ BEGIN
 
 	-- Usuń hierarchię firm (najpierw gdzie firma jest dzieckiem)
 	DELETE
-	FROM dbo.CompanyHierarchy
+	FROM dbo.CompanyHierarchies
 	WHERE CompanyId IN (SELECT Id FROM deleted);
 
 	-- Usuń hierarchię firm (gdzie firma jest rodzicem)
 	DELETE
-	FROM dbo.CompanyHierarchy
+	FROM dbo.CompanyHierarchies
 	WHERE ParentCompanyId IN (SELECT Id FROM deleted);
 
 	-- Na końcu usuń samą firmę

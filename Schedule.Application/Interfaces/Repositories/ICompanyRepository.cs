@@ -8,7 +8,19 @@ public interface ICompanyRepository
 	Task<bool> PutAsync(Company company);
 	Task<bool> DeleteByIdAsync(Guid companyId);
 	Task<Company?> GetByIdAsync(Guid companyId);
+	Task<bool> ExistsAsParentAsync(Guid companyId);
+	Task<List<Guid>> GetParentIdsAsync(Guid childId);
+
+	Task<bool> AddRelationAsync(
+		Guid childId,
+		Guid parentId);
+
+	Task<bool> RemoveRelationAsync(
+		Guid childId,
+		Guid parentId);
+
+	Task<bool> RemoveAllRelationsAsync(Guid childId);
+	Task<List<Company>> GetAllRelationsAsync(Guid companyId);
 	Task<bool> UpdateIsParentNodeFlagAsync(Company company);
 	Task<bool> UpdateIsReceptionFlagAsync(Company company);
-	Task<bool> ExistsAsParentAsync(Guid companyId);
 }

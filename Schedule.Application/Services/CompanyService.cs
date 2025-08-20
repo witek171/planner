@@ -35,24 +35,6 @@ public class CompanyService : ICompanyService
 		return await _repository.GetByIdAsync(companyId);
 	}
 
-	public async Task MarkAsParentNodeAsync(Company company)
-	{
-		company.MarkAsParentNode();
-		await _repository.UpdateIsParentNodeFlagAsync(company);
-	}
-
-	public async Task UnmarkAsParentNodeAsync(Company company)
-	{
-		bool isUsedAsParent = await _repository.ExistsAsParentAsync(company.Id);
-		if (isUsedAsParent)
-			throw new InvalidOperationException(
-				$"Company {company.Id} cannot be unmarked as parent node, " +
-				$"because it is used as parent node in hierarchy");
-
-		company.UnmarkAsParentNode();
-		await _repository.UpdateIsParentNodeFlagAsync(company);
-	}
-
 	public async Task MarkAsReceptionAsync(Company company)
 	{
 		company.MarkAsReception();
@@ -63,5 +45,55 @@ public class CompanyService : ICompanyService
 	{
 		company.UnmarkAsReception();
 		await _repository.UpdateIsReceptionFlagAsync(company);
+	}
+
+	public async Task AddRelationAsync(
+		Guid childId,
+		Guid parentId)
+	{
+		await _repository.AddRelationAsync(childId, parentId);
+		Company parent = (await _repository.GetByIdAsync(parentId))!;
+
+		if (!parent.IsParentNode)
+		{
+			parent.MarkAsParentNode();
+			await _repository.UpdateIsParentNodeFlagAsync(parent);
+		}
+	}
+
+	public async Task RemoveRelationAsync(
+		Guid childId,
+		Guid parentId)
+	{
+		await _repository.RemoveRelationAsync(childId, parentId);
+
+		if (!await _repository.ExistsAsParentAsync(parentId))
+		{
+			Company parent = (await _repository.GetByIdAsync(parentId))!;
+			parent.UnmarkAsParentNode();
+			await _repository.UpdateIsParentNodeFlagAsync(parent);
+		}
+	}
+
+	public async Task RemoveAllRelationsAsync(Guid childId)
+	{
+		await _repository.RemoveAllRelationsAsync(childId);
+		List<Guid> parentIds = await _repository.GetParentIdsAsync(childId);
+
+		foreach (Guid parentId in parentIds)
+		{
+			if (!await _repository.ExistsAsParentAsync(parentId))
+			{
+				Company parent = (await _repository.GetByIdAsync(parentId))!;
+				parent.UnmarkAsParentNode();
+				await _repository.UpdateIsParentNodeFlagAsync(parent);
+			}
+		}
+	}
+
+	public async Task<List<Company>> GetAllRelationsAsync(Guid companyId)
+	{
+		List<Company> companies = await _repository.GetAllRelationsAsync(companyId);
+		return companies;
 	}
 }

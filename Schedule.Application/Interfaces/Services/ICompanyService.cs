@@ -8,8 +8,17 @@ public interface ICompanyService
 	Task PutAsync(Company company);
 	Task DeleteByIdAsync(Guid companyId);
 	Task<Company?> GetByIdAsync(Guid companyId);
-	Task MarkAsParentNodeAsync(Company company);
-	Task UnmarkAsParentNodeAsync(Company company);
 	Task MarkAsReceptionAsync(Company company);
 	Task UnmarkAsReceptionAsync(Company company);
+
+	Task AddRelationAsync(
+		Guid childId,
+		Guid parentId);
+
+	Task RemoveRelationAsync(
+		Guid childId,
+		Guid parentId);
+
+	Task RemoveAllRelationsAsync(Guid childId);
+	Task<List<Company>> GetAllRelationsAsync(Guid companyId);
 }

@@ -68,28 +68,6 @@ public class CompanyController : ControllerBase
 		return Ok(response);
 	}
 
-	[HttpPut("{companyId:guid}/markAsParentNode")]
-	public async Task<ActionResult> MarkAsParentNode(Guid companyId)
-	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
-
-		await _companyService.MarkAsParentNodeAsync(company);
-		return NoContent();
-	}
-
-	[HttpPut("{companyId:guid}/unmarkAsParentNode")]
-	public async Task<ActionResult> UnmarkAsParentNode(Guid companyId)
-	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
-
-		await _companyService.UnmarkAsParentNodeAsync(company);
-		return NoContent();
-	}
-
 	[HttpPut("{companyId:guid}/markAsReception")]
 	public async Task<ActionResult> MarkAsReception(Guid companyId)
 	{
@@ -112,27 +90,53 @@ public class CompanyController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpPost("{companyId:guid}/add/{parentCompanyId:guid}")]
-	public async Task<ActionResult> AddToNode(
+	[HttpPost("{companyId:guid}/addTo/{parentCompanyId:guid}")]
+	public async Task<ActionResult> AddToParent(
 		Guid companyId,
 		Guid parentCompanyId)
 	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		Company? parentCompany = await _companyService.GetByIdAsync(parentCompanyId);
+		if (company == null || parentCompany == null) return NotFound();
 
-		await _companyService.UnmarkAsReceptionAsync(company);
+		await _companyService.AddRelationAsync(companyId, parentCompanyId);
 		return Ok();
 	}
 
-	[HttpGet("{companyId:guid}/hierarchy")]
-	public async Task<ActionResult> GetHierarchy(Guid companyId)
+	[HttpDelete("{companyId:guid}/parent/{parentId:guid}")]
+	public async Task<ActionResult> DetachFromParent(
+		Guid companyId,
+		Guid parentCompanyId)
 	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		Company? parentCompany = await _companyService.GetByIdAsync(parentCompanyId);
+		if (company == null || parentCompany == null) return NotFound();
+
+		await _companyService.RemoveRelationAsync(companyId, parentCompanyId);
+		return NoContent();
+	}
+
+	[HttpDelete("{companyId:guid}/parents")]
+	public async Task<ActionResult> DetachFromAllParents(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
 		if (company == null) return NotFound();
 
-		await _companyService.UnmarkAsReceptionAsync(company);
-		return Ok();
+		await _companyService.RemoveAllRelationsAsync(companyId);
+		return NoContent();
+	}
+
+	[HttpGet("{companyId:guid}/relations")]
+	public async Task<ActionResult> GetRelations(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null) return NotFound();
+
+		List<Company> companies = await _companyService
+			.GetAllRelationsAsync(companyId);
+
+		List<CompanyResponse> responses = _mapper
+			.Map<List<CompanyResponse>>(companies);
+		return Ok(responses);
 	}
 }

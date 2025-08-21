@@ -16,6 +16,5 @@ public interface ICompanyService
 		Guid parentId);
 
 	Task RemoveRelationAsync(Guid companyId);
-	Task RemoveAllRelationsAsync(Guid companyId);
 	Task<List<Company>> GetAllRelationsAsync(Guid companyId);
 }

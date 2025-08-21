@@ -103,7 +103,7 @@ public class CompanyController : ControllerBase
 		return Ok();
 	}
 
-	[HttpDelete("{companyId:guid}/parent")]
+	[HttpDelete("{companyId:guid}/relation")]
 	public async Task<ActionResult> DetachFromParent(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
@@ -113,17 +113,7 @@ public class CompanyController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpDelete("{companyId:guid}/parents")]
-	public async Task<ActionResult> RemoveAllParents(Guid companyId)
-	{
-		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
-
-		await _companyService.RemoveAllRelationsAsync(companyId);
-		return NoContent();
-	}
-
-	[HttpGet("{companyId:guid}/relations")]
+	[HttpGet("{companyId:guid}/relation")]
 	public async Task<ActionResult> GetRelations(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);

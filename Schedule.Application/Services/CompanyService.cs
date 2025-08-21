@@ -63,35 +63,28 @@ public class CompanyService : ICompanyService
 
 	public async Task RemoveRelationAsync(Guid companyId)
 	{
-		await _repository.RemoveRelationAsync(companyId);
+		(bool hasChildren, Guid? parentId) = await _repository
+			.RemoveRelationAsync(companyId);
 
-		if (!await _repository.ExistsAsParentAsync(companyId))
-		{
-			Company parent = (await _repository.GetByIdAsync(companyId))!;
-			parent.UnmarkAsParentNode();
-			await _repository.UpdateIsParentNodeFlagAsync(parent);
-		}
-	}
+		if (!hasChildren && parentId is Guid id)
+			await UnmarkCompanyAsParentIfNeededAsync(id);
 
-	public async Task RemoveAllRelationsAsync(Guid companyId)
-	{
-		await _repository.RemoveAllRelationsAsync(companyId);
-		List<Guid> parentIds = await _repository.GetParentIdsAsync(companyId);
-
-		foreach (Guid parentId in parentIds)
-		{
-			if (!await _repository.ExistsAsParentAsync(parentId))
-			{
-				Company parent = (await _repository.GetByIdAsync(parentId))!;
-				parent.UnmarkAsParentNode();
-				await _repository.UpdateIsParentNodeFlagAsync(parent);
-			}
-		}
+		await UnmarkCompanyAsParentIfNeededAsync(companyId);
 	}
 
 	public async Task<List<Company>> GetAllRelationsAsync(Guid companyId)
 	{
 		List<Company> companies = await _repository.GetAllRelationsAsync(companyId);
 		return companies;
+	}
+
+	private async Task UnmarkCompanyAsParentIfNeededAsync(Guid companyId)
+	{
+		if (!await _repository.ExistsAsParentAsync(companyId))
+		{
+			Company company = (await _repository.GetByIdAsync(companyId))!;
+			company.UnmarkAsParentNode();
+			await _repository.UpdateIsParentNodeFlagAsync(company);
+		}
 	}
 }

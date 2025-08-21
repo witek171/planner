@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
 
@@ -128,7 +127,7 @@ public class CompanyRepository : ICompanyRepository
 		const string sql = @"
 			SELECT CAST(
 				CASE WHEN EXISTS (
-					SELECT 1 FROM CompanyHierarchy 
+					SELECT 1 FROM CompanyHierarchies
 					WHERE ParentCompanyId = @ParentCompanyId
 				) THEN 1 ELSE 0 END 
 			AS bit)
@@ -149,7 +148,7 @@ public class CompanyRepository : ICompanyRepository
 		Guid parentCompanyId)
 	{
 		const string sql = @"
-			INSERT INTO CompanyHierarchy (CompanyId, ParentCompanyId)
+			INSERT INTO CompanyHierarchies (CompanyId, ParentCompanyId)
 			VALUES (@CompanyId, @ParentCompanyId)
 		";
 
@@ -164,72 +163,78 @@ public class CompanyRepository : ICompanyRepository
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<Guid>> GetParentIdsAsync(Guid childId)
+	public async Task<(bool isParent, Guid? parentId)> RemoveRelationAsync(Guid companyId)
 	{
-		const string sql = @"
-			SELECT ParentCompanyId
-			FROM CompanyHierarchy
-			WHERE CompanyId = @ChildId
-		";
-
-		List<Guid> parentIds = new();
-
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@ChildId", childId);
+		const string sqlIsCompanyParent = @"
+			SELECT TOP 1 1
+			FROM CompanyHierarchies
+			WHERE ParentCompanyId = @CompanyId
+		";
 
-		await using SqlDataReader reader = await command.ExecuteReaderAsync();
-		while (await reader.ReadAsync())
+		await using (SqlCommand checkCmd = new(sqlIsCompanyParent, connection))
 		{
-			parentIds.Add(reader.GetGuid(reader.GetOrdinal("Id")));
+			checkCmd.Parameters.AddWithValue("@CompanyId", companyId);
+			object? result = await checkCmd.ExecuteScalarAsync();
+
+			if (result != null)
+			{
+				const string sqlDeleteChildren = @"
+					DELETE FROM CompanyHierarchies
+					WHERE ParentCompanyId = @CompanyId
+				";
+
+				await using SqlCommand deleteChildrenCmd = new(sqlDeleteChildren, connection);
+				deleteChildrenCmd.Parameters.AddWithValue("@CompanyId", companyId);
+				await deleteChildrenCmd.ExecuteNonQueryAsync();
+
+				return (true, null);
+			}
 		}
 
-		return parentIds;
-	}
+		Guid? parentId = null;
 
-	public async Task<bool> RemoveRelationAsync(Guid companyId)
-	{
-		const string sql = @"
-			DELETE FROM CompanyHierarchy 
+		const string sqlGetParent = @"
+			SELECT ParentCompanyId
+			FROM CompanyHierarchies
 			WHERE CompanyId = @CompanyId
 		";
 
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
+		await using (SqlCommand getParentCmd = new(sqlGetParent, connection))
+		{
+			getParentCmd.Parameters.AddWithValue("@CompanyId", companyId);
+			object? result = await getParentCmd.ExecuteScalarAsync();
 
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
+			if (result != null)
+				parentId = (Guid)result;
+		}
 
-		int rowsAffected = await command.ExecuteNonQueryAsync();
-		return rowsAffected > 0;
-	}
-
-	public async Task<bool> RemoveAllRelationsAsync(Guid companyId)
-	{
-		const string sql = @"
-			DELETE FROM CompanyHierarchy 
-			WHERE ParentCompanyId = @ParentCompanyId
+		const string sqlDeleteRelation = @"
+			DELETE FROM CompanyHierarchies
+			WHERE CompanyId = @CompanyId
 		";
 
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
+		await using (SqlCommand deleteCmd = new(sqlDeleteRelation, connection))
+		{
+			deleteCmd.Parameters.AddWithValue("@CompanyId", companyId);
+			await deleteCmd.ExecuteNonQueryAsync();
+		}
 
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@ParentCompanyId", companyId);
-
-		int rowsAffected = await command.ExecuteNonQueryAsync();
-		return rowsAffected > 0;
+		return (false, parentId);
 	}
 
 	public async Task<List<Company>> GetAllRelationsAsync(Guid companyId)
 	{
 		const string sql = @"
-			SELECT DISTINCT Id, Name, TaxCode, Street, City, PostalCode,
-			Phone, Email, IsParentNode, IsReception, CreatedAt
-			FROM Companies
-			WHERE Id <> @CompanyId;
+			SELECT DISTINCT c.Id, c.Name, c.TaxCode, c.Street, c.City, c.PostalCode,
+			c.Phone, c.Email, c.IsParentNode, c.IsReception, c.CreatedAt
+			FROM Companies c
+			INNER JOIN CompanyHierarchies ch ON 
+				(ch.CompanyId = c.Id AND ch.ParentCompanyId = @CompanyId) OR
+				(ch.ParentCompanyId = c.Id AND ch.CompanyId = @CompanyId)
+			WHERE c.Id <> @CompanyId;
 		";
 
 		List<Company> companies = new();

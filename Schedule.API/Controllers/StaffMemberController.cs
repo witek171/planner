@@ -15,6 +15,7 @@ public class StaffMemberController : ControllerBase
 	private readonly IStaffMemberSpecializationService _staffMemberSpecializationService;
 	private readonly IStaffMemberAvailabilityService _staffMemberAvailabilityService;
 	private readonly IEventScheduleStaffMemberService _eventScheduleStaffMemberService;
+	private readonly IEventScheduleService _eventScheduleService;
 	private readonly IMapper _mapper;
 
 	public StaffMemberController(
@@ -22,12 +23,14 @@ public class StaffMemberController : ControllerBase
 		IStaffMemberSpecializationService staffMemberSpecializationService,
 		IStaffMemberAvailabilityService staffMemberAvailabilityService,
 		IEventScheduleStaffMemberService eventScheduleStaffMemberService,
+		IEventScheduleService eventScheduleService,
 		IMapper mapper)
 	{
 		_staffMemberService = staffMemberService;
 		_staffMemberSpecializationService = staffMemberSpecializationService;
 		_staffMemberAvailabilityService = staffMemberAvailabilityService;
 		_eventScheduleStaffMemberService = eventScheduleStaffMemberService;
+		_eventScheduleService = eventScheduleService;
 		_mapper = mapper;
 	}
 
@@ -186,21 +189,16 @@ public class StaffMemberController : ControllerBase
 		return NoContent();
 	}
 
-	// trzeba by zrobic encje eventSchedule i eventScheduleRespone ktore bylo by tu zwracane
-	[HttpGet("eventschedule")]
-	public async Task<ActionResult<List<EventScheduleStaffMemberResponse>>> GetStaffMemberEventSchedules(
-		Guid companyId,
-		[FromQuery] Guid staffMemberId)
+	[HttpGet("eventschedules")]
+	public async Task<ActionResult<List<EventScheduleResponse>>> GetStaffMemberEventSchedules(
+	Guid companyId,
+	[FromQuery] Guid staffMemberId)
 	{
-		List<EventScheduleStaffMember> events = await _eventScheduleStaffMemberService
-			.GetByStaffMemberIdAsync(companyId, staffMemberId);
-
-		List<EventScheduleStaffMemberResponse> responses = _mapper
-			.Map<List<EventScheduleStaffMemberResponse>>(events);
-		return Ok(responses);
+		var schedules = await _eventScheduleService.GetByStaffMemberIdAsync(companyId, staffMemberId);
+		var response = _mapper.Map<List<EventScheduleResponse>>(schedules);
+		return Ok(response);
 	}
 
-	// nie dziala, raczej problem z mapowaniem
 	[HttpPost("eventschedule")]
 	public async Task<ActionResult<Guid>> AssignStaffMemberToEvent(
 		Guid companyId,

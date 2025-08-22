@@ -61,7 +61,9 @@ public class MappingProfile : Profile
 			.ConstructUsing(src => new EventScheduleStaffMember(
 				Guid.Empty,
 				Guid.Empty,
-				Guid.Empty,
-				Guid.Empty));
+				src.EventScheduleId,
+				src.StaffMemberId));
+
+		CreateMap<EventSchedule, EventScheduleResponse>();
 	}
 }

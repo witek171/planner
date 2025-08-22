@@ -30,6 +30,8 @@ public class Program
 			new StaffMemberSpecializationRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IStaffMemberAvailabilityRepository>(provider =>
 			new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventScheduleRepository>(provider =>
+					new EventScheduleRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IEventScheduleStaffMemberRepository>(provider =>
 			new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString));
 
@@ -47,6 +49,7 @@ public class Program
 		builder.Services.AddScoped<IStaffMemberSpecializationService, StaffMemberSpecializationService>();
 		builder.Services.AddScoped<IStaffMemberAvailabilityService, StaffMemberAvailabilityService>();
 		builder.Services.AddScoped<IEventScheduleStaffMemberService, EventScheduleStaffMemberService>();
+		builder.Services.AddScoped<IEventScheduleService, EventScheduleService>();
 
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 

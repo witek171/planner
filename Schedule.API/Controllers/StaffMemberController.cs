@@ -172,7 +172,7 @@ public class StaffMemberController : ControllerBase
 			.GetByIdAsync(staffMemberId, companyId);
 		if (staffMember == null) return NotFound();
 
-		StaffMemberAvailability? availability = _mapper.Map<StaffMemberAvailability>(request);
+		StaffMemberAvailability availability = _mapper.Map<StaffMemberAvailability>(request);
 		availability.SetCompanyId(companyId);
 		availability.SetStaffMemberId(staffMemberId);
 

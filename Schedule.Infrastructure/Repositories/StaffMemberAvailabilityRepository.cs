@@ -57,39 +57,6 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		return rowsAffected > 0;
 	}
 
-	public async Task<StaffMemberAvailability?> GetByIdAsync(
-		Guid companyId,
-		Guid staffMemberAvailabilityId)
-	{
-		const string sql = @"
-			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
-			FROM StaffAvailability 
-			WHERE Id = @Id AND CompanyId = @CompanyId AND IsAvailable = 1
-		";
-
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
-
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", staffMemberAvailabilityId);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
-
-		await using SqlDataReader reader = await command.ExecuteReaderAsync();
-
-		if (!await reader.ReadAsync())
-			return null;
-
-		return new StaffMemberAvailability(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
-			DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("Date"))),
-			reader.GetDateTime(reader.GetOrdinal("StartTime")),
-			reader.GetDateTime(reader.GetOrdinal("EndTime")),
-			reader.GetBoolean(reader.GetOrdinal("IsAvailable"))
-		);
-	}
-
 	public async Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(
 		Guid companyId,
 		Guid staffMemberId)

@@ -8,10 +8,6 @@ public interface IStaffMemberAvailabilityRepository
 		Guid companyId,
 		Guid staffMemberId);
 
-	Task<StaffMemberAvailability?> GetByIdAsync(
-		Guid companyId,
-		Guid staffMemberAvailabilityId);
-
 	Task<Guid> CreateAsync(StaffMemberAvailability availability);
 
 	Task<bool> DeleteByIdAsync(

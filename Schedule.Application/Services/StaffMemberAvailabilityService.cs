@@ -20,13 +20,6 @@ public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 		return await _repository.GetByStaffMemberIdAsync(companyId, staffMemberId);
 	}
 
-	public async Task<StaffMemberAvailability?> GetByIdAsync(
-		Guid companyId,
-		Guid id)
-	{
-		return await _repository.GetByIdAsync(companyId, id);
-	}
-
 	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
 	{
 		return await _repository.CreateAsync(availability);
@@ -36,6 +29,6 @@ public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 		Guid companyId,
 		Guid id)
 	{
-			await _repository.DeleteByIdAsync(companyId, id);
+		await _repository.DeleteByIdAsync(companyId, id);
 	}
 }

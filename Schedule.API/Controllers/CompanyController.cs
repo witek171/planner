@@ -37,7 +37,7 @@ public class CompanyController : ControllerBase
 		[FromBody] CompanyRequest request)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) 
+		if (company == null)
 			return NotFound();
 
 		_mapper.Map(request, company);
@@ -49,6 +49,10 @@ public class CompanyController : ControllerBase
 	[HttpDelete("{companyId:guid}")]
 	public async Task<ActionResult> DeleteById(Guid companyId)
 	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
 		await _companyService.DeleteByIdAsync(companyId);
 		return NoContent();
 	}
@@ -57,7 +61,7 @@ public class CompanyController : ControllerBase
 	public async Task<ActionResult<CompanyResponse>> GetById([FromQuery] Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) 
+		if (company == null)
 			return NotFound();
 
 		CompanyResponse response = _mapper.Map<CompanyResponse>(company);
@@ -68,7 +72,7 @@ public class CompanyController : ControllerBase
 	public async Task<ActionResult> MarkAsReception(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) 
+		if (company == null)
 			return NotFound();
 
 		await _companyService.MarkAsReceptionAsync(company);
@@ -93,7 +97,7 @@ public class CompanyController : ControllerBase
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
 		Company? parentCompany = await _companyService.GetByIdAsync(parentCompanyId);
-		if (company == null || parentCompany == null) 
+		if (company == null || parentCompany == null)
 			return NotFound();
 
 		await _companyService.AddRelationAsync(companyId, parentCompanyId);
@@ -104,7 +108,7 @@ public class CompanyController : ControllerBase
 	public async Task<ActionResult> RemoveRelations(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) 
+		if (company == null)
 			return NotFound();
 
 		await _companyService.RemoveRelationsAsync(companyId);
@@ -115,7 +119,7 @@ public class CompanyController : ControllerBase
 	public async Task<ActionResult> GetRelations(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) 
+		if (company == null)
 			return NotFound();
 
 		List<Company> companies = await _companyService.GetAllRelationsAsync(companyId);

@@ -71,11 +71,11 @@ public class CompanyService : ICompanyService
 
 	public async Task RemoveRelationsAsync(Guid companyId)
 	{
-		if (
-			!await _repository.ExistsAsChildAsync(companyId) &&
+		if (!await _repository.ExistsAsChildAsync(companyId) &&
 			!await _repository.ExistsAsParentAsync(companyId))
 			throw new InvalidOperationException(
-				$"Company {companyId} has no relations");
+				$"Company {companyId} is not present in the hierarchy," +
+				$" therefore it has no relations to remove");
 
 		(bool hasChildren, Guid? parentId) = await _repository
 			.RemoveRelationsAsync(companyId);

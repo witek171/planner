@@ -67,8 +67,7 @@ public class StaffMember
 	{
 		if (Specializations.Any())
 			throw new InvalidOperationException(
-				$"List of specializations is already set" +
-				$" and cannot be changed");
+				$"Specializations for staff member {Id} are already set and cannot be changed");
 
 		Specializations = specializations;
 	}

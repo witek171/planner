@@ -94,9 +94,9 @@ public class CompanyService : ICompanyService
 
 	private async Task UnmarkCompanyAsParentIfNeededAsync(Guid companyId)
 	{
-		if (!await _repository.ExistsAsParentAsync(companyId))
+		Company company = (await _repository.GetByIdAsync(companyId))!;
+		if (!await _repository.ExistsAsParentAsync(companyId) && company.IsParentNode)
 		{
-			Company company = (await _repository.GetByIdAsync(companyId))!;
 			company.UnmarkAsParentNode();
 			await _repository.UpdateIsParentNodeFlagAsync(company);
 		}

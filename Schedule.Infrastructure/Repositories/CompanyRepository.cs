@@ -299,4 +299,29 @@ public class CompanyRepository : ICompanyRepository
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
+
+	public async Task<bool> RelationExistAsync(
+		Guid companyId,
+		Guid parentCompanyId)
+	{
+		const string sql = @"
+			SELECT CAST(
+				CASE WHEN EXISTS (
+					SELECT 1 FROM CompanyHierarchies
+					WHERE (CompanyId = @CompanyId AND ParentCompanyId = @ParentCompanyId)
+						OR (CompanyId = @ParentCompanyId AND ParentCompanyId = @CompanyId)
+				) THEN 1 ELSE 0 END 
+			AS bit)
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@ParentCompanyId", parentCompanyId);
+
+		object result = (await command.ExecuteScalarAsync())!;
+		return (bool)result;
+	}
 }

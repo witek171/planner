@@ -163,7 +163,7 @@ public class CompanyRepository : ICompanyRepository
 		return rowsAffected > 0;
 	}
 
-	public async Task<(bool isParent, Guid? parentId)> RemoveRelationAsync(Guid companyId)
+	public async Task<(bool isParent, Guid? parentId)> RemoveRelationsAsync(Guid companyId)
 	{
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -187,7 +187,8 @@ public class CompanyRepository : ICompanyRepository
 					OR CompanyId = @CompanyId
 				";
 
-				await using SqlCommand deleteChildrenCmd = new(sqlDeleteChildren, connection);
+				await using SqlCommand deleteChildrenCmd = new(
+					sqlDeleteChildren, connection);
 				deleteChildrenCmd.Parameters.AddWithValue("@CompanyId", companyId);
 				await deleteChildrenCmd.ExecuteNonQueryAsync();
 
@@ -325,7 +326,7 @@ public class CompanyRepository : ICompanyRepository
 		return (bool)result;
 	}
 
-	public async Task<bool> HasRelationAsChildAsync(Guid companyId)
+	public async Task<bool> ExistsAsChildAsync(Guid companyId)
 	{
 		const string sql = @"
 			SELECT CAST(

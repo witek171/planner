@@ -2,7 +2,7 @@
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class CreateCompanyRequest
+public class CompanyRequest
 {
 	[Required] public string Name { get; }
 	[Required] public string TaxCode { get; }
@@ -12,7 +12,7 @@ public class CreateCompanyRequest
 	[Required] [Phone] public string Phone { get; }
 	[Required] [EmailAddress] public string Email { get; }
 
-	public CreateCompanyRequest(
+	public CompanyRequest(
 		string name,
 		string taxCode,
 		string street,

@@ -23,9 +23,7 @@ public class CompanyController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ActionResult<Guid>> Create(
-		[FromBody] CreateCompanyRequest request
-	)
+	public async Task<ActionResult<Guid>> Create([FromBody] CompanyRequest request)
 	{
 		Company company = _mapper.Map<Company>(request);
 
@@ -36,11 +34,11 @@ public class CompanyController : ControllerBase
 	[HttpPut("{companyId:guid}")]
 	public async Task<ActionResult> Put(
 		Guid companyId,
-		[FromBody] UpdateCompanyRequest request)
+		[FromBody] CompanyRequest request)
 	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null) 
+			return NotFound();
 
 		_mapper.Map(request, company);
 
@@ -56,13 +54,11 @@ public class CompanyController : ControllerBase
 	}
 
 	[HttpGet("byId")]
-	public async Task<ActionResult<CompanyResponse>> GetById(
-		[FromQuery] Guid companyId
-	)
+	public async Task<ActionResult<CompanyResponse>> GetById([FromQuery] Guid companyId)
 	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null) 
+			return NotFound();
 
 		CompanyResponse response = _mapper.Map<CompanyResponse>(company);
 		return Ok(response);
@@ -71,9 +67,9 @@ public class CompanyController : ControllerBase
 	[HttpPut("{companyId:guid}/markAsReception")]
 	public async Task<ActionResult> MarkAsReception(Guid companyId)
 	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null) 
+			return NotFound();
 
 		await _companyService.MarkAsReceptionAsync(company);
 		return NoContent();
@@ -82,9 +78,9 @@ public class CompanyController : ControllerBase
 	[HttpPut("{companyId:guid}/unmarkAsReception")]
 	public async Task<ActionResult> UnmarkAsReception(Guid companyId)
 	{
-		Company? company = await _companyService
-			.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
 
 		await _companyService.UnmarkAsReceptionAsync(company);
 		return NoContent();
@@ -97,19 +93,21 @@ public class CompanyController : ControllerBase
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
 		Company? parentCompany = await _companyService.GetByIdAsync(parentCompanyId);
-		if (company == null || parentCompany == null) return NotFound();
+		if (company == null || parentCompany == null) 
+			return NotFound();
 
 		await _companyService.AddRelationAsync(companyId, parentCompanyId);
 		return Ok();
 	}
 
 	[HttpDelete("{companyId:guid}/relation")]
-	public async Task<ActionResult> DetachFromParent(Guid companyId)
+	public async Task<ActionResult> RemoveRelations(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		if (company == null) 
+			return NotFound();
 
-		await _companyService.RemoveRelationAsync(companyId);
+		await _companyService.RemoveRelationsAsync(companyId);
 		return NoContent();
 	}
 
@@ -117,13 +115,12 @@ public class CompanyController : ControllerBase
 	public async Task<ActionResult> GetRelations(Guid companyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
-		if (company == null) return NotFound();
+		if (company == null) 
+			return NotFound();
 
-		List<Company> companies = await _companyService
-			.GetAllRelationsAsync(companyId);
+		List<Company> companies = await _companyService.GetAllRelationsAsync(companyId);
 
-		List<CompanyResponse> responses = _mapper
-			.Map<List<CompanyResponse>>(companies);
+		List<CompanyResponse> responses = _mapper.Map<List<CompanyResponse>>(companies);
 		return Ok(responses);
 	}
 }

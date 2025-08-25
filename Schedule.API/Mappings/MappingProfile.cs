@@ -26,8 +26,7 @@ public class MappingProfile : Profile
 		CreateMap<Participant, ParticipantResponse>();
 		CreateMap<ParticipantUpdateRequest, Participant>();
 
-		CreateMap<CreateCompanyRequest, Company>();
-		CreateMap<UpdateCompanyRequest, Company>();
+		CreateMap<CompanyRequest, Company>();
 		CreateMap<Company, CompanyResponse>();
 	}
 }

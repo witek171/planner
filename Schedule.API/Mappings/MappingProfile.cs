@@ -47,13 +47,13 @@ public class MappingProfile : Profile
 				src.StartTime,
 				src.EndTime,
 				true));
-		CreateMap<StaffMemberAvailability, StaffMemberAvailabilityResponse>()
-			.ConstructUsing(src => new StaffMemberAvailabilityResponse(
-				src.Date,
-				src.StartTime,
-				src.EndTime,
-				null));
-
+		CreateMap<StaffMemberAvailability, AvailabilityResponse>();
+		CreateMap<(StaffMember staffMember, List<StaffMemberAvailability> availabilities), StaffMemberAvailabilityResponse>()
+			.ConvertUsing((src, dest, context) =>
+				new StaffMemberAvailabilityResponse(
+					context.Mapper.Map<StaffMemberResponse>(src.staffMember),
+					context.Mapper.Map<List<AvailabilityResponse>>(src.availabilities)));
+		
 		CreateMap<Specialization, SpecializationResponse>();
 
 		CreateMap<EventScheduleStaffMember, EventScheduleStaffMemberResponse>();

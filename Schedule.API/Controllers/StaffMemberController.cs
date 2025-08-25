@@ -126,39 +126,14 @@ public class StaffMemberController : ControllerBase
 			.GetByIdAsync(staffMemberId, companyId);
 		if (staffMember == null) return NotFound();
 
-		List<StaffMemberAvailability> list =
+		List<StaffMemberAvailability> availabilities =
 			await _staffMemberAvailabilityService
 				.GetByStaffMemberIdAsync(companyId, staffMemberId);
 
-		List<StaffMemberAvailabilityResponse> responses = _mapper
-			.Map<List<StaffMemberAvailabilityResponse>>(list);
-		return Ok(responses);
-	}
-
-	[HttpGet("availability/byId")]
-	public async Task<ActionResult<StaffMemberAvailabilityResponse>> GetAvailabilityById(
-		Guid companyId,
-		[FromQuery] Guid id)
-	{
-		StaffMemberAvailability? availability = await _staffMemberAvailabilityService
-			.GetByIdAsync(companyId, id);
-		if (availability == null) return NotFound();
-
-		StaffMember staffMember = (await _staffMemberService
-			.GetByIdAsync(availability.StaffMemberId, companyId))!;
-		StaffMemberResponse staffMemberResponse = _mapper
-			.Map<StaffMemberResponse>(staffMember);
-
-		StaffMemberAvailabilityResponse baseResponse = _mapper
-			.Map<StaffMemberAvailabilityResponse>(availability);
-
 		StaffMemberAvailabilityResponse response = new(
-			baseResponse.Date,
-			baseResponse.StartTime,
-			baseResponse.EndTime,
-			staffMemberResponse
-		);
-
+			_mapper.Map<StaffMemberResponse>(staffMember),
+			_mapper.Map<List<AvailabilityResponse>>(availabilities));
+		
 		return Ok(response);
 	}
 

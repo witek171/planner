@@ -51,6 +51,14 @@ public class CompanyService : ICompanyService
 		Guid childId,
 		Guid parentId)
 	{
+		if (await _repository.HasRelationAsChildAsync(childId))
+			throw new InvalidOperationException(
+				$"Company {childId} alredy has a parent company");
+
+		if (await _repository.RelationExistAsync(childId, parentId))
+			throw new InvalidOperationException(
+				$"Relation between companies {childId} and {parentId} already exists");
+
 		await _repository.AddRelationAsync(childId, parentId);
 		Company parent = (await _repository.GetByIdAsync(parentId))!;
 

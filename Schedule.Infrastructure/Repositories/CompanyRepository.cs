@@ -324,4 +324,25 @@ public class CompanyRepository : ICompanyRepository
 		object result = (await command.ExecuteScalarAsync())!;
 		return (bool)result;
 	}
+
+	public async Task<bool> HasRelationAsChildAsync(Guid companyId)
+	{
+		const string sql = @"
+			SELECT CAST(
+				CASE WHEN EXISTS (
+					SELECT 1 FROM CompanyHierarchies
+					WHERE CompanyId = @CompanyId
+				) THEN 1 ELSE 0 END 
+			AS bit)
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		object result = (await command.ExecuteScalarAsync())!;
+		return (bool)result;
+	}
 }

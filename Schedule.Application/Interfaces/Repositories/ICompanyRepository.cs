@@ -22,4 +22,6 @@ public interface ICompanyRepository
 	Task<bool> RelationExistAsync(
 		Guid companyId,
 		Guid parentCompanyId);
+
+	Task<bool> HasRelationAsChildAsync(Guid companyId);
 }

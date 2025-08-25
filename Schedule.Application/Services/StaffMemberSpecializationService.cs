@@ -20,8 +20,7 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 		if (
 			await _repository.ExistsAsync(
 				staffMemberSpecialization.StaffMemberId,
-				staffMemberSpecialization.SpecializationId)
-		)
+				staffMemberSpecialization.SpecializationId))
 			throw new InvalidOperationException(
 				$"Staff member {staffMemberSpecialization.StaffMemberId}" +
 				$" already has specialization {staffMemberSpecialization.SpecializationId}" +

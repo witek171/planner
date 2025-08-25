@@ -194,8 +194,10 @@ public class StaffMemberController : ControllerBase
 	Guid companyId,
 	[FromQuery] Guid staffMemberId)
 	{
-		var schedules = await _eventScheduleService.GetByStaffMemberIdAsync(companyId, staffMemberId);
-		var response = _mapper.Map<List<EventScheduleResponse>>(schedules);
+		List<EventSchedule> schedules = await _eventScheduleService
+			.GetByStaffMemberIdAsync(companyId, staffMemberId);
+		List<EventScheduleResponse>? response = _mapper
+			.Map<List<EventScheduleResponse>>(schedules);
 		return Ok(response);
 	}
 

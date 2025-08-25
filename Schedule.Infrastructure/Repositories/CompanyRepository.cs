@@ -184,6 +184,7 @@ public class CompanyRepository : ICompanyRepository
 				const string sqlDeleteChildren = @"
 					DELETE FROM CompanyHierarchies
 					WHERE ParentCompanyId = @CompanyId
+					OR CompanyId = @CompanyId
 				";
 
 				await using SqlCommand deleteChildrenCmd = new(sqlDeleteChildren, connection);

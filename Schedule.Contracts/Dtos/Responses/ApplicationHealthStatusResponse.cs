@@ -4,14 +4,6 @@ namespace Schedule.Contracts.Dtos.Responses;
 
 public class ApplicationHealthStatusResponse
 {
-	[Required] public string Version { get; set; }
-	[Required] public string Environment { get; set; }
-	[Required] public TimeSpan Uptime { get; set; }
-	[Required] public long MemoryUsage { get; set; }
-	[Required] public string Status { get; set; }
-	[Required] public DateTime Timestamp { get; set; }
-	[Required] public Dictionary<string, object> Details { get; set; }
-
 	public ApplicationHealthStatusResponse(
 		string version,
 		string environment,
@@ -30,4 +22,12 @@ public class ApplicationHealthStatusResponse
 		Timestamp = timestamp;
 		Details = details;
 	}
+
+	[Required] public string Version { get; }
+	[Required] public string Environment { get; }
+	[Required] public TimeSpan Uptime { get; }
+	[Required] public long MemoryUsage { get; }
+	[Required] public string Status { get; }
+	[Required] public DateTime Timestamp { get; }
+	[Required] public Dictionary<string, object> Details { get; }
 }

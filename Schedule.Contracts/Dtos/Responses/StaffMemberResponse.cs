@@ -2,26 +2,28 @@
 
 namespace Schedule.Contracts.Dtos.Responses;
 
-public class ParticipantResponse
+public class StaffMemberResponse
 {
-	public ParticipantResponse(
+	public StaffMemberResponse(
+		string role,
 		string email,
 		string firstName,
 		string lastName,
 		string phone,
-		DateTime createdAt
-	)
+		List<SpecializationResponse> specializations)
 	{
+		Role = role;
 		Email = email;
 		FirstName = firstName;
 		LastName = lastName;
 		Phone = phone;
-		CreatedAt = createdAt;
+		Specializations = specializations;
 	}
 
+	[Required] public string Role { get; }
 	[Required] public string Email { get; }
 	[Required] public string FirstName { get; }
 	[Required] public string LastName { get; }
 	[Required] public string Phone { get; }
-	[Required] public DateTime CreatedAt { get; }
+	[Required] public List<SpecializationResponse> Specializations { get; }
 }

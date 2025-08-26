@@ -4,13 +4,6 @@ namespace Schedule.Contracts.Dtos.Responses;
 
 public class DatabaseHealthStatusResponse
 {
-	[Required] public string ConnectionString { get; set; }
-	[Required] public TimeSpan ResponseTime { get; set; }
-	[Required] public string DatabaseName { get; set; }
-	[Required] public string Status { get; set; }
-	[Required] public DateTime Timestamp { get; set; }
-	[Required] public Dictionary<string, object> Detail { get; set; }
-
 	public DatabaseHealthStatusResponse(
 		string connectionString,
 		TimeSpan responseTime,
@@ -27,4 +20,11 @@ public class DatabaseHealthStatusResponse
 		Timestamp = timestamp;
 		Detail = detail;
 	}
+
+	[Required] public string ConnectionString { get; }
+	[Required] public TimeSpan ResponseTime { get; }
+	[Required] public string DatabaseName { get; }
+	[Required] public string Status { get; }
+	[Required] public DateTime Timestamp { get; }
+	[Required] public Dictionary<string, object> Detail { get; }
 }

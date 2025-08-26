@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\Common\ProjectBase.props"/>
+	<Import Project="..\Common\ProjectBase.props" />
 
 </Project>
+	

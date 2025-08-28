@@ -49,7 +49,7 @@ public class CompanyService : ICompanyService
 	{
 		if (childId == parentId)
 			throw new InvalidOperationException(
-				$"A company cannot be its own parent (Company ID: {childId})");
+				$"Company {childId} cannot be its own parent");
 
 		if (await _companyRepository.ExistsAsChildAsync(childId))
 			throw new InvalidOperationException(

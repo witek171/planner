@@ -122,9 +122,21 @@ public class CompanyRepository : ICompanyRepository
 		);
 	}
 
-	public async Task<bool> ExistsAsParentAsync(Guid companyId)
+	public async Task<bool> ExistsAsParentAsync(
+		Guid companyId,
+		SqlConnection? connection = null,
+		SqlTransaction? transaction = null)
 	{
-		const string sql = @"
+		{
+			bool disposeConnection = false;
+			if (connection == null)
+			{
+				connection = new SqlConnection(_connectionString);
+				await connection.OpenAsync();
+				disposeConnection = true;
+			}
+
+			const string sql = @"
 			SELECT CAST(
 				CASE WHEN EXISTS (
 					SELECT 1 FROM CompanyHierarchies
@@ -133,14 +145,15 @@ public class CompanyRepository : ICompanyRepository
 			AS bit)
 		";
 
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
+			await using SqlCommand command = new(sql, connection, transaction);
+			command.Parameters.AddWithValue("@ParentCompanyId", companyId);
 
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@ParentCompanyId", companyId);
+			object result = (await command.ExecuteScalarAsync())!;
 
-		object result = (await command.ExecuteScalarAsync())!;
-		return (bool)result;
+			if (disposeConnection)
+				await connection.DisposeAsync();
+			return (bool)result;
+		}
 	}
 
 	public async Task<bool> AddRelationAsync(
@@ -167,64 +180,29 @@ public class CompanyRepository : ICompanyRepository
 	{
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
+		await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
 
-		const string sqlIsCompanyParent = @"
-			SELECT TOP 1 1
-			FROM CompanyHierarchies
-			WHERE ParentCompanyId = @CompanyId
-		";
-
-		await using (SqlCommand checkCmd = new(sqlIsCompanyParent, connection))
+		try
 		{
-			checkCmd.Parameters.AddWithValue("@CompanyId", companyId);
-			object? result = await checkCmd.ExecuteScalarAsync();
-
-			if (result != null)
+			if (await ExistsAsParentAsync(companyId))
 			{
-				const string sqlDeleteChildren = @"
-					DELETE FROM CompanyHierarchies
-					WHERE ParentCompanyId = @CompanyId
-					OR CompanyId = @CompanyId
-				";
-
-				await using SqlCommand deleteChildrenCmd = new(
-					sqlDeleteChildren, connection);
-				deleteChildrenCmd.Parameters.AddWithValue("@CompanyId", companyId);
-				await deleteChildrenCmd.ExecuteNonQueryAsync();
-
+				await DeleteRelationsByCompanyIdAsync(connection, transaction, companyId, includeChildren: true);
+				await transaction.CommitAsync();
 				return (true, null);
 			}
+
+			Guid? parentId = await GetParentCompanyIdAsync(connection, transaction, companyId);
+			if (parentId != null)
+				await DeleteRelationsByCompanyIdAsync(connection, transaction, companyId, includeChildren: false);
+
+			await transaction.CommitAsync();
+			return (false, parentId);
 		}
-
-		Guid? parentId = null;
-
-		const string sqlGetParent = @"
-			SELECT ParentCompanyId
-			FROM CompanyHierarchies
-			WHERE CompanyId = @CompanyId
-		";
-
-		await using (SqlCommand getParentCmd = new(sqlGetParent, connection))
+		catch
 		{
-			getParentCmd.Parameters.AddWithValue("@CompanyId", companyId);
-			object? result = await getParentCmd.ExecuteScalarAsync();
-
-			if (result != null)
-				parentId = (Guid)result;
+			await transaction.RollbackAsync();
+			throw;
 		}
-
-		const string sqlDeleteRelation = @"
-			DELETE FROM CompanyHierarchies
-			WHERE CompanyId = @CompanyId
-		";
-
-		await using (SqlCommand deleteCmd = new(sqlDeleteRelation, connection))
-		{
-			deleteCmd.Parameters.AddWithValue("@CompanyId", companyId);
-			await deleteCmd.ExecuteNonQueryAsync();
-		}
-
-		return (false, parentId);
 	}
 
 	public async Task<List<Company>> GetAllRelationsAsync(Guid companyId)
@@ -345,5 +323,41 @@ public class CompanyRepository : ICompanyRepository
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (bool)result;
+	}
+
+	private async Task<Guid?> GetParentCompanyIdAsync(
+		SqlConnection connection,
+		SqlTransaction transaction,
+		Guid companyId)
+	{
+		const string sql = @"
+			SELECT ParentCompanyId
+			FROM CompanyHierarchies
+			WHERE CompanyId = @CompanyId
+		";
+
+		await using SqlCommand command = new(sql, connection, transaction);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		object? result = await command.ExecuteScalarAsync();
+		return (Guid?)result;
+	}
+
+	private async Task DeleteRelationsByCompanyIdAsync(
+		SqlConnection connection,
+		SqlTransaction transaction,
+		Guid companyId,
+		bool includeChildren)
+	{
+		string sql = includeChildren
+			? @"DELETE FROM CompanyHierarchies
+			WHERE ParentCompanyId = @CompanyId
+				OR CompanyId = @CompanyId"
+			: @"DELETE FROM CompanyHierarchies
+			WHERE CompanyId = @CompanyId";
+
+		await using SqlCommand command = new(sql, connection, transaction);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		await command.ExecuteNonQueryAsync();
 	}
 }

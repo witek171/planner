@@ -1,4 +1,5 @@
-﻿using Schedule.Domain.Models;
+﻿using Microsoft.Data.SqlClient;
+using Schedule.Domain.Models;
 
 namespace Schedule.Application.Interfaces.Repositories;
 
@@ -8,7 +9,11 @@ public interface ICompanyRepository
 	Task<bool> PutAsync(Company company);
 	Task<bool> DeleteByIdAsync(Guid companyId);
 	Task<Company?> GetByIdAsync(Guid companyId);
-	Task<bool> ExistsAsParentAsync(Guid companyId);
+
+	Task<bool> ExistsAsParentAsync(
+		Guid companyId,
+		SqlConnection? connection = null,
+		SqlTransaction? transaction = null);
 
 	Task<bool> AddRelationAsync(
 		Guid childId,

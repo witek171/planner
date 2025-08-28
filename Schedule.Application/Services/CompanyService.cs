@@ -55,6 +55,10 @@ public class CompanyService : ICompanyService
 			throw new InvalidOperationException(
 				$"Relation between companies {childId} and {parentId} already exists");
 
+		if (childId == parentId)
+			throw new InvalidOperationException(
+				$"A company cannot be its own parent (Company ID: {childId})");
+
 		await _companyRepository.AddRelationAsync(childId, parentId);
 		Company parent = (await _companyRepository.GetByIdAsync(parentId))!;
 

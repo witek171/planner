@@ -26,6 +26,9 @@ public class MappingProfile : Profile
 		CreateMap<Participant, ParticipantResponse>();
 		CreateMap<ParticipantUpdateRequest, Participant>();
 
+		CreateMap<CompanyRequest, Company>();
+		CreateMap<Company, CompanyResponse>();
+
 		CreateMap<StaffMember, StaffMemberResponse>()
 			.ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
 		CreateMap<CreateStaffMemberRequest, StaffMember>();
@@ -68,7 +71,6 @@ public class MappingProfile : Profile
 				Guid.Empty,
 				src.EventScheduleId,
 				src.StaffMemberId));
-
 		CreateMap<EventSchedule, EventScheduleResponse>();
 	}
 }

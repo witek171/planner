@@ -6,76 +6,76 @@ namespace Schedule.Application.Services;
 
 public class CompanyService : ICompanyService
 {
-	private readonly ICompanyRepository _repository;
+	private readonly ICompanyRepository _companyRepository;
 
-	public CompanyService(ICompanyRepository repository)
+	public CompanyService(ICompanyRepository companyRepository)
 	{
-		_repository = repository;
+		_companyRepository = companyRepository;
 	}
 
 	public async Task<Guid> CreateAsync(Company company)
 	{
 		company.Normalize();
-		return await _repository.CreateAsync(company);
+		return await _companyRepository.CreateAsync(company);
 	}
 
 	public async Task PutAsync(Company company)
 	{
 		company.Normalize();
-		await _repository.PutAsync(company);
+		await _companyRepository.PutAsync(company);
 	}
 
-	public async Task DeleteByIdAsync(Guid companyId) => await _repository
+	public async Task DeleteByIdAsync(Guid companyId) => await _companyRepository
 		.DeleteByIdAsync(companyId);
 
 	public async Task<Company?> GetByIdAsync(Guid companyId)
 	{
-		return await _repository.GetByIdAsync(companyId);
+		return await _companyRepository.GetByIdAsync(companyId);
 	}
 
 	public async Task MarkAsReceptionAsync(Company company)
 	{
 		company.MarkAsReception();
-		await _repository.UpdateIsReceptionFlagAsync(company);
+		await _companyRepository.UpdateIsReceptionFlagAsync(company);
 	}
 
 	public async Task UnmarkAsReceptionAsync(Company company)
 	{
 		company.UnmarkAsReception();
-		await _repository.UpdateIsReceptionFlagAsync(company);
+		await _companyRepository.UpdateIsReceptionFlagAsync(company);
 	}
 
 	public async Task AddRelationAsync(
 		Guid childId,
 		Guid parentId)
 	{
-		if (await _repository.ExistsAsChildAsync(childId))
+		if (await _companyRepository.ExistsAsChildAsync(childId))
 			throw new InvalidOperationException(
 				$"Company {childId} already has a parent company");
 
-		if (await _repository.RelationExistAsync(childId, parentId))
+		if (await _companyRepository.RelationExistAsync(childId, parentId))
 			throw new InvalidOperationException(
 				$"Relation between companies {childId} and {parentId} already exists");
 
-		await _repository.AddRelationAsync(childId, parentId);
-		Company parent = (await _repository.GetByIdAsync(parentId))!;
+		await _companyRepository.AddRelationAsync(childId, parentId);
+		Company parent = (await _companyRepository.GetByIdAsync(parentId))!;
 
 		if (!parent.IsParentNode)
 		{
 			parent.MarkAsParentNode();
-			await _repository.UpdateIsParentNodeFlagAsync(parent);
+			await _companyRepository.UpdateIsParentNodeFlagAsync(parent);
 		}
 	}
 
 	public async Task RemoveRelationsAsync(Guid companyId)
 	{
-		if (!await _repository.ExistsAsChildAsync(companyId) &&
-			!await _repository.ExistsAsParentAsync(companyId))
+		if (!await _companyRepository.ExistsAsChildAsync(companyId) &&
+			!await _companyRepository.ExistsAsParentAsync(companyId))
 			throw new InvalidOperationException(
 				$"Company {companyId} is not present in the hierarchy," +
 				$" therefore it has no relations to remove");
 
-		(bool hasChildren, Guid? parentId) = await _repository
+		(bool hasChildren, Guid? parentId) = await _companyRepository
 			.RemoveRelationsAsync(companyId);
 
 		if (!hasChildren && parentId is Guid id)
@@ -86,17 +86,17 @@ public class CompanyService : ICompanyService
 
 	public async Task<List<Company>> GetAllRelationsAsync(Guid companyId)
 	{
-		List<Company> companies = await _repository.GetAllRelationsAsync(companyId);
+		List<Company> companies = await _companyRepository.GetAllRelationsAsync(companyId);
 		return companies;
 	}
 
 	private async Task UnmarkCompanyAsParentIfNeededAsync(Guid companyId)
 	{
-		Company company = (await _repository.GetByIdAsync(companyId))!;
-		if (!await _repository.ExistsAsParentAsync(companyId) && company.IsParentNode)
+		Company company = (await _companyRepository.GetByIdAsync(companyId))!;
+		if (!await _companyRepository.ExistsAsParentAsync(companyId) && company.IsParentNode)
 		{
 			company.UnmarkAsParentNode();
-			await _repository.UpdateIsParentNodeFlagAsync(company);
+			await _companyRepository.UpdateIsParentNodeFlagAsync(company);
 		}
 	}
 }

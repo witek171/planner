@@ -25,10 +25,8 @@ public class CompanyService : ICompanyService
 		await _repository.PutAsync(company);
 	}
 
-	public async Task DeleteByIdAsync(Guid companyId)
-	{
-		await _repository.DeleteByIdAsync(companyId);
-	}
+	public async Task DeleteByIdAsync(Guid companyId) => await _repository
+		.DeleteByIdAsync(companyId);
 
 	public async Task<Company?> GetByIdAsync(Guid companyId)
 	{

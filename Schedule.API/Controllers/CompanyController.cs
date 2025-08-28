@@ -90,10 +90,10 @@ public class CompanyController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpPost("{companyId:guid}/addTo/{parentCompanyId:guid}")]
+	[HttpPost("{companyId:guid}/relation")]
 	public async Task<ActionResult> AddToParent(
 		Guid companyId,
-		Guid parentCompanyId)
+		[FromBody] Guid parentCompanyId)
 	{
 		Company? company = await _companyService.GetByIdAsync(companyId);
 		Company? parentCompany = await _companyService.GetByIdAsync(parentCompanyId);

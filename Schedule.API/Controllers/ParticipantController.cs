@@ -16,8 +16,7 @@ public class ParticipantController : ControllerBase
 
 	public ParticipantController(
 		IParticipantService participantService,
-		IMapper mapper
-	)
+		IMapper mapper)
 	{
 		_participantService = participantService;
 		_mapper = mapper;
@@ -26,8 +25,7 @@ public class ParticipantController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<Guid>> Create(
 		Guid companyId,
-		[FromBody] ParticipantCreateRequest request
-	)
+		[FromBody] ParticipantCreateRequest request)
 	{
 		Participant participant = _mapper.Map<Participant>(request);
 		participant.SetCompanyId(companyId);
@@ -40,8 +38,7 @@ public class ParticipantController : ControllerBase
 	public async Task<ActionResult> Put(
 		Guid companyId,
 		Guid participantId,
-		[FromBody] ParticipantUpdateRequest request
-	)
+		[FromBody] ParticipantUpdateRequest request)
 	{
 		Participant? participant = await _participantService
 			.GetByIdAsync(participantId, companyId);
@@ -55,8 +52,7 @@ public class ParticipantController : ControllerBase
 	[HttpDelete("{participantId:guid}")]
 	public async Task<ActionResult> DeleteById(
 		Guid companyId,
-		Guid participantId
-	)
+		Guid participantId)
 	{
 		await _participantService.DeleteByIdAsync(participantId, companyId);
 		return NoContent();
@@ -65,8 +61,7 @@ public class ParticipantController : ControllerBase
 	[HttpGet("byId")]
 	public async Task<ActionResult<ParticipantResponse>> GetById(
 		[FromQuery] Guid participantId,
-		Guid companyId
-	)
+		Guid companyId)
 	{
 		Participant? participant = await _participantService
 			.GetByIdAsync(participantId, companyId);
@@ -78,8 +73,7 @@ public class ParticipantController : ControllerBase
 	[HttpGet("byEmail")]
 	public async Task<ActionResult<ParticipantResponse>> GetByEmail(
 		[FromQuery] string email,
-		Guid companyId
-	)
+		Guid companyId)
 	{
 		Participant? participant = await _participantService.GetByEmailAsync(email, companyId);
 
@@ -92,7 +86,7 @@ public class ParticipantController : ControllerBase
 	{
 		List<Participant> participants = await _participantService.GetAllAsync(companyId);
 
-		List<ParticipantResponse> response = _mapper.Map<List<ParticipantResponse>>(participants);
-		return Ok(response);
+		List<ParticipantResponse> responses = _mapper.Map<List<ParticipantResponse>>(participants);
+		return Ok(responses);
 	}
 }

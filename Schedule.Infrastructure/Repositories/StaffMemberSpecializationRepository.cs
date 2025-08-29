@@ -20,19 +20,15 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 		const string sql = @"
 			INSERT INTO StaffSpecializations (CompanyId, StaffMemberId, SpecializationId)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @StaffMemberId, @SpecializationId)
-		";
+			VALUES (@CompanyId, @StaffMemberId, @SpecializationId)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue(
-			"@CompanyId", companyId);
-		command.Parameters.AddWithValue(
-			"@StaffMemberId", staffMemberSpecialization.StaffMemberId);
-		command.Parameters.AddWithValue(
-			"@SpecializationId", staffMemberSpecialization.SpecializationId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberSpecialization.StaffMemberId);
+		command.Parameters.AddWithValue("@SpecializationId", staffMemberSpecialization.SpecializationId);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;
@@ -44,8 +40,7 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 	{
 		const string sql = @"
 			DELETE FROM StaffSpecializations 
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -66,8 +61,7 @@ public class StaffMemberSpecializationRepository : IStaffMemberSpecializationRep
 			SELECT 1
 			FROM StaffSpecializations
 			WHERE StaffMemberId = @StaffMemberId
-			AND SpecializationId = @SpecializationId
-		";
+			AND SpecializationId = @SpecializationId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

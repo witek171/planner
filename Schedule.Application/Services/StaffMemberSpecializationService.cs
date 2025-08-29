@@ -6,19 +6,18 @@ namespace Schedule.Application.Services;
 
 public class StaffMemberSpecializationService : IStaffMemberSpecializationService
 {
-	private readonly IStaffMemberSpecializationRepository _repository;
+	private readonly IStaffMemberSpecializationRepository _staffMemberSpecializationRepository;
 
-	public StaffMemberSpecializationService(IStaffMemberSpecializationRepository repository)
+	public StaffMemberSpecializationService(IStaffMemberSpecializationRepository staffMemberSpecializationRepository)
 	{
-		_repository = repository;
+		_staffMemberSpecializationRepository = staffMemberSpecializationRepository;
 	}
 
 	public async Task<Guid> CreateAsync(
 		Guid companyId,
 		StaffMemberSpecialization staffMemberSpecialization)
 	{
-		if (
-			await _repository.ExistsAsync(
+		if (await _staffMemberSpecializationRepository.ExistsAsync(
 				staffMemberSpecialization.StaffMemberId,
 				staffMemberSpecialization.SpecializationId))
 			throw new InvalidOperationException(
@@ -26,13 +25,11 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 				$" already has specialization {staffMemberSpecialization.SpecializationId}" +
 				$" assigned");
 
-		return await _repository.CreateAsync(companyId, staffMemberSpecialization);
+		return await _staffMemberSpecializationRepository.CreateAsync(companyId, staffMemberSpecialization);
 	}
 
 	public async Task DeleteAsync(
 		Guid id,
 		Guid companyId)
-	{
-		await _repository.DeleteByIdAsync(id, companyId);
-	}
+		=> await _staffMemberSpecializationRepository.DeleteByIdAsync(id, companyId);
 }

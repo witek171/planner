@@ -25,11 +25,11 @@ public class CompanyService : ICompanyService
 		await _companyRepository.PutAsync(company);
 	}
 
-	public async Task DeleteByIdAsync(Guid companyId) => await _companyRepository
-		.DeleteByIdAsync(companyId);
+	public async Task DeleteByIdAsync(Guid companyId)
+		=> await _companyRepository.DeleteByIdAsync(companyId);
 
-	public async Task<Company?> GetByIdAsync(Guid companyId) => await _companyRepository
-		.GetByIdAsync(companyId);
+	public async Task<Company?> GetByIdAsync(Guid companyId)
+		=> await _companyRepository.GetByIdAsync(companyId);
 
 	public async Task MarkAsReceptionAsync(Company company)
 	{

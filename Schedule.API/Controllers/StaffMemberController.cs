@@ -38,8 +38,8 @@ public class StaffMemberController : ControllerBase
 	public async Task<ActionResult<List<StaffMemberResponse>>> GetAll(Guid companyId)
 	{
 		List<StaffMember> staff = await _staffMemberService.GetAllAsync(companyId);
-		List<StaffMemberResponse> response = _mapper.Map<List<StaffMemberResponse>>(staff);
-		return Ok(response);
+		List<StaffMemberResponse> responses = _mapper.Map<List<StaffMemberResponse>>(staff);
+		return Ok(responses);
 	}
 
 	[HttpGet("byId")]
@@ -76,7 +76,8 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
-		if (staffMember == null) return NotFound();
+		if (staffMember == null) 
+			return NotFound();
 
 		_mapper.Map(request, staffMember);
 		await _staffMemberService.PutAsync(staffMember!);
@@ -124,7 +125,8 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
-		if (staffMember == null) return NotFound();
+		if (staffMember == null) 
+			return NotFound();
 
 		List<StaffMemberAvailability> availabilities =
 			await _staffMemberAvailabilityService
@@ -145,7 +147,8 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
-		if (staffMember == null) return NotFound();
+		if (staffMember == null) 
+			return NotFound();
 
 		StaffMemberAvailability availability = _mapper.Map<StaffMemberAvailability>(request);
 		availability.SetCompanyId(companyId);
@@ -171,9 +174,9 @@ public class StaffMemberController : ControllerBase
 	{
 		List<EventSchedule> schedules = await _eventScheduleService
 			.GetByStaffMemberIdAsync(companyId, staffMemberId);
-		List<EventScheduleResponse>? response = _mapper
+		List<EventScheduleResponse>? responses = _mapper
 			.Map<List<EventScheduleResponse>>(schedules);
-		return Ok(response);
+		return Ok(responses);
 	}
 
 	[HttpPost("eventschedule")]

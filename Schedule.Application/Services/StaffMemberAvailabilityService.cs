@@ -6,29 +6,24 @@ namespace Schedule.Application.Services;
 
 public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 {
-	private readonly IStaffMemberAvailabilityRepository _repository;
+	private readonly IStaffMemberAvailabilityRepository _staffMemberAvailabilityRepository;
 
-	public StaffMemberAvailabilityService(IStaffMemberAvailabilityRepository repository)
+	public StaffMemberAvailabilityService(IStaffMemberAvailabilityRepository staffMemberAvailabilityRepository)
 	{
-		_repository = repository;
+		_staffMemberAvailabilityRepository = staffMemberAvailabilityRepository;
 	}
 
 	public async Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(
 		Guid companyId,
 		Guid staffMemberId)
-	{
-		return await _repository.GetByStaffMemberIdAsync(companyId, staffMemberId);
-	}
+		=> await _staffMemberAvailabilityRepository
+			.GetByStaffMemberIdAsync(companyId, staffMemberId);
 
 	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
-	{
-		return await _repository.CreateAsync(availability);
-	}
+		=> await _staffMemberAvailabilityRepository.CreateAsync(availability);
 
 	public async Task DeleteAsync(
 		Guid companyId,
 		Guid id)
-	{
-		await _repository.DeleteByIdAsync(companyId, id);
-	}
+		=> await _staffMemberAvailabilityRepository.DeleteByIdAsync(companyId, id);
 }

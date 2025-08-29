@@ -67,7 +67,8 @@ public class SpecializationController : ControllerBase
 	public async Task<ActionResult> Delete(Guid id, Guid companyId)
 	{
 		Boolean success = await _service.DeleteAsync(id, companyId);
-		if (!success) return NotFound();
+		if (!success) 
+			return NotFound();
 		return NoContent();
 	}
 }

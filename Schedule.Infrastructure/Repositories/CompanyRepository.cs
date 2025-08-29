@@ -184,7 +184,7 @@ public class CompanyRepository : ICompanyRepository
 
 		try
 		{
-			if (await ExistsAsParentAsync(companyId))
+			if (await ExistsAsParentAsync(companyId, connection, transaction))
 			{
 				await DeleteRelationsByCompanyIdAsync(connection, transaction, companyId, includeChildren: true);
 				await transaction.CommitAsync();

@@ -1,6 +1,6 @@
 ﻿namespace Schedule.Domain.Models;
 
-public class ApplicationHealthStatus : HealthStatusBase
+public class ApplicationHealthStatus
 {
 	public ApplicationHealthStatus(
 		string version,
@@ -9,17 +9,22 @@ public class ApplicationHealthStatus : HealthStatusBase
 		long memoryUsage,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> details
-	) : base(status, timestamp, details)
+		Dictionary<string, object> details)
 	{
 		Version = version;
 		Environment = environment;
 		Uptime = uptime;
 		MemoryUsage = memoryUsage;
+		Status = status;
+		Timestamp = timestamp;
+		Details = details;
 	}
 
 	public string Version { get; }
 	public string Environment { get; }
 	public TimeSpan Uptime { get; }
 	public long MemoryUsage { get; }
+	public string Status { get; }
+	public DateTime Timestamp { get; }
+	public Dictionary<string, object> Details { get; }
 }

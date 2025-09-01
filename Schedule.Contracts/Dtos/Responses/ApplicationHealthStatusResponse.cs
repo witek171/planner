@@ -11,8 +11,7 @@ public class ApplicationHealthStatusResponse
 		long memoryUsage,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> details
-	)
+		Dictionary<string, object> details)
 	{
 		Version = version;
 		Environment = environment;
@@ -21,6 +20,10 @@ public class ApplicationHealthStatusResponse
 		Status = status;
 		Timestamp = timestamp;
 		Details = details;
+	}
+
+	public ApplicationHealthStatusResponse()
+	{
 	}
 
 	[Required] public string Version { get; }

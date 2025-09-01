@@ -10,17 +10,7 @@ public class MappingProfile : Profile
 	public MappingProfile()
 	{
 		CreateMap<ApplicationHealthStatus, ApplicationHealthStatusResponse>();
-
-		CreateMap<DatabaseHealthStatus, DatabaseHealthStatusResponse>()
-			.ConstructUsing(src => new DatabaseHealthStatusResponse(
-					src.ConnectionString,
-					src.ResponseTime,
-					src.DatabaseName,
-					src.Status,
-					src.Timestamp,
-					src.Details
-				)
-			);
+		CreateMap<DatabaseHealthStatus, DatabaseHealthStatusResponse>();
 
 		CreateMap<ParticipantCreateRequest, Participant>();
 		CreateMap<Participant, ParticipantResponse>();

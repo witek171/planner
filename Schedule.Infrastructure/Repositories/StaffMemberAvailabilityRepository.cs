@@ -1,16 +1,21 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
 public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityRepository
 {
 	private readonly string _connectionString;
+	private readonly DbMapper _dbMapper;
 
-	public StaffMemberAvailabilityRepository(string connectionString)
+	public StaffMemberAvailabilityRepository(
+		string connectionString,
+		DbMapper dbMapper)
 	{
 		_connectionString = connectionString;
+		_dbMapper = dbMapper;
 	}
 
 	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
@@ -80,15 +85,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		List<StaffMemberAvailability> availabilities = new();
 
 		while (await reader.ReadAsync())
-			availabilities.Add(new StaffMemberAvailability(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
-				DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("Date"))),
-				reader.GetDateTime(reader.GetOrdinal("StartTime")),
-				reader.GetDateTime(reader.GetOrdinal("EndTime")),
-				reader.GetBoolean(reader.GetOrdinal("IsAvailable"))
-			));
+			availabilities.Add(_dbMapper.MapStaffMemberAvailability(reader));
 
 		return availabilities;
 	}

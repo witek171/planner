@@ -1,16 +1,21 @@
 using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
 public class SpecializationRepository : ISpecializationRepository
 {
 	private readonly string _connectionString;
+	private readonly DbMapper _dbMapper;
 
-	public SpecializationRepository(string connectionString)
+	public SpecializationRepository(
+		string connectionString,
+		DbMapper dbMapper)
 	{
 		_connectionString = connectionString;
+		_dbMapper = dbMapper;
 	}
 
 	public async Task<List<Specialization>> GetAllAsync(Guid companyId)
@@ -20,38 +25,27 @@ public class SpecializationRepository : ISpecializationRepository
 		await connection.OpenAsync();
 		await using SqlCommand? command = new SqlCommand(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		SqlDataReader? reader = await command.ExecuteReaderAsync();
+		SqlDataReader reader = await command.ExecuteReaderAsync();
 		List<Specialization> result = new List<Specialization>();
 		while (await reader.ReadAsync())
-		{
-			result.Add(new Specialization(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("Description"))
-			));
-		}
+			result.Add(_dbMapper.MapSpecialization(reader));
+
 		return result;
 	}
 
 	public async Task<Specialization?> GetByIdAsync(Guid id, Guid companyId)
 	{
-		const string sql = @"SELECT Id, CompanyId, Name, Description FROM Specializations WHERE Id = @Id AND CompanyId = @CompanyId";
+		const string sql =
+			@"SELECT Id, CompanyId, Name, Description FROM Specializations WHERE Id = @Id AND CompanyId = @CompanyId";
 		await using SqlConnection? connection = new SqlConnection(_connectionString);
 		await connection.OpenAsync();
 		await using SqlCommand? command = new SqlCommand(sql, connection);
 		command.Parameters.AddWithValue("@Id", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		SqlDataReader? reader = await command.ExecuteReaderAsync();
+		SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
-		{
-			return new Specialization(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("Description"))
-			);
-		}
+			return _dbMapper.MapSpecialization(reader);
+
 		return null;
 	}
 
@@ -66,18 +60,19 @@ public class SpecializationRepository : ISpecializationRepository
 		await using SqlConnection? connection = new SqlConnection(_connectionString);
 		await connection.OpenAsync();
 
-		await using SqlCommand? command = new (sql, connection);
+		await using SqlCommand? command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", specialization.CompanyId);
 		command.Parameters.AddWithValue("@Name", specialization.Name);
 		command.Parameters.AddWithValue("@Description", specialization.Description);
 
-        object result = (await command.ExecuteScalarAsync())!;
-        return (Guid)result;
-    }
+		object result = (await command.ExecuteScalarAsync())!;
+		return (Guid)result;
+	}
 
 	public async Task<bool> UpdateAsync(Specialization specialization)
 	{
-		const string sql = @"UPDATE Specializations SET Name = @Name, Description = @Description WHERE Id = @Id AND CompanyId = @CompanyId";
+		const string sql =
+			@"UPDATE Specializations SET Name = @Name, Description = @Description WHERE Id = @Id AND CompanyId = @CompanyId";
 		await using SqlConnection? connection = new SqlConnection(_connectionString);
 		await connection.OpenAsync();
 		await using SqlCommand? command = new SqlCommand(sql, connection);

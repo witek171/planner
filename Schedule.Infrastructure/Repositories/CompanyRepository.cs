@@ -1,16 +1,21 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
 public class CompanyRepository : ICompanyRepository
 {
 	private readonly string _connectionString;
+	private readonly DbMapper _dbMapper;
 
-	public CompanyRepository(string connectionString)
+	public CompanyRepository(
+		string connectionString,
+		DbMapper mapper)
 	{
 		_connectionString = connectionString;
+		_dbMapper = mapper;
 	}
 
 	public async Task<Guid> CreateAsync(Company company)
@@ -107,19 +112,7 @@ public class CompanyRepository : ICompanyRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Company(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetString(reader.GetOrdinal("Name")),
-			reader.GetString(reader.GetOrdinal("TaxCode")),
-			reader.GetString(reader.GetOrdinal("Street")),
-			reader.GetString(reader.GetOrdinal("City")),
-			reader.GetString(reader.GetOrdinal("PostalCode")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetBoolean(reader.GetOrdinal("IsParentNode")),
-			reader.GetBoolean(reader.GetOrdinal("IsReception")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-		);
+		return _dbMapper.MapCompany(reader);
 	}
 
 	public async Task<bool> ExistsAsParentAsync(
@@ -228,21 +221,7 @@ public class CompanyRepository : ICompanyRepository
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		while (await reader.ReadAsync())
-		{
-			companies.Add(new Company(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("TaxCode")),
-				reader.GetString(reader.GetOrdinal("Street")),
-				reader.GetString(reader.GetOrdinal("City")),
-				reader.GetString(reader.GetOrdinal("PostalCode")),
-				reader.GetString(reader.GetOrdinal("Phone")),
-				reader.GetString(reader.GetOrdinal("Email")),
-				reader.GetBoolean(reader.GetOrdinal("IsParentNode")),
-				reader.GetBoolean(reader.GetOrdinal("IsReception")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-			));
-		}
+			companies.Add(_dbMapper.MapCompany(reader));
 
 		return companies;
 	}

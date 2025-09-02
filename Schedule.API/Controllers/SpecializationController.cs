@@ -40,7 +40,7 @@ public class SpecializationController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ActionResult<Guid>> Create(Guid companyId, [FromBody] CreateSpecializationRequest request)
+	public async Task<ActionResult<Guid>> Create(Guid companyId, [FromBody] SpecializationRequest request)
 	{
 		Specialization? specialization = _mapper.Map<Specialization>(request);
 		specialization.SetCompanyId(companyId);
@@ -49,7 +49,7 @@ public class SpecializationController : ControllerBase
 	}
 
 	[HttpPut("{id:guid}")]
-	public async Task<ActionResult> Update(Guid id, Guid companyId, [FromBody] UpdateSpecializationRequest request)
+	public async Task<ActionResult> Update(Guid id, Guid companyId, [FromBody] SpecializationRequest request)
 	{
 		Specialization? specialization = await _service.GetByIdAsync(id, companyId);
 		if (specialization == null)

@@ -2,9 +2,9 @@
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class CreateStaffMemberSpecializationRequest
+public class StaffMemberSpecializationRequest
 {
-	public CreateStaffMemberSpecializationRequest(
+	public StaffMemberSpecializationRequest(
 		Guid staffMemberId,
 		Guid specializationId)
 	{

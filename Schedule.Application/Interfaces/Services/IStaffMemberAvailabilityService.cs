@@ -13,4 +13,8 @@ public interface IStaffMemberAvailabilityService
 	Task DeleteAsync(
 		Guid companyId,
 		Guid id);
+
+	Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id);
 }

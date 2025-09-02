@@ -71,9 +71,9 @@ public class SpecializationRepository : ISpecializationRepository
 		command.Parameters.AddWithValue("@Name", specialization.Name);
 		command.Parameters.AddWithValue("@Description", specialization.Description);
 
-        object result = (await command.ExecuteScalarAsync())!;
-        return (Guid)result;
-    }
+		object result = (await command.ExecuteScalarAsync())!;
+		return (Guid)result;
+	}
 
 	public async Task<bool> UpdateAsync(Specialization specialization)
 	{

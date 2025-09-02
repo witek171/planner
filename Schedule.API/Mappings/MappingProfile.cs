@@ -31,17 +31,16 @@ public class MappingProfile : Profile
 
 		CreateMap<StaffMember, StaffMemberResponse>()
 			.ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
-		CreateMap<CreateStaffMemberRequest, StaffMember>();
-		CreateMap<UpdateStaffMemberRequest, StaffMember>();
+		CreateMap<StaffMemberRequest, StaffMember>();
 
-		CreateMap<CreateStaffMemberSpecializationRequest, StaffMemberSpecialization>()
+		CreateMap<StaffMemberSpecializationRequest, StaffMemberSpecialization>()
 			.ConstructUsing(src => new StaffMemberSpecialization(
 				Guid.Empty,
 				Guid.Empty,
 				src.StaffMemberId,
 				src.SpecializationId));
 
-		CreateMap<CreateStaffMemberAvailabilityRequest, StaffMemberAvailability>()
+		CreateMap<StaffMemberAvailabilityRequest, StaffMemberAvailability>()
 			.ConstructUsing(src => new StaffMemberAvailability(
 				Guid.Empty,
 				Guid.Empty,
@@ -58,14 +57,11 @@ public class MappingProfile : Profile
 					context.Mapper.Map<StaffMemberResponse>(src.staffMember),
 					context.Mapper.Map<List<AvailabilityResponse>>(src.availabilities)));
 
-		CreateMap<CreateSpecializationRequest, Specialization>();
-		CreateMap<UpdateSpecializationRequest, Specialization>()
-			.ForMember(dest => dest.Id, opt => opt.Ignore())
-			.ForMember(dest => dest.CompanyId, opt => opt.Ignore());
+		CreateMap<SpecializationRequest, Specialization>();
 		CreateMap<Specialization, SpecializationResponse>();
 
 		CreateMap<EventScheduleStaffMember, EventScheduleStaffMemberResponse>();
-		CreateMap<CreateEventScheduleStaffMemberRequest, EventScheduleStaffMember>()
+		CreateMap<EventScheduleStaffMemberRequest, EventScheduleStaffMember>()
 			.ConstructUsing(src => new EventScheduleStaffMember(
 				Guid.Empty,
 				Guid.Empty,

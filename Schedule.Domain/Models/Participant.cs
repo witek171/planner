@@ -8,7 +8,7 @@ public class Participant
 	public string FirstName { get; private set; }
 	public string LastName { get; private set; }
 	public string Phone { get; private set; }
-	public bool GdprConsent { get; }
+	public bool GdprConsent { get; private set; }
 	public DateTime CreatedAt { get; }
 
 	public Participant()

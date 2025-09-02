@@ -13,4 +13,8 @@ public interface IStaffMemberAvailabilityRepository
 	Task<bool> DeleteByIdAsync(
 		Guid staffMemberAvailabilityId,
 		Guid companyId);
+
+	Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id);
 }

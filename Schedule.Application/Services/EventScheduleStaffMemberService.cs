@@ -30,4 +30,9 @@ public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 	{
 		await _eventScheduleStaffMemberRepository.DeleteByIdAsync(companyId, id);
 	}
+
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
+		=> await _eventScheduleStaffMemberRepository.ExistsByIdAsync(companyId, id);
 }

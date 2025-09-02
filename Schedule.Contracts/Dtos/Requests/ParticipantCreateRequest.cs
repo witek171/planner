@@ -19,13 +19,13 @@ public class ParticipantCreateRequest
 		GdprConsent = gdprConsent;
 	}
 
-	[Required] [EmailAddress] public string Email { get; }
+	[Required][EmailAddress] public string Email { get; }
 
-	[Required] [StringLength(40)] public string FirstName { get; }
+	[Required][StringLength(40)] public string FirstName { get; }
 
-	[Required] [StringLength(40)] public string LastName { get; }
+	[Required][StringLength(40)] public string LastName { get; }
 
-	[Required] [Phone] public string Phone { get; }
+	[Required][Phone] public string Phone { get; }
 
 	[Required] public bool GdprConsent { get; }
 }

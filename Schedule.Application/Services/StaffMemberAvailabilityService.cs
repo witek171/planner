@@ -26,4 +26,9 @@ public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 		Guid companyId,
 		Guid id)
 		=> await _staffMemberAvailabilityRepository.DeleteByIdAsync(companyId, id);
+
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
+		=> await _staffMemberAvailabilityRepository.ExistsByIdAsync(companyId, id);
 }

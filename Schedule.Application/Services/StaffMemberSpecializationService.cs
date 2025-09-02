@@ -32,4 +32,9 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 		Guid id,
 		Guid companyId)
 		=> await _staffMemberSpecializationRepository.DeleteByIdAsync(id, companyId);
+
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
+		=> await _staffMemberSpecializationRepository.ExistsByIdAsync(companyId, id);
 }

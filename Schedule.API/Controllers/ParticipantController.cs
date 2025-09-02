@@ -42,10 +42,11 @@ public class ParticipantController : ControllerBase
 	{
 		Participant? participant = await _participantService
 			.GetByIdAsync(participantId, companyId);
+		if (participant == null)
+			return NotFound();
 
 		_mapper.Map(request, participant);
-
-		await _participantService.PutAsync(participant!);
+		await _participantService.PutAsync(participant);
 		return NoContent();
 	}
 
@@ -54,6 +55,11 @@ public class ParticipantController : ControllerBase
 		Guid companyId,
 		Guid participantId)
 	{
+		Participant? participant = await _participantService
+			.GetByIdAsync(participantId, companyId);
+		if (participant == null)
+			return NotFound();
+
 		await _participantService.DeleteByIdAsync(participantId, companyId);
 		return NoContent();
 	}

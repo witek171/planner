@@ -15,4 +15,8 @@ public interface IStaffMemberSpecializationRepository
 	Task<bool> ExistsAsync(
 		Guid staffMemberId,
 		Guid specializationId);
+
+	Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id);
 }

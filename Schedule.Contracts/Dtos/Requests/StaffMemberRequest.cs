@@ -3,22 +3,22 @@ using Schedule.Domain.Models.Enums;
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class UpdateStaffMemberRequest
+public class StaffMemberRequest
 {
-	public UpdateStaffMemberRequest(
+	public StaffMemberRequest(
 		StaffRole role,
 		string email,
+		string password,
 		string firstName,
 		string lastName,
-		string phone,
-		string password)
+		string phone)
 	{
 		Role = role;
 		Email = email;
+		Password = password;
 		FirstName = firstName;
 		LastName = lastName;
 		Phone = phone;
-		Password = password;
 	}
 
 	[Required] public StaffRole Role { get; }

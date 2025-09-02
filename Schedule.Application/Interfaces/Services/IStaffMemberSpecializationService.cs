@@ -11,4 +11,8 @@ public interface IStaffMemberSpecializationService
 	Task DeleteAsync(
 		Guid id,
 		Guid companyId);
+
+	Task<bool> ExistsByIdAsync(
+		Guid id,
+		Guid companyId);
 }

@@ -92,4 +92,23 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 
 		return availabilities;
 	}
+
+	public async Task<bool> ExistsByIdAsync(Guid companyId, Guid id)
+	{
+		const string sql = @"
+			SELECT 1
+			FROM StaffAvailability
+			WHERE CompanyId = @CompanyId AND Id = @Id
+		";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Id", id);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
 }

@@ -76,7 +76,8 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
-		if (staffMember == null) return NotFound();
+		if (staffMember == null) 
+			return NotFound();
 
 		_mapper.Map(request, staffMember);
 		await _staffMemberService.PutAsync(staffMember!);
@@ -88,6 +89,11 @@ public class StaffMemberController : ControllerBase
 		Guid staffMemberId,
 		Guid companyId)
 	{
+		StaffMember? staffMember = await _staffMemberService
+			.GetByIdAsync(staffMemberId, companyId);
+		if (staffMember == null) 
+			return NotFound();
+
 		await _staffMemberService.DeleteAsync(staffMemberId, companyId);
 		return NoContent();
 	}
@@ -112,6 +118,11 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		Guid staffMemberSpecializationId)
 	{
+		bool exists = await _staffMemberSpecializationService
+			.ExistsByIdAsync(companyId, staffMemberSpecializationId);
+		if (!exists)
+			return NotFound();
+
 		await _staffMemberSpecializationService
 			.DeleteAsync(companyId, staffMemberSpecializationId);
 		return NoContent();
@@ -124,7 +135,8 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
-		if (staffMember == null) return NotFound();
+		if (staffMember == null)
+			return NotFound();
 
 		List<StaffMemberAvailability> availabilities =
 			await _staffMemberAvailabilityService
@@ -160,6 +172,11 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		Guid availabilityId)
 	{
+		bool exists = await _staffMemberAvailabilityService
+			.ExistsByIdAsync(companyId, availabilityId);
+		if (!exists)
+			return NotFound();
+
 		await _staffMemberAvailabilityService.DeleteAsync(companyId, availabilityId);
 		return NoContent();
 	}
@@ -195,6 +212,11 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		Guid eventScheduleStaffMemberId)
 	{
+		bool exists = await _eventScheduleStaffMemberService
+			.ExistsByIdAsync(companyId, eventScheduleStaffMemberId);
+		if (!exists)
+			return NotFound();
+
 		await _eventScheduleStaffMemberService.DeleteAsync(companyId, eventScheduleStaffMemberId);
 		return NoContent();
 	}

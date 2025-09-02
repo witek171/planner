@@ -52,12 +52,12 @@ public class SpecializationController : ControllerBase
 	public async Task<ActionResult> Update(Guid id, Guid companyId, [FromBody] UpdateSpecializationRequest request)
 	{
 		Specialization? specialization = await _service.GetByIdAsync(id, companyId);
-		if (specialization == null) 
+		if (specialization == null)
 			return NotFound();
 
 		_mapper.Map(request, specialization);
 		Boolean success = await _service.UpdateAsync(specialization);
-		if (!success) 
+		if (!success)
 			return NotFound();
 
 		return NoContent();
@@ -66,6 +66,10 @@ public class SpecializationController : ControllerBase
 	[HttpDelete("{id:guid}")]
 	public async Task<ActionResult> Delete(Guid id, Guid companyId)
 	{
+		Specialization? specialization = await _service.GetByIdAsync(id, companyId);
+		if (specialization == null)
+			return NotFound();
+
 		Boolean success = await _service.DeleteAsync(id, companyId);
 		if (!success) return NotFound();
 		return NoContent();

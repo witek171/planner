@@ -59,7 +59,7 @@ public class StaffMemberController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<Guid>> Create(
 		Guid companyId,
-		[FromBody] CreateStaffMemberRequest request)
+		[FromBody] StaffMemberRequest request)
 	{
 		StaffMember staffMember = _mapper.Map<StaffMember>(request);
 		staffMember.SetCompanyId(companyId);
@@ -72,7 +72,7 @@ public class StaffMemberController : ControllerBase
 	public async Task<ActionResult> Put(
 		Guid staffMemberId,
 		Guid companyId,
-		[FromBody] UpdateStaffMemberRequest request)
+		[FromBody] StaffMemberRequest request)
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
@@ -101,7 +101,7 @@ public class StaffMemberController : ControllerBase
 	[HttpPost("specialization")]
 	public async Task<ActionResult<Guid>> CreateStaffMemberSpecialization(
 		Guid companyId,
-		[FromBody] CreateStaffMemberSpecializationRequest request)
+		[FromBody] StaffMemberSpecializationRequest request)
 	{
 		StaffMemberSpecialization? staffMemberSpecialization = _mapper
 			.Map<StaffMemberSpecialization>(request);
@@ -153,7 +153,7 @@ public class StaffMemberController : ControllerBase
 	public async Task<ActionResult<Guid>> CreateAvailability(
 		Guid companyId,
 		Guid staffMemberId,
-		[FromBody] CreateStaffMemberAvailabilityRequest request)
+		[FromBody] StaffMemberAvailabilityRequest request)
 	{
 		StaffMember? staffMember = await _staffMemberService
 			.GetByIdAsync(staffMemberId, companyId);
@@ -196,7 +196,7 @@ public class StaffMemberController : ControllerBase
 	[HttpPost("eventschedule")]
 	public async Task<ActionResult<Guid>> AssignStaffMemberToEvent(
 		Guid companyId,
-		[FromBody] CreateEventScheduleStaffMemberRequest request)
+		[FromBody] EventScheduleStaffMemberRequest request)
 	{
 		EventScheduleStaffMember? eventScheduleStaffMember = _mapper
 			.Map<EventScheduleStaffMember>(request);

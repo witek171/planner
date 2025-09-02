@@ -2,9 +2,9 @@
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class CreateEventScheduleStaffMemberRequest
+public class EventScheduleStaffMemberRequest
 {
-	public CreateEventScheduleStaffMemberRequest(
+	public EventScheduleStaffMemberRequest(
 		Guid eventScheduleId,
 		Guid staffMemberId)
 	{

@@ -4,9 +4,9 @@ using Schedule.Domain.Models.Enums;
 
 namespace Schedule.Infrastructure.Utils;
 
-public class DbMapper
+public static class DbMapper
 {
-	public Company MapCompany(SqlDataReader reader)
+	public static Company MapCompany(SqlDataReader reader)
 	{
 		return new Company(
 			reader.GetGuid(reader.GetOrdinal("Id")),
@@ -22,7 +22,7 @@ public class DbMapper
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
 	}
 
-	public EventSchedule MapEventSchedule(SqlDataReader reader)
+	public static EventSchedule MapEventSchedule(SqlDataReader reader)
 	{
 		return new EventSchedule(
 			reader.GetGuid(reader.GetOrdinal("Id")),
@@ -34,7 +34,7 @@ public class DbMapper
 			reader.GetString(reader.GetOrdinal("Status")));
 	}
 
-	public EventScheduleStaffMember MapEventScheduleStaffMember(SqlDataReader reader)
+	public static EventScheduleStaffMember MapEventScheduleStaffMember(SqlDataReader reader)
 	{
 		return new EventScheduleStaffMember(
 			reader.GetGuid(reader.GetOrdinal("Id")),
@@ -43,7 +43,7 @@ public class DbMapper
 			reader.GetGuid(reader.GetOrdinal("StaffMemberId")));
 	}
 
-	public Participant MapParticipant(SqlDataReader reader)
+	public static Participant MapParticipant(SqlDataReader reader)
 	{
 		return new Participant(
 			reader.GetGuid(reader.GetOrdinal("Id")),
@@ -56,7 +56,7 @@ public class DbMapper
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
 	}
 
-	public Specialization MapSpecialization(SqlDataReader reader)
+	public static Specialization MapSpecialization(SqlDataReader reader)
 	{
 		return new Specialization(
 			reader.GetGuid(reader.GetOrdinal("Id")),
@@ -65,7 +65,7 @@ public class DbMapper
 			reader.GetString(reader.GetOrdinal("Description")));
 	}
 
-	public StaffMemberAvailability MapStaffMemberAvailability(SqlDataReader reader)
+	public static StaffMemberAvailability MapStaffMemberAvailability(SqlDataReader reader)
 	{
 		return new StaffMemberAvailability(
 			reader.GetGuid(reader.GetOrdinal("Id")),
@@ -77,7 +77,7 @@ public class DbMapper
 			reader.GetBoolean(reader.GetOrdinal("IsAvailable")));
 	}
 
-	public StaffMember MapStaffMember(SqlDataReader reader)
+	public static StaffMember MapStaffMember(SqlDataReader reader)
 	{
 		return new StaffMember(
 			reader.GetGuid(reader.GetOrdinal("StaffMemberId")),

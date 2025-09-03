@@ -1,14 +1,16 @@
-﻿namespace Schedule.Domain.Models;
+﻿using Schedule.Domain.Models.Enums;
+
+namespace Schedule.Domain.Models;
 
 public class EventSchedule
 {
 	public Guid Id { get; }
-	public Guid CompanyId { get; }
-	public Guid EventTypeId { get; }
-	public string PlaceName { get; }
+	public Guid CompanyId { get; private set; }
+	public Guid EventTypeId { get; private set; }
+	public string PlaceName { get; private set; }
 	public DateTime StartTime { get; }
 	public DateTime CreatedAt { get; }
-	public string Status { get; }
+	public EventStatus Status { get; private set; }
 
 	public EventSchedule(
 		Guid id,
@@ -17,7 +19,7 @@ public class EventSchedule
 		string placeName,
 		DateTime startTime,
 		DateTime createdAt,
-		string status)
+		EventStatus status)
 	{
 		Id = id;
 		CompanyId = companyId;
@@ -26,5 +28,35 @@ public class EventSchedule
 		StartTime = startTime;
 		CreatedAt = createdAt;
 		Status = status;
+	}
+
+	public void SetCompanyId(Guid companyId)
+	{
+		if (CompanyId != Guid.Empty)
+			throw new InvalidOperationException(
+				$"CompanyId is already set to {CompanyId} and cannot be changed");
+
+		CompanyId = companyId;
+	}
+
+	public void SetEventTypeId(Guid eventTypeId)
+	{
+		if (EventTypeId != Guid.Empty)
+			throw new InvalidOperationException(
+				$"EventTypeId is already set to {EventTypeId} and cannot be changed");
+
+		EventTypeId = eventTypeId;
+	}
+
+	public void Normalize()
+		=> PlaceName = PlaceName.Trim();
+
+	public void SoftDelete()
+	{
+		if (Status == EventStatus.Deleted)
+			throw new InvalidOperationException(
+				$"Event {Id} is already marked as deleted");
+
+		Status = EventStatus.Deleted;
 	}
 }

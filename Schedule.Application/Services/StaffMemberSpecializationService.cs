@@ -35,4 +35,11 @@ public class StaffMemberSpecializationService : IStaffMemberSpecializationServic
 	{
 		await _repository.DeleteByIdAsync(id, companyId);
 	}
+
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
+	{
+		return await _repository.ExistsByIdAsync(companyId, id);
+	}
 }

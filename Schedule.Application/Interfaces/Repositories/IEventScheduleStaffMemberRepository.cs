@@ -13,4 +13,8 @@ public interface IEventScheduleStaffMemberRepository
 	Task<List<EventScheduleStaffMember>> GetByStaffMemberIdAsync(
 		Guid companyId,
 		Guid staffMemberId);
+
+	Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id);
 }

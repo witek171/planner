@@ -9,14 +9,10 @@ namespace Schedule.Infrastructure.Repositories;
 public class StaffMemberRepository : IStaffMemberRepository
 {
 	private readonly string _connectionString;
-	private readonly DbMapper _dbMapper;
 
-	public StaffMemberRepository(
-		string connectionString,
-		DbMapper dbMapper)
+	public StaffMemberRepository(string connectionString)
 	{
 		_connectionString = connectionString;
-		_dbMapper = dbMapper;
 	}
 
 	public async Task<Guid> CreateAsync(StaffMember staffMember)
@@ -126,12 +122,12 @@ public class StaffMemberRepository : IStaffMemberRepository
 
 			if (!staffMap.ContainsKey(staffMemberId))
 			{
-				staffMap[staffMemberId] = _dbMapper.MapStaffMember(reader);
+				staffMap[staffMemberId] = DbMapper.MapStaffMember(reader);
 				staffMemberSpecializationsMap[staffMemberId] = new List<Specialization>();
 			}
 
 			if (!reader.IsDBNull(reader.GetOrdinal("Id")))
-				staffMemberSpecializationsMap[staffMemberId].Add(_dbMapper.MapSpecialization(reader));
+				staffMemberSpecializationsMap[staffMemberId].Add(DbMapper.MapSpecialization(reader));
 		}
 
 		foreach (
@@ -173,10 +169,10 @@ public class StaffMemberRepository : IStaffMemberRepository
 		while (await reader.ReadAsync())
 		{
 			if (staffMember == null)
-				staffMember = _dbMapper.MapStaffMember(reader);
+				staffMember = DbMapper.MapStaffMember(reader);
 
 			if (!reader.IsDBNull(reader.GetOrdinal("Id")))
-				specializations.Add(_dbMapper.MapSpecialization(reader));
+				specializations.Add(DbMapper.MapSpecialization(reader));
 		}
 
 		if (staffMember == null) return null;

@@ -8,14 +8,10 @@ namespace Schedule.Infrastructure.Repositories;
 public class CompanyRepository : ICompanyRepository
 {
 	private readonly string _connectionString;
-	private readonly DbMapper _dbMapper;
 
-	public CompanyRepository(
-		string connectionString,
-		DbMapper mapper)
+	public CompanyRepository(string connectionString)
 	{
 		_connectionString = connectionString;
-		_dbMapper = mapper;
 	}
 
 	public async Task<Guid> CreateAsync(Company company)
@@ -112,7 +108,7 @@ public class CompanyRepository : ICompanyRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return _dbMapper.MapCompany(reader);
+		return DbMapper.MapCompany(reader);
 	}
 
 	public async Task<bool> ExistsAsParentAsync(
@@ -221,7 +217,7 @@ public class CompanyRepository : ICompanyRepository
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		while (await reader.ReadAsync())
-			companies.Add(_dbMapper.MapCompany(reader));
+			companies.Add(DbMapper.MapCompany(reader));
 
 		return companies;
 	}

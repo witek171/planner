@@ -8,14 +8,10 @@ namespace Schedule.Infrastructure.Repositories;
 public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityRepository
 {
 	private readonly string _connectionString;
-	private readonly DbMapper _dbMapper;
 
-	public StaffMemberAvailabilityRepository(
-		string connectionString,
-		DbMapper dbMapper)
+	public StaffMemberAvailabilityRepository(string connectionString)
 	{
 		_connectionString = connectionString;
-		_dbMapper = dbMapper;
 	}
 
 	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
@@ -85,7 +81,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		List<StaffMemberAvailability> availabilities = new();
 
 		while (await reader.ReadAsync())
-			availabilities.Add(_dbMapper.MapStaffMemberAvailability(reader));
+			availabilities.Add(DbMapper.MapStaffMemberAvailability(reader));
 
 		return availabilities;
 	}

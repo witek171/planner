@@ -8,14 +8,10 @@ namespace Schedule.Infrastructure.Repositories;
 public class SpecializationRepository : ISpecializationRepository
 {
 	private readonly string _connectionString;
-	private readonly DbMapper _dbMapper;
 
-	public SpecializationRepository(
-		string connectionString,
-		DbMapper dbMapper)
+	public SpecializationRepository(string connectionString)
 	{
 		_connectionString = connectionString;
-		_dbMapper = dbMapper;
 	}
 
 	public async Task<List<Specialization>> GetAllAsync(Guid companyId)
@@ -28,7 +24,7 @@ public class SpecializationRepository : ISpecializationRepository
 		SqlDataReader reader = await command.ExecuteReaderAsync();
 		List<Specialization> result = new List<Specialization>();
 		while (await reader.ReadAsync())
-			result.Add(_dbMapper.MapSpecialization(reader));
+			result.Add(DbMapper.MapSpecialization(reader));
 
 		return result;
 	}
@@ -44,7 +40,7 @@ public class SpecializationRepository : ISpecializationRepository
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 		SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
-			return _dbMapper.MapSpecialization(reader);
+			return DbMapper.MapSpecialization(reader);
 
 		return null;
 	}

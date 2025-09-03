@@ -8,14 +8,10 @@ namespace Schedule.Infrastructure.Repositories;
 public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepository
 {
 	private readonly string _connectionString;
-	private readonly DbMapper _dbMapper;
 
-	public EventScheduleStaffMemberRepository(
-		string connectionString,
-		DbMapper dbMapper)
+	public EventScheduleStaffMemberRepository(string connectionString)
 	{
 		_connectionString = connectionString;
-		_dbMapper = dbMapper;
 	}
 
 	public async Task<Guid> CreateAsync(EventScheduleStaffMember eventScheduleStaffMember)
@@ -80,7 +76,7 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		List<EventScheduleStaffMember> eventSchedules = new();
 
 		while (await reader.ReadAsync())
-			eventSchedules.Add(_dbMapper.MapEventScheduleStaffMember(reader));
+			eventSchedules.Add(DbMapper.MapEventScheduleStaffMember(reader));
 
 		return eventSchedules;
 	}

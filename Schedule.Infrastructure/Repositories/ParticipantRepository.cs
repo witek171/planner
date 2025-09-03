@@ -8,14 +8,10 @@ namespace Schedule.Infrastructure.Repositories;
 public class ParticipantRepository : IParticipantRepository
 {
 	private readonly string _connectionString;
-	private readonly DbMapper _dbMapper;
 
-	public ParticipantRepository(
-		string connectionString,
-		DbMapper dbMapper)
+	public ParticipantRepository(string connectionString)
 	{
 		_connectionString = connectionString;
-		_dbMapper = dbMapper;
 	}
 
 	public async Task<Guid> CreateAsync(Participant participant)
@@ -111,7 +107,7 @@ public class ParticipantRepository : IParticipantRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return _dbMapper.MapParticipant(reader);
+		return DbMapper.MapParticipant(reader);
 	}
 
 	public async Task<Participant?> GetByEmailAsync(
@@ -137,7 +133,7 @@ public class ParticipantRepository : IParticipantRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return _dbMapper.MapParticipant(reader);
+		return DbMapper.MapParticipant(reader);
 	}
 
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
@@ -160,7 +156,7 @@ public class ParticipantRepository : IParticipantRepository
 		List<Participant> participants = new();
 
 		while (await reader.ReadAsync())
-			participants.Add(_dbMapper.MapParticipant(reader));
+			participants.Add(DbMapper.MapParticipant(reader));
 
 		return participants;
 	}

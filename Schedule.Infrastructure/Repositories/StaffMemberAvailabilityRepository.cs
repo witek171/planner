@@ -17,9 +17,9 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 	{
 		const string sql = @"
 			INSERT INTO StaffAvailability 
-			(CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable)
+			(CompanyId, StaffMemberId, Date, StartTime, EndTime)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime, @IsAvailable)
+			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime)
 		";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -31,7 +31,6 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		command.Parameters.AddWithValue("@Date", availability.Date.ToDateTime(TimeOnly.MinValue));
 		command.Parameters.AddWithValue("@StartTime", availability.StartTime);
 		command.Parameters.AddWithValue("@EndTime", availability.EndTime);
-		command.Parameters.AddWithValue("@IsAvailable", availability.IsAvailable);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;

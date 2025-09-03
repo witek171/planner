@@ -23,21 +23,21 @@ public class Program
 
 		// Repositories
 		builder.Services.AddScoped<IParticipantRepository>(provider =>
-			new ParticipantRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new ParticipantRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IStaffMemberRepository>(provider =>
-			new StaffMemberRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new StaffMemberRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IStaffMemberSpecializationRepository>(provider =>
 			new StaffMemberSpecializationRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IStaffMemberAvailabilityRepository>(provider =>
-			new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IEventScheduleRepository>(provider =>
-			new EventScheduleRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new EventScheduleRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IEventScheduleStaffMemberRepository>(provider =>
-			new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<ISpecializationRepository>(provider =>
-			new SpecializationRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new SpecializationRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<ICompanyRepository>(provider =>
-			new CompanyRepository(EnvironmentService.SqlConnectionString, new DbMapper()));
+			new CompanyRepository(EnvironmentService.SqlConnectionString));
 
 		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>
@@ -58,7 +58,6 @@ public class Program
 		builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
-		builder.Services.AddScoped<DbMapper>();
 
 		WebApplication app = builder.Build();
 

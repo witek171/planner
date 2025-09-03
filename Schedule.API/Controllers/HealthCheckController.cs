@@ -15,8 +15,7 @@ public class HealthCheckController : ControllerBase
 
 	public HealthCheckController(
 		IHealthCheckService healthCheckService,
-		IMapper mapper
-	)
+		IMapper mapper)
 	{
 		_healthCheckService = healthCheckService;
 		_mapper = mapper;

@@ -19,8 +19,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		const string sql = @"
 			INSERT INTO Staff (CompanyId, Role, Email, Password, FirstName, LastName, Phone)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @Role, @Email, @Password, @FirstName, @LastName, @Phone);
-		";
+			VALUES (@CompanyId, @Role, @Email, @Password, @FirstName, @LastName, @Phone)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -48,8 +47,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FirstName = @FirstName,
 			LastName = @LastName,
 			Phone = @Phone
-			WHERE Id = @Id AND CompanyId = @CompanyId
-		";
+			WHERE Id = @Id AND CompanyId = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -74,8 +72,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 	{
 		const string sql = @"
 			DELETE FROM Staff 
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -101,8 +98,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			LEFT JOIN Specializations sp 
 				ON ss.SpecializationId = sp.Id
 			WHERE s.CompanyId = @CompanyId AND s.IsDeleted = 0
-			ORDER BY s.CreatedAt DESC
-		";
+			ORDER BY s.CreatedAt DESC";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -132,27 +128,21 @@ public class StaffMemberRepository : IStaffMemberRepository
 					reader.GetString(reader.GetOrdinal("Phone")),
 					reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
 					reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
-					new List<Specialization>()
-				);
+					new List<Specialization>());
 
 				staffMemberSpecializationsMap[staffMemberId] = new List<Specialization>();
 			}
 
 			if (!reader.IsDBNull(reader.GetOrdinal("SpecId")))
-			{
 				staffMemberSpecializationsMap[staffMemberId].Add(new Specialization(
 					reader.GetGuid(reader.GetOrdinal("SpecId")),
 					companyId,
 					reader.GetString(reader.GetOrdinal("SpecName")),
-					reader.GetString(reader.GetOrdinal("SpecDescription"))
-				));
-			}
+					reader.GetString(reader.GetOrdinal("SpecDescription"))));
 		}
 
-		foreach (
-			(Guid staffMemberId, List<Specialization> specializations)
-			in staffMemberSpecializationsMap
-		)
+		foreach ((Guid staffMemberId, List<Specialization> specializations)
+				in staffMemberSpecializationsMap)
 			staffMap[staffMemberId].SetSpecializations(specializations);
 
 		return staffMap.Values.ToList();
@@ -170,8 +160,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FROM Staff s
 			LEFT JOIN StaffSpecializations ss ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
 			LEFT JOIN Specializations sp ON ss.SpecializationId = sp.Id
-			WHERE s.Id = @Id AND s.CompanyId = @CompanyId AND s.IsDeleted = 0
-		";
+			WHERE s.Id = @Id AND s.CompanyId = @CompanyId AND s.IsDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -188,7 +177,6 @@ public class StaffMemberRepository : IStaffMemberRepository
 		while (await reader.ReadAsync())
 		{
 			if (staffMember == null)
-			{
 				staffMember = new StaffMember(
 					reader.GetGuid(reader.GetOrdinal("Id")),
 					reader.GetGuid(reader.GetOrdinal("CompanyId")),
@@ -200,23 +188,19 @@ public class StaffMemberRepository : IStaffMemberRepository
 					reader.GetString(reader.GetOrdinal("Phone")),
 					reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
 					reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
-					new List<Specialization>()
-				);
-			}
+					new List<Specialization>());
 
 			if (!reader.IsDBNull(reader.GetOrdinal("SpecId")))
-			{
 				specializations.Add(new Specialization(
 					reader.GetGuid(reader.GetOrdinal("SpecId")),
 					companyId,
 					reader.GetString(reader.GetOrdinal("SpecName")),
-					reader.GetString(reader.GetOrdinal("SpecDescription"))
-				));
-			}
+					reader.GetString(reader.GetOrdinal("SpecDescription"))));
 		}
 
-		if (staffMember == null) return null;
-		
+		if (staffMember == null)
+			return null;
+
 		staffMember.SetSpecializations(specializations);
 		return staffMember;
 	}
@@ -239,8 +223,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			OR EXISTS (
 				SELECT 1 FROM Messages WHERE SenderId = @StaffMemberId AND CompanyId = @CompanyId
 			)
-			THEN 1 ELSE 0 END
-		";
+			THEN 1 ELSE 0 END";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -264,8 +247,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			WHERE CompanyId = @CompanyId 
 			AND Email = @Email 
 			AND Id <> @StaffMemberId
-			AND isDeleted = 0
-		";
+			AND isDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -290,8 +272,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 			WHERE CompanyId = @CompanyId 
 			AND Phone = @Phone 
 			AND Id <> @StaffMemberId
-			AND isDeleted = 0
-		";
+			AND isDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -310,8 +291,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		const string sql = @"
 			UPDATE Staff SET
 			IsDeleted = @IsDeleted
-			WHERE Id = @Id AND CompanyId = @CompanyId
-		";
+			WHERE Id = @Id AND CompanyId = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

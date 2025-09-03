@@ -16,11 +16,10 @@ public class EventScheduleRepository : IEventScheduleRepository
 	public async Task<List<EventSchedule>> GetByStaffMemberIdAsync(Guid companyId, Guid staffMemberId)
 	{
 		const string sql = @"
-				SELECT es.Id, es.CompanyId, es.EventTypeId, es.PlaceName, es.StartTime, es.CreatedAt, es.Status
-				FROM EventSchedules es
-				INNER JOIN EventScheduleStaff ess ON es.Id = ess.EventScheduleId
-				WHERE es.CompanyId = @CompanyId AND ess.StaffMemberId = @StaffMemberId
-			";
+			SELECT es.Id, es.CompanyId, es.EventTypeId, es.PlaceName, es.StartTime, es.CreatedAt, es.Status
+			FROM EventSchedules es
+			INNER JOIN EventScheduleStaff ess ON es.Id = ess.EventScheduleId
+			WHERE es.CompanyId = @CompanyId AND ess.StaffMemberId = @StaffMemberId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -41,8 +40,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 				reader.GetString(reader.GetOrdinal("PlaceName")),
 				reader.GetDateTime(reader.GetOrdinal("StartTime")),
 				reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
-				reader.GetString(reader.GetOrdinal("Status"))
-			));
+				reader.GetString(reader.GetOrdinal("Status"))));
 		}
 		return schedules;
 	}

@@ -5,9 +5,9 @@ public class StaffMemberAvailability
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
 	public Guid StaffMemberId { get; private set; }
-	public DateOnly Date { get; }
-	public DateTime StartTime { get; }
-	public DateTime EndTime { get; }
+	public DateOnly Date { get; private set; }
+	public DateTime StartTime { get; private set; }
+	public DateTime EndTime { get; private set; }
 	public bool IsAvailable { get; private set; }
 
 	public StaffMemberAvailability()

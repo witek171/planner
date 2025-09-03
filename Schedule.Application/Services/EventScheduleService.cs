@@ -5,15 +5,17 @@ namespace Schedule.Application.Services;
 
 public class EventScheduleService : IEventScheduleService
 {
-	private readonly IEventScheduleRepository _repository;
+	private readonly IEventScheduleRepository _eventScheduleRepository;
 
-	public EventScheduleService(IEventScheduleRepository repository)
+	public EventScheduleService(IEventScheduleRepository eventScheduleRepository)
 	{
-		_repository = repository;
+		_eventScheduleRepository = eventScheduleRepository;
 	}
 
-	public async Task<List<EventSchedule>> GetByStaffMemberIdAsync(Guid companyId, Guid staffMemberId)
+	public async Task<List<EventSchedule>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId)
 	{
-		return await _repository.GetByStaffMemberIdAsync(companyId, staffMemberId);
+		return await _eventScheduleRepository.GetByStaffMemberIdAsync(companyId, staffMemberId);
 	}
 }

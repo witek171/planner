@@ -120,8 +120,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 		ref string status,
 		string key,
 		Func<object> func,
-		ILogger logger
-	)
+		ILogger logger)
 	{
 		try
 		{
@@ -150,8 +149,7 @@ public class HealthCheckUtils : IHealthCheckUtils
 		bool isCritical,
 		ref string status,
 		Dictionary<string, object> details,
-		ILogger logger
-	)
+		ILogger logger)
 	{
 		logger.LogError(ex, "Database health check failed: {Message}", message);
 

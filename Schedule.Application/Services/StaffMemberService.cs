@@ -6,58 +6,52 @@ namespace Schedule.Application.Services;
 
 public class StaffMemberService : IStaffMemberService
 {
-	private readonly IStaffMemberRepository _repository;
+	private readonly IStaffMemberRepository _staffMemberRepository;
 
-	public StaffMemberService(IStaffMemberRepository repository)
+	public StaffMemberService(IStaffMemberRepository staffMemberRepository)
 	{
-		_repository = repository;
+		_staffMemberRepository = staffMemberRepository;
 	}
 
 	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
-	{
-		return await _repository.GetAllAsync(companyId);
-	}
+		=> await _staffMemberRepository.GetAllAsync(companyId);
 
 	public async Task<StaffMember?> GetByIdAsync(
 		Guid id,
 		Guid companyId)
-	{
-		return await _repository.GetByIdAsync(id, companyId);
-	}
+		=> await _staffMemberRepository.GetByIdAsync(id, companyId);
 
 	public async Task<Guid> CreateAsync(StaffMember staffMember)
 	{
 		staffMember.Normalize();
 		await ValidateEmailAndPhoneAsync(staffMember);
 
-		return await _repository.CreateAsync(staffMember);
+		return await _staffMemberRepository.CreateAsync(staffMember);
 	}
 
 	public async Task PutAsync(StaffMember staffMember)
 	{
 		staffMember.Normalize();
 		await ValidateEmailAndPhoneAsync(staffMember);
-		await _repository.PutAsync(staffMember);
+		await _staffMemberRepository.PutAsync(staffMember);
 	}
 
 	public async Task DeleteAsync(
 		Guid id,
 		Guid companyId)
 	{
-		if (await _repository.HasRelatedRecordsAsync(id, companyId))
+		if (await _staffMemberRepository.HasRelatedRecordsAsync(id, companyId))
 		{
-			StaffMember? staffMember = await _repository.GetByIdAsync(id, companyId);
+			StaffMember? staffMember = await _staffMemberRepository.GetByIdAsync(id, companyId);
 			if (staffMember == null)
 				throw new InvalidOperationException(
 					$"Staff member {id} is already marked as deleted for company {companyId}");
 
 			staffMember.SoftDelete();
-			await _repository.UpdateSoftDeleteAsync(staffMember);
+			await _staffMemberRepository.UpdateSoftDeleteAsync(staffMember);
 		}
 		else
-		{
-			await _repository.DeleteByIdAsync(id, companyId);
-		}
+			await _staffMemberRepository.DeleteByIdAsync(id, companyId);
 	}
 
 	private async Task ValidateEmailAndPhoneAsync(StaffMember staffMember)
@@ -67,11 +61,11 @@ public class StaffMemberService : IStaffMemberService
 		string email = staffMember.Email;
 		string phone = staffMember.Phone;
 
-		if (await _repository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
+		if (await _staffMemberRepository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
 			throw new ArgumentException(
 				$"Email {email} already exists for company {companyId}");
 
-		if (await _repository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
+		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
 			throw new ArgumentException(
 				$"Phone {phone} already exists for company {companyId}");
 	}

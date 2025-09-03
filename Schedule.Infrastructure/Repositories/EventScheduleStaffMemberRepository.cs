@@ -18,8 +18,7 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		const string sql = @"
 			INSERT INTO EventScheduleStaff (CompanyId, EventScheduleId, StaffMemberId)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @EventScheduleId, @StaffMemberId)
-		";
+			VALUES (@CompanyId, @EventScheduleId, @StaffMemberId)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -39,8 +38,7 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 	{
 		const string sql = @"
 			DELETE FROM EventScheduleStaff
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -60,8 +58,7 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		const string sql = @"
 			SELECT Id, CompanyId, EventScheduleId, StaffMemberId
 			FROM EventScheduleStaff
-			WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
-		";
+			WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -79,19 +76,19 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 				reader.GetGuid(reader.GetOrdinal("Id")),
 				reader.GetGuid(reader.GetOrdinal("CompanyId")),
 				reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
-				reader.GetGuid(reader.GetOrdinal("StaffMemberId"))
-			));
+				reader.GetGuid(reader.GetOrdinal("StaffMemberId"))));
 
 		return eventSchedules;
 	}
 
-	public async Task<bool> ExistsByIdAsync(Guid companyId, Guid id)
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
 	{
 		const string sql = @"
 			SELECT 1
 			FROM EventScheduleStaff
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

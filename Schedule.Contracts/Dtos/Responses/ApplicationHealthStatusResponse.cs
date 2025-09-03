@@ -11,8 +11,7 @@ public class ApplicationHealthStatusResponse
 		long memoryUsage,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> details
-	)
+		Dictionary<string, object> details)
 	{
 		Version = version;
 		Environment = environment;

@@ -23,8 +23,7 @@ public class Participant
 		string lastName,
 		string phone,
 		bool gdprConsent,
-		DateTime createdAt
-	)
+		DateTime createdAt)
 	{
 		Id = id;
 		CompanyId = receptionId;

@@ -71,7 +71,8 @@ public class SpecializationController : ControllerBase
 			return NotFound();
 
 		Boolean success = await _service.DeleteAsync(id, companyId);
-		if (!success) return NotFound();
+		if (!success) 
+			return NotFound();
 		return NoContent();
 	}
 }

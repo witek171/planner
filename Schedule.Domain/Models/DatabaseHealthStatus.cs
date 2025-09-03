@@ -8,8 +8,7 @@ public class DatabaseHealthStatus : HealthStatusBase
 		string databaseName,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> details
-	) : base(status, timestamp, details)
+		Dictionary<string, object> details) : base(status, timestamp, details)
 	{
 		ConnectionString = connectionString;
 		ResponseTime = responseTime;

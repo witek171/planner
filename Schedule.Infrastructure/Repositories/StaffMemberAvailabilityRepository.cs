@@ -19,8 +19,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 			INSERT INTO StaffAvailability 
 			(CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime, @IsAvailable)
-		";
+			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime, @IsAvailable)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -43,8 +42,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 	{
 		const string sql = @"
 			DELETE FROM StaffAvailability 
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -65,8 +63,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability
 			WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
-			AND IsAvailable = 1
-		";
+			AND IsAvailable = 1";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -87,19 +84,19 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 				DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("Date"))),
 				reader.GetDateTime(reader.GetOrdinal("StartTime")),
 				reader.GetDateTime(reader.GetOrdinal("EndTime")),
-				reader.GetBoolean(reader.GetOrdinal("IsAvailable"))
-			));
+				reader.GetBoolean(reader.GetOrdinal("IsAvailable"))));
 
 		return availabilities;
 	}
 
-	public async Task<bool> ExistsByIdAsync(Guid companyId, Guid id)
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
 	{
 		const string sql = @"
 			SELECT 1
 			FROM StaffAvailability
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

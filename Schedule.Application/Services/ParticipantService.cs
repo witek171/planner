@@ -6,11 +6,11 @@ namespace Schedule.Application.Services;
 
 public class ParticipantService : IParticipantService
 {
-	private readonly IParticipantRepository _repository;
+	private readonly IParticipantRepository _participantRepository;
 
-	public ParticipantService(IParticipantRepository repository)
+	public ParticipantService(IParticipantRepository participantRepository)
 	{
-		_repository = repository;
+		_participantRepository = participantRepository;
 	}
 
 	public async Task<Guid> CreateAsync(Participant participant)
@@ -19,53 +19,45 @@ public class ParticipantService : IParticipantService
 			throw new InvalidOperationException("GDPR consent is required");
 
 		participant.Normalize();
-		return await _repository.CreateAsync(participant);
+		return await _participantRepository.CreateAsync(participant);
 	}
 
 	public async Task PutAsync(Participant participant)
 	{
 		participant.Normalize();
-		await _repository.PutAsync(participant);
+		await _participantRepository.PutAsync(participant);
 	}
 
 	public async Task DeleteByIdAsync(
 		Guid participantId,
 		Guid companyId)
 	{
-		if (
-			await _repository.IsParticipantAssignedToReservationsAsync(
-				participantId, companyId)
-		)
+		if (await _participantRepository
+				.IsParticipantAssignedToReservationsAsync(participantId, companyId))
 		{
-			Participant participant = (await _repository.GetByIdAsync(
-				participantId, companyId))!;
+			Participant participant = (await _participantRepository
+				.GetByIdAsync(participantId, companyId))!;
 
 			participant.Anonymize();
-			await _repository.PutAsync(participant);
+			await _participantRepository.PutAsync(participant);
 		}
 		else
-		{
-			await _repository.DeleteByIdAsync(participantId, companyId);
-		}
+			await _participantRepository.DeleteByIdAsync(participantId, companyId);
 	}
 
 	public async Task<Participant?> GetByIdAsync(
 		Guid participantId,
 		Guid companyId)
-	{
-		return await _repository.GetByIdAsync(participantId, companyId);
-	}
+		=> await _participantRepository.GetByIdAsync(participantId, companyId);
 
 	public async Task<Participant?> GetByEmailAsync(
 		string email,
 		Guid companyId)
 	{
 		email = email.Trim().ToLowerInvariant();
-		return await _repository.GetByEmailAsync(email, companyId);
+		return await _participantRepository.GetByEmailAsync(email, companyId);
 	}
 
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
-	{
-		return await _repository.GetAllAsync(companyId);
-	}
+		=> await _participantRepository.GetAllAsync(companyId);
 }

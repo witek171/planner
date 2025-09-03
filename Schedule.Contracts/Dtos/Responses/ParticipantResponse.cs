@@ -9,8 +9,7 @@ public class ParticipantResponse
 		string firstName,
 		string lastName,
 		string phone,
-		DateTime createdAt
-	)
+		DateTime createdAt)
 	{
 		Email = email;
 		FirstName = firstName;

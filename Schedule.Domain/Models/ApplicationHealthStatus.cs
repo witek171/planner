@@ -9,8 +9,7 @@ public class ApplicationHealthStatus : HealthStatusBase
 		long memoryUsage,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> details
-	) : base(status, timestamp, details)
+		Dictionary<string, object> details) : base(status, timestamp, details)
 	{
 		Version = version;
 		Environment = environment;

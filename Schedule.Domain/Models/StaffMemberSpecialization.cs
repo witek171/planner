@@ -4,8 +4,8 @@ public class StaffMemberSpecialization
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
-	public Guid StaffMemberId { get; }
-	public Guid SpecializationId { get; }
+	public Guid StaffMemberId { get; private set; }
+	public Guid SpecializationId { get; private set; }
 
 	public StaffMemberSpecialization()
 	{

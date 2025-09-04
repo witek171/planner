@@ -103,7 +103,7 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		[FromBody] StaffMemberSpecializationRequest request)
 	{
-		StaffMemberSpecialization? staffMemberSpecialization = _mapper
+		StaffMemberSpecialization staffMemberSpecialization = _mapper
 			.Map<StaffMemberSpecialization>(request);
 
 		staffMemberSpecialization.SetCompanyId(companyId);

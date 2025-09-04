@@ -22,6 +22,10 @@ public class ApplicationHealthStatusResponse
 		Details = details;
 	}
 
+	public ApplicationHealthStatusResponse()
+	{
+	}
+
 	[Required] public string Version { get; }
 	[Required] public string Environment { get; }
 	[Required] public TimeSpan Uptime { get; }

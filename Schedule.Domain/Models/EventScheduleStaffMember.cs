@@ -3,9 +3,9 @@
 public class EventScheduleStaffMember
 {
 	public Guid Id { get; }
-	public Guid CompanyId { get; private set;}
-	public Guid EventScheduleId { get; }
-	public Guid StaffMemberId { get; }
+	public Guid CompanyId { get; private set; }
+	public Guid EventScheduleId { get; private set; }
+	public Guid StaffMemberId { get; private set; }
 
 	public EventScheduleStaffMember()
 	{
@@ -22,7 +22,7 @@ public class EventScheduleStaffMember
 		EventScheduleId = eventScheduleId;
 		StaffMemberId = staffMemberId;
 	}
-	
+
 	public void SetCompanyId(Guid companyId)
 	{
 		if (CompanyId != Guid.Empty)

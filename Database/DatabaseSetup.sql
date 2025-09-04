@@ -142,7 +142,7 @@ CREATE TABLE StaffAvailability
 	Date          DATE             NOT NULL,
 	StartTime     DATETIME         NOT NULL,
 	EndTime       DATETIME         NOT NULL,
-	IsAvailable   BIT                          DEFAULT 1,
+	IsAvailable   BIT              NOT NULL,
 	CONSTRAINT fk_staffavail_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT fk_staffavail_staff FOREIGN KEY (StaffMemberId)

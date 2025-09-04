@@ -20,7 +20,10 @@ public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 			.GetByStaffMemberIdAsync(companyId, staffMemberId);
 
 	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
-		=> await _staffMemberAvailabilityRepository.CreateAsync(availability);
+	{
+		availability.MarkAsAvailable();
+		return await _staffMemberAvailabilityRepository.CreateAsync(availability);
+	}
 
 	public async Task DeleteAsync(
 		Guid companyId,

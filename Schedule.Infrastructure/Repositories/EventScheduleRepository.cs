@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -32,16 +33,8 @@ public class EventScheduleRepository : IEventScheduleRepository
 
 		List<EventSchedule> schedules = new();
 		while (await reader.ReadAsync())
-		{
-			schedules.Add(new EventSchedule(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("EventTypeId")),
-				reader.GetString(reader.GetOrdinal("PlaceName")),
-				reader.GetDateTime(reader.GetOrdinal("StartTime")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
-				reader.GetString(reader.GetOrdinal("Status"))));
-		}
+			schedules.Add(DbMapper.MapEventSchedule(reader));
+
 		return schedules;
 	}
 }

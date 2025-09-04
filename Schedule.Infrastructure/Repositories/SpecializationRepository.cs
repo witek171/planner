@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -24,16 +25,10 @@ public class SpecializationRepository : ISpecializationRepository
 		await connection.OpenAsync();
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		SqlDataReader? reader = await command.ExecuteReaderAsync();
+		SqlDataReader reader = await command.ExecuteReaderAsync();
 		List<Specialization> result = new();
 		while (await reader.ReadAsync())
-		{
-			result.Add(new Specialization(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("Description"))));
-		}
+			result.Add(DbMapper.MapSpecialization(reader));
 
 		return result;
 	}
@@ -50,15 +45,9 @@ public class SpecializationRepository : ISpecializationRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		SqlDataReader? reader = await command.ExecuteReaderAsync();
+		SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
-		{
-			return new Specialization(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("Description")));
-		}
+			return DbMapper.MapSpecialization(reader);
 
 		return null;
 	}

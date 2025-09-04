@@ -54,10 +54,21 @@ public class StaffMemberAvailability
 	{
 		if (!IsAvailable)
 			throw new InvalidOperationException(
-				$"Staff member {StaffMemberId} is already marked as unavailable " +
-				$"on {Date:yyyy-MM-dd} " +
-				$"from {StartTime:HH:mm} to {EndTime:HH:mm}");
+				$"Availability {Id} for staff member {StaffMemberId} is already marked as unavailable " +
+				$"on {Date:yyyy-MM-dd} from {StartTime:HH:mm} to {EndTime:HH:mm} " +
+				$"and cannot be changed");
 
 		IsAvailable = false;
+	}
+
+	public void MarkAsAvailable()
+	{
+		if (IsAvailable)
+			throw new InvalidOperationException(
+				$"Availability {Id} for staff member {StaffMemberId} is already marked as available " +
+				$"on {Date:yyyy-MM-dd} from {StartTime:HH:mm} to {EndTime:HH:mm} " +
+				$"and cannot be changed");
+
+		IsAvailable = true;
 	}
 }

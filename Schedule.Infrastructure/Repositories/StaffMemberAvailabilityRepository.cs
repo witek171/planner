@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -17,10 +18,9 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 	{
 		const string sql = @"
 			INSERT INTO StaffAvailability 
-			(CompanyId, StaffMemberId, Date, StartTime, EndTime)
+			(CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime)
-		";
+			VALUES (@CompanyId, @StaffMemberId, @Date, @StartTime, @EndTime, @IsAvailable)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -31,6 +31,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		command.Parameters.AddWithValue("@Date", availability.Date.ToDateTime(TimeOnly.MinValue));
 		command.Parameters.AddWithValue("@StartTime", availability.StartTime);
 		command.Parameters.AddWithValue("@EndTime", availability.EndTime);
+		command.Parameters.AddWithValue("@IsAvailable", availability.IsAvailable);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;
@@ -42,8 +43,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 	{
 		const string sql = @"
 			DELETE FROM StaffAvailability 
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -64,8 +64,7 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 			SELECT Id, CompanyId, StaffMemberId, Date, StartTime, EndTime, IsAvailable
 			FROM StaffAvailability
 			WHERE StaffMemberId = @StaffMemberId AND CompanyId = @CompanyId
-			AND IsAvailable = 1
-		";
+			AND IsAvailable = 1";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -79,26 +78,19 @@ public class StaffMemberAvailabilityRepository : IStaffMemberAvailabilityReposit
 		List<StaffMemberAvailability> availabilities = new();
 
 		while (await reader.ReadAsync())
-			availabilities.Add(new StaffMemberAvailability(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
-				DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("Date"))),
-				reader.GetDateTime(reader.GetOrdinal("StartTime")),
-				reader.GetDateTime(reader.GetOrdinal("EndTime")),
-				reader.GetBoolean(reader.GetOrdinal("IsAvailable"))
-			));
+			availabilities.Add(DbMapper.MapStaffMemberAvailability(reader));
 
 		return availabilities;
 	}
 
-	public async Task<bool> ExistsByIdAsync(Guid companyId, Guid id)
+	public async Task<bool> ExistsByIdAsync(
+		Guid companyId,
+		Guid id)
 	{
 		const string sql = @"
 			SELECT 1
 			FROM StaffAvailability
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

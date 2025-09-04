@@ -9,23 +9,19 @@ public interface IParticipantRepository
 
 	Task<bool> DeleteByIdAsync(
 		Guid participantId,
-		Guid companyId
-	);
+		Guid companyId);
 
 	Task<Participant?> GetByIdAsync(
 		Guid participantId,
-		Guid companyId
-	);
+		Guid companyId);
 
 	Task<Participant?> GetByEmailAsync(
 		string email,
-		Guid companyId
-	);
+		Guid companyId);
 
 	Task<List<Participant>> GetAllAsync(Guid companyId);
 
 	Task<bool> IsParticipantAssignedToReservationsAsync(
 		Guid participantId,
-		Guid companyId
-	);
+		Guid companyId);
 }

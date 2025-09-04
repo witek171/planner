@@ -9,8 +9,7 @@ public class ParticipantCreateRequest
 		string firstName,
 		string lastName,
 		string phone,
-		bool gdprConsent
-	)
+		bool gdprConsent)
 	{
 		Email = email;
 		FirstName = firstName;

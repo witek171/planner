@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -19,8 +20,7 @@ public class CompanyRepository : ICompanyRepository
 			INSERT INTO Companies 
 				(Name, TaxCode, Street, City, PostalCode, Phone, Email)
 			OUTPUT INSERTED.Id
-			VALUES (@Name, @TaxCode, @Street, @City, @PostalCode, @Phone, @Email);
-		";
+			VALUES (@Name, @TaxCode, @Street, @City, @PostalCode, @Phone, @Email)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -50,8 +50,7 @@ public class CompanyRepository : ICompanyRepository
 			PostalCode = @PostalCode,
 			Phone = @Phone,
 			Email = @Email
-			WHERE Id = @Id
-		";
+			WHERE Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -73,8 +72,7 @@ public class CompanyRepository : ICompanyRepository
 	public async Task<bool> DeleteByIdAsync(Guid companyId)
 	{
 		const string sql = @"
-			DELETE FROM Companies WHERE Id = @CompanyId; 
-		";
+			DELETE FROM Companies WHERE Id = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -93,8 +91,7 @@ public class CompanyRepository : ICompanyRepository
 				Id, Name, TaxCode, Street, City, PostalCode, 
 				Phone, Email, IsParentNode, IsReception, CreatedAt
 			FROM Companies 
-			WHERE Id = @Id
-		";
+			WHERE Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -107,19 +104,7 @@ public class CompanyRepository : ICompanyRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Company(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetString(reader.GetOrdinal("Name")),
-			reader.GetString(reader.GetOrdinal("TaxCode")),
-			reader.GetString(reader.GetOrdinal("Street")),
-			reader.GetString(reader.GetOrdinal("City")),
-			reader.GetString(reader.GetOrdinal("PostalCode")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetBoolean(reader.GetOrdinal("IsParentNode")),
-			reader.GetBoolean(reader.GetOrdinal("IsReception")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-		);
+		return DbMapper.MapCompany(reader);
 	}
 
 	public async Task<bool> ExistsAsParentAsync(
@@ -142,8 +127,7 @@ public class CompanyRepository : ICompanyRepository
 					SELECT 1 FROM CompanyHierarchies
 					WHERE ParentCompanyId = @ParentCompanyId
 				) THEN 1 ELSE 0 END 
-			AS bit)
-		";
+			AS bit)";
 
 			await using SqlCommand command = new(sql, connection, transaction);
 			command.Parameters.AddWithValue("@ParentCompanyId", companyId);
@@ -152,6 +136,7 @@ public class CompanyRepository : ICompanyRepository
 
 			if (disposeConnection)
 				await connection.DisposeAsync();
+			
 			return (bool)result;
 		}
 	}
@@ -162,8 +147,7 @@ public class CompanyRepository : ICompanyRepository
 	{
 		const string sql = @"
 			INSERT INTO CompanyHierarchies (CompanyId, ParentCompanyId)
-			VALUES (@CompanyId, @ParentCompanyId)
-		";
+			VALUES (@CompanyId, @ParentCompanyId)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -184,7 +168,7 @@ public class CompanyRepository : ICompanyRepository
 
 		try
 		{
-			if (await ExistsAsParentAsync(companyId))
+			if (await ExistsAsParentAsync(companyId, connection, transaction))
 			{
 				await DeleteRelationsByCompanyIdAsync(connection, transaction, companyId, includeChildren: true);
 				await transaction.CommitAsync();
@@ -214,8 +198,7 @@ public class CompanyRepository : ICompanyRepository
 			INNER JOIN CompanyHierarchies ch ON 
 				(ch.CompanyId = c.Id AND ch.ParentCompanyId = @CompanyId) OR
 				(ch.ParentCompanyId = c.Id AND ch.CompanyId = @CompanyId)
-			WHERE c.Id <> @CompanyId;
-		";
+			WHERE c.Id <> @CompanyId";
 
 		List<Company> companies = new();
 
@@ -228,21 +211,7 @@ public class CompanyRepository : ICompanyRepository
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		while (await reader.ReadAsync())
-		{
-			companies.Add(new Company(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetString(reader.GetOrdinal("Name")),
-				reader.GetString(reader.GetOrdinal("TaxCode")),
-				reader.GetString(reader.GetOrdinal("Street")),
-				reader.GetString(reader.GetOrdinal("City")),
-				reader.GetString(reader.GetOrdinal("PostalCode")),
-				reader.GetString(reader.GetOrdinal("Phone")),
-				reader.GetString(reader.GetOrdinal("Email")),
-				reader.GetBoolean(reader.GetOrdinal("IsParentNode")),
-				reader.GetBoolean(reader.GetOrdinal("IsReception")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-			));
-		}
+			companies.Add(DbMapper.MapCompany(reader));
 
 		return companies;
 	}
@@ -250,8 +219,8 @@ public class CompanyRepository : ICompanyRepository
 	public async Task<bool> UpdateIsParentNodeFlagAsync(Company company)
 	{
 		const string sql = @"
-			UPDATE Companies SET IsParentNode = @IsParentNode WHERE Id = @Id 
-		";
+			UPDATE Companies SET IsParentNode = @IsParentNode WHERE Id = @Id";
+		
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
@@ -266,8 +235,8 @@ public class CompanyRepository : ICompanyRepository
 	public async Task<bool> UpdateIsReceptionFlagAsync(Company company)
 	{
 		const string sql = @"
-			UPDATE Companies SET IsReception = @IsReception WHERE Id = @Id 
-		";
+			UPDATE Companies SET IsReception = @IsReception WHERE Id = @Id";
+		
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
@@ -290,8 +259,7 @@ public class CompanyRepository : ICompanyRepository
 					WHERE (CompanyId = @CompanyId AND ParentCompanyId = @ParentCompanyId)
 						OR (CompanyId = @ParentCompanyId AND ParentCompanyId = @CompanyId)
 				) THEN 1 ELSE 0 END 
-			AS bit)
-		";
+			AS bit)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -312,8 +280,7 @@ public class CompanyRepository : ICompanyRepository
 					SELECT 1 FROM CompanyHierarchies
 					WHERE CompanyId = @CompanyId
 				) THEN 1 ELSE 0 END 
-			AS bit)
-		";
+			AS bit)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -333,8 +300,7 @@ public class CompanyRepository : ICompanyRepository
 		const string sql = @"
 			SELECT ParentCompanyId
 			FROM CompanyHierarchies
-			WHERE CompanyId = @CompanyId
-		";
+			WHERE CompanyId = @CompanyId";
 
 		await using SqlCommand command = new(sql, connection, transaction);
 		command.Parameters.AddWithValue("@CompanyId", companyId);

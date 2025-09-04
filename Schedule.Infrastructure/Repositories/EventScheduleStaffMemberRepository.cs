@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -72,11 +73,7 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		List<EventScheduleStaffMember> eventSchedules = new();
 
 		while (await reader.ReadAsync())
-			eventSchedules.Add(new EventScheduleStaffMember(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
-				reader.GetGuid(reader.GetOrdinal("StaffMemberId"))));
+			eventSchedules.Add(DbMapper.MapEventScheduleStaffMember(reader));
 
 		return eventSchedules;
 	}

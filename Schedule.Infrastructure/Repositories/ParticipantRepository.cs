@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -100,15 +101,7 @@ public class ParticipantRepository : IParticipantRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Participant(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetString(reader.GetOrdinal("FirstName")),
-			reader.GetString(reader.GetOrdinal("LastName")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
+		return DbMapper.MapParticipant(reader);
 	}
 
 	public async Task<Participant?> GetByEmailAsync(
@@ -132,15 +125,7 @@ public class ParticipantRepository : IParticipantRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Participant(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetString(reader.GetOrdinal("FirstName")),
-			reader.GetString(reader.GetOrdinal("LastName")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
+		return DbMapper.MapParticipant(reader);
 	}
 
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
@@ -162,17 +147,7 @@ public class ParticipantRepository : IParticipantRepository
 		List<Participant> participants = new();
 
 		while (await reader.ReadAsync())
-		{
-			participants.Add(new Participant(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Email")),
-				reader.GetString(reader.GetOrdinal("FirstName")),
-				reader.GetString(reader.GetOrdinal("LastName")),
-				reader.GetString(reader.GetOrdinal("Phone")),
-				reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))));
-		}
+			participants.Add(DbMapper.MapParticipant(reader));
 
 		return participants;
 	}

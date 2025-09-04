@@ -11,9 +11,9 @@ public interface IEventTypeService
 		Guid companyId);
 
 	Task<Guid> CreateAsync(EventType eventType);
-	Task<bool> UpdateAsync(EventType eventType);
+	Task UpdateAsync(EventType eventType);
 
-	Task<bool> DeleteAsync(
+	Task DeleteAsync(
 		Guid id,
 		Guid companyId);
 }

@@ -27,13 +27,13 @@ public class EventTypeService : IEventTypeService
 		return await _eventTypeRepository.CreateAsync(eventType);
 	}
 
-	public async Task<bool> UpdateAsync(EventType eventType)
+	public async Task UpdateAsync(EventType eventType)
 	{
 		eventType.Normalize();
-		return await _eventTypeRepository.UpdateAsync(eventType);
+		await _eventTypeRepository.UpdateAsync(eventType);
 	}
 
-	public async Task<bool> DeleteAsync(
+	public async Task DeleteAsync(
 		Guid id,
 		Guid companyId)
 		=> await _eventTypeRepository.DeleteAsync(id, companyId);

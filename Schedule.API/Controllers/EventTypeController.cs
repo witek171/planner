@@ -22,12 +22,12 @@ public class EventTypeController : ControllerBase
 		_mapper = mapper;
 	}
 
-	[HttpGet]
+	[HttpGet("all")]
 	public async Task<ActionResult<List<EventTypeResponse>>> GetAll(Guid companyId)
 	{
 		List<EventType> eventTypes = await _eventTypeService.GetAllAsync(companyId);
-		List<EventTypeResponse> response = _mapper.Map<List<EventTypeResponse>>(eventTypes);
-		return Ok(response);
+		List<EventTypeResponse> responses = _mapper.Map<List<EventTypeResponse>>(eventTypes);
+		return Ok(responses);
 	}
 
 	[HttpGet("{id}")]
@@ -48,7 +48,7 @@ public class EventTypeController : ControllerBase
 		Guid companyId,
 		[FromBody] EventTypeRequest request)
 	{
-		EventType? eventType = _mapper.Map<EventType>(request);
+		EventType eventType = _mapper.Map<EventType>(request);
 		eventType.SetCompanyId(companyId);
 		Guid id = await _eventTypeService.CreateAsync(eventType);
 		return CreatedAtAction(nameof(Create), id);

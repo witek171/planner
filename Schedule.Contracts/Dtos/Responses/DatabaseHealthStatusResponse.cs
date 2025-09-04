@@ -10,8 +10,7 @@ public class DatabaseHealthStatusResponse
 		string databaseName,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> detail
-	)
+		Dictionary<string, object> detail)
 	{
 		ConnectionString = connectionString;
 		ResponseTime = responseTime;

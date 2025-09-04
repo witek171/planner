@@ -17,8 +17,7 @@ public class HealthCheckService : IHealthCheckService
 	public HealthCheckService(
 		IHealthCheckUtils healthCheckUtils,
 		ILogger<HealthCheckService> logger,
-		string connectionString
-	)
+		string connectionString)
 	{
 		_healthCheckUtils = healthCheckUtils;
 		_logger = logger;
@@ -50,7 +49,7 @@ public class HealthCheckService : IHealthCheckService
 			() => Environment.Version.ToString(), _logger);
 		_healthCheckUtils.AddDetailOrLogError(details, ref status, "is64BitProcess",
 			() => Environment.Is64BitProcess, _logger);
-		_healthCheckUtils.AddDetailOrLogError(details, ref status, "totalMemory",
+		_healthCheckUtils.AddDetailOrLogError(details, ref status, "totalMemory", 
 			() => GC.GetTotalMemory(false), _logger);
 
 		if (status == "Degraded")
@@ -63,8 +62,7 @@ public class HealthCheckService : IHealthCheckService
 			memoryUsage,
 			status,
 			DateTime.UtcNow,
-			details
-		);
+			details);
 	}
 
 	public async Task<DatabaseHealthStatus> GetDatabaseStatusAsync()
@@ -134,7 +132,6 @@ public class HealthCheckService : IHealthCheckService
 			databaseName,
 			status,
 			DateTime.UtcNow,
-			details
-		);
+			details);
 	}
 }

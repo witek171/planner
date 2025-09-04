@@ -5,8 +5,7 @@ public class HealthStatusBase
 	public HealthStatusBase(
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> details
-	)
+		Dictionary<string, object> details)
 	{
 		Status = status;
 		Timestamp = timestamp;

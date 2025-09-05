@@ -31,7 +31,7 @@ public static class DbMapper
 			reader.GetString(reader.GetOrdinal("PlaceName")),
 			reader.GetDateTime(reader.GetOrdinal("StartTime")),
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
-			reader.GetString(reader.GetOrdinal("Status")));
+			Enum.Parse<EventScheduleStatus>(reader.GetString(reader.GetOrdinal("Status"))));
 	}
 
 	public static EventScheduleStaffMember MapEventScheduleStaffMember(SqlDataReader reader)
@@ -91,5 +91,18 @@ public static class DbMapper
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
 			reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
 			new List<Specialization>());
+	}
+
+	public static EventType MapEventType(SqlDataReader reader)
+	{
+		return new EventType(
+			reader.GetGuid(reader.GetOrdinal("Id")),
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
+			reader.GetString(reader.GetOrdinal("Name")),
+			reader.GetString(reader.GetOrdinal("Description")),
+			reader.GetInt32(reader.GetOrdinal("Duration")),
+			reader.GetDecimal(reader.GetOrdinal("Price")),
+			reader.GetInt32(reader.GetOrdinal("MaxParticipants")),
+			reader.GetInt32(reader.GetOrdinal("MinStaff")));
 	}
 }

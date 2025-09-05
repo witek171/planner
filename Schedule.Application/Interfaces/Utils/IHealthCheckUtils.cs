@@ -15,8 +15,7 @@ public interface IHealthCheckUtils
 		ref string status,
 		string key,
 		Func<object> func,
-		ILogger logger
-	);
+		ILogger logger);
 
 	void HandleDatabaseError(
 		Exception ex,
@@ -24,8 +23,7 @@ public interface IHealthCheckUtils
 		bool isCritical,
 		ref string status,
 		Dictionary<string, object> details,
-		ILogger logger
-	);
+		ILogger logger);
 
 	bool IsCriticalSqlError(SqlException sqlEx);
 }

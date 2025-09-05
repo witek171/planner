@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Domain.Models;
+using Schedule.Infrastructure.Utils;
 
 namespace Schedule.Infrastructure.Repositories;
 
@@ -18,8 +19,7 @@ public class ParticipantRepository : IParticipantRepository
 		const string sql = @"
 			INSERT INTO Participants (CompanyId, Email, FirstName, LastName, Phone, GdprConsent)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent);
-		";
+			VALUES (@CompanyId, @Email, @FirstName, @LastName, @Phone, @GdprConsent)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -44,8 +44,7 @@ public class ParticipantRepository : IParticipantRepository
 			FirstName = @FirstName,
 			LastName = @LastName,
 			Phone = @Phone
-			WHERE Id = @Id AND CompanyId = @CompanyId
-		";
+			WHERE Id = @Id AND CompanyId = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -64,13 +63,11 @@ public class ParticipantRepository : IParticipantRepository
 
 	public async Task<bool> DeleteByIdAsync(
 		Guid participantId,
-		Guid companyId
-	)
+		Guid companyId)
 	{
 		const string sql = @"
 			DELETE FROM Participants 
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -85,14 +82,12 @@ public class ParticipantRepository : IParticipantRepository
 
 	public async Task<Participant?> GetByIdAsync(
 		Guid participantId,
-		Guid companyId
-	)
+		Guid companyId)
 	{
 		const string sql = @"
 			SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
 			FROM Participants 
-			WHERE CompanyId = @CompanyId AND Id = @Id
-		";
+			WHERE CompanyId = @CompanyId AND Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -106,28 +101,17 @@ public class ParticipantRepository : IParticipantRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Participant(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetString(reader.GetOrdinal("FirstName")),
-			reader.GetString(reader.GetOrdinal("LastName")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-		);
+		return DbMapper.MapParticipant(reader);
 	}
 
 	public async Task<Participant?> GetByEmailAsync(
 		string email,
-		Guid companyId
-	)
+		Guid companyId)
 	{
 		const string sql = @"
 			SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
 			FROM Participants 
-			WHERE CompanyId = @CompanyId AND Email = @Email
-		";
+			WHERE CompanyId = @CompanyId AND Email = @Email";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -141,16 +125,7 @@ public class ParticipantRepository : IParticipantRepository
 		if (!await reader.ReadAsync())
 			return null;
 
-		return new Participant(
-			reader.GetGuid(reader.GetOrdinal("Id")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
-			reader.GetString(reader.GetOrdinal("Email")),
-			reader.GetString(reader.GetOrdinal("FirstName")),
-			reader.GetString(reader.GetOrdinal("LastName")),
-			reader.GetString(reader.GetOrdinal("Phone")),
-			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
-			reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-		);
+		return DbMapper.MapParticipant(reader);
 	}
 
 	public async Task<List<Participant>> GetAllAsync(Guid companyId)
@@ -159,8 +134,7 @@ public class ParticipantRepository : IParticipantRepository
 			SELECT Id, CompanyId, Email, FirstName, LastName, Phone, GdprConsent, CreatedAt
 			FROM Participants 
 			WHERE CompanyId = @CompanyId
-			ORDER BY CreatedAt DESC
-		";
+			ORDER BY CreatedAt DESC";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -170,35 +144,22 @@ public class ParticipantRepository : IParticipantRepository
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<Participant> participants = new List<Participant>();
+		List<Participant> participants = new();
 
 		while (await reader.ReadAsync())
-		{
-			participants.Add(new Participant(
-				reader.GetGuid(reader.GetOrdinal("Id")),
-				reader.GetGuid(reader.GetOrdinal("CompanyId")),
-				reader.GetString(reader.GetOrdinal("Email")),
-				reader.GetString(reader.GetOrdinal("FirstName")),
-				reader.GetString(reader.GetOrdinal("LastName")),
-				reader.GetString(reader.GetOrdinal("Phone")),
-				reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
-				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-			));
-		}
+			participants.Add(DbMapper.MapParticipant(reader));
 
 		return participants;
 	}
 
 	public async Task<bool> IsParticipantAssignedToReservationsAsync(
 		Guid participantId,
-		Guid companyId
-	)
+		Guid companyId)
 	{
 		const string sql = @"
 			SELECT COUNT(1)
 			FROM Reservations 
-			WHERE CompanyId = @CompanyId AND ParticipantId = @ParticipantId
-		";
+			WHERE CompanyId = @CompanyId AND ParticipantId = @ParticipantId";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();

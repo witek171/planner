@@ -31,7 +31,7 @@ public class Program
 		builder.Services.AddScoped<IStaffMemberAvailabilityRepository>(provider =>
 			new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IEventScheduleRepository>(provider =>
-					new EventScheduleRepository(EnvironmentService.SqlConnectionString));
+			new EventScheduleRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IEventScheduleStaffMemberRepository>(provider =>
 			new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<ISpecializationRepository>(provider =>
@@ -58,7 +58,7 @@ public class Program
 		builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
-		
+
 		WebApplication app = builder.Build();
 
 		// Configure the HTTP request pipeline.

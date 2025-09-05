@@ -5,9 +5,9 @@ public class StaffMemberAvailability
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
 	public Guid StaffMemberId { get; private set; }
-	public DateOnly Date { get; }
-	public DateTime StartTime { get; }
-	public DateTime EndTime { get; }
+	public DateOnly Date { get; private set; }
+	public DateTime StartTime { get; private set; }
+	public DateTime EndTime { get; private set; }
 	public bool IsAvailable { get; private set; }
 
 	public StaffMemberAvailability()
@@ -54,10 +54,21 @@ public class StaffMemberAvailability
 	{
 		if (!IsAvailable)
 			throw new InvalidOperationException(
-				$"Staff member {StaffMemberId} is already marked as unavailable " +
-				$"on {Date:yyyy-MM-dd} " +
-				$"from {StartTime:HH:mm} to {EndTime:HH:mm}");
+				$"Availability {Id} for staff member {StaffMemberId} is already marked as unavailable " +
+				$"on {Date:yyyy-MM-dd} from {StartTime:HH:mm} to {EndTime:HH:mm} " +
+				$"and cannot be changed");
 
 		IsAvailable = false;
+	}
+
+	public void MarkAsAvailable()
+	{
+		if (IsAvailable)
+			throw new InvalidOperationException(
+				$"Availability {Id} for staff member {StaffMemberId} is already marked as available " +
+				$"on {Date:yyyy-MM-dd} from {StartTime:HH:mm} to {EndTime:HH:mm} " +
+				$"and cannot be changed");
+
+		IsAvailable = true;
 	}
 }

@@ -13,7 +13,9 @@ public class EventScheduleService : IEventScheduleService
 		_eventScheduleRepository = eventScheduleRepository;
 	}
 
-	public async Task<List<EventSchedule>> GetByStaffMemberIdAsync(Guid companyId, Guid staffMemberId)
+	public async Task<List<EventSchedule>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId)
 	{
 		return await _eventScheduleRepository.GetByStaffMemberIdAsync(companyId, staffMemberId);
 	}

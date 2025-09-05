@@ -6,36 +6,33 @@ namespace Schedule.Application.Services;
 
 public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 {
-	private readonly IEventScheduleStaffMemberRepository _repository;
+	private readonly IEventScheduleStaffMemberRepository _eventScheduleStaffMemberRepository;
 
-	public EventScheduleStaffMemberService(IEventScheduleStaffMemberRepository repository)
+	public EventScheduleStaffMemberService(IEventScheduleStaffMemberRepository eventScheduleStaffMemberRepository)
 	{
-		_repository = repository;
+		_eventScheduleStaffMemberRepository = eventScheduleStaffMemberRepository;
 	}
 
 	public async Task<List<EventScheduleStaffMember>> GetByStaffMemberIdAsync(
 		Guid companyId,
 		Guid staffMemberId)
-	{
-		return await _repository.GetByStaffMemberIdAsync(companyId, staffMemberId);
-	}
+		=> await _eventScheduleStaffMemberRepository
+			.GetByStaffMemberIdAsync(companyId, staffMemberId);
 
 	public async Task<Guid> CreateAsync(EventScheduleStaffMember entity)
 	{
-		return await _repository.CreateAsync(entity);
+		return await _eventScheduleStaffMemberRepository.CreateAsync(entity);
 	}
 
 	public async Task DeleteAsync(
 		Guid companyId,
 		Guid id)
 	{
-		await _repository.DeleteByIdAsync(companyId, id);
+		await _eventScheduleStaffMemberRepository.DeleteByIdAsync(companyId, id);
 	}
 
 	public async Task<bool> ExistsByIdAsync(
 		Guid companyId,
 		Guid id)
-	{
-		return await _repository.ExistsByIdAsync(companyId, id);
-	}
+		=> await _eventScheduleStaffMemberRepository.ExistsByIdAsync(companyId, id);
 }

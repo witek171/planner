@@ -10,15 +10,18 @@ public class DatabaseHealthStatusResponse
 		string databaseName,
 		string status,
 		DateTime timestamp,
-		Dictionary<string, object> detail
-	)
+		Dictionary<string, object> details)
 	{
 		ConnectionString = connectionString;
 		ResponseTime = responseTime;
 		DatabaseName = databaseName;
 		Status = status;
 		Timestamp = timestamp;
-		Detail = detail;
+		Details = details;
+	}
+
+	public DatabaseHealthStatusResponse()
+	{
 	}
 
 	[Required] public string ConnectionString { get; }
@@ -26,5 +29,5 @@ public class DatabaseHealthStatusResponse
 	[Required] public string DatabaseName { get; }
 	[Required] public string Status { get; }
 	[Required] public DateTime Timestamp { get; }
-	[Required] public Dictionary<string, object> Detail { get; }
+	[Required] public Dictionary<string, object> Details { get; }
 }

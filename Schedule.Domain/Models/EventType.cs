@@ -31,6 +31,10 @@ public class EventType
 		MinStaff = minStaff;
 	}
 
+	public EventType()
+	{
+	}
+
 	public void SetCompanyId(Guid companyId)
 	{
 		if (CompanyId != Guid.Empty)

@@ -16,4 +16,8 @@ public interface IEventTypeRepository
 	Task<bool> DeleteAsync(
 		Guid id,
 		Guid companyId);
+
+	Task<bool> HasRelatedRecordsAsync(
+		Guid eventTypeId,
+		Guid companyId);
 }

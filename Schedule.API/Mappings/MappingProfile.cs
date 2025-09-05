@@ -36,6 +36,11 @@ public class MappingProfile : Profile
 		CreateMap<EventScheduleStaffMember, EventScheduleStaffMemberResponse>();
 		CreateMap<EventScheduleStaffMemberRequest, EventScheduleStaffMember>();
 
-		CreateMap<EventSchedule, EventScheduleResponse>();
+		CreateMap<EventSchedule, EventScheduleResponse>()
+			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+		CreateMap<EventScheduleRequest, EventSchedule>();
+
+		CreateMap<EventType, EventTypeResponse>();
+		CreateMap<EventTypeRequest, EventType>();
 	}
 }

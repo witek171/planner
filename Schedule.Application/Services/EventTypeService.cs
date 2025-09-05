@@ -36,5 +36,11 @@ public class EventTypeService : IEventTypeService
 	public async Task DeleteAsync(
 		Guid id,
 		Guid companyId)
-		=> await _eventTypeRepository.DeleteAsync(id, companyId);
+	{
+		if (await _eventTypeRepository.HasRelatedRecordsAsync(id, companyId))
+			throw new InvalidOperationException(
+				$"EventType {id} is used in event schedules and cannot be deleted");
+
+		await _eventTypeRepository.DeleteAsync(id, companyId);
+	}
 }

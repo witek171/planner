@@ -189,7 +189,7 @@ public class StaffMemberController : ControllerBase
 	{
 		List<EventSchedule> schedules = await _eventScheduleService
 			.GetByStaffMemberIdAsync(companyId, staffMemberId);
-		List<EventScheduleResponse>? responses = _mapper
+		List<EventScheduleResponse> responses = _mapper
 			.Map<List<EventScheduleResponse>>(schedules);
 		return Ok(responses);
 	}
@@ -199,7 +199,7 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		[FromBody] EventScheduleStaffMemberRequest request)
 	{
-		EventScheduleStaffMember? eventScheduleStaffMember = _mapper
+		EventScheduleStaffMember eventScheduleStaffMember = _mapper
 			.Map<EventScheduleStaffMember>(request);
 		eventScheduleStaffMember.SetCompanyId(companyId);
 

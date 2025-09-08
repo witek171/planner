@@ -160,6 +160,7 @@ CREATE TABLE EventTypes
 	Price           DECIMAL(10, 2)   NOT NULL,
 	MaxParticipants INT,
 	MinStaff        INT                          DEFAULT 1,
+	IsDeleted       BIT                          DEFAULT 0,
 	CONSTRAINT fk_eventtypes_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
@@ -173,7 +174,7 @@ CREATE TABLE EventSchedules
 	PlaceName   NVARCHAR(255)    NOT NULL,
 	StartTime   DATETIME         NOT NULL,
 	CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
-	Status      NVARCHAR(20)                 DEFAULT 'Active',
+	Status      NVARCHAR(20)     NOT NULL,
 	CONSTRAINT fk_eventschedules_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT fk_eventschedules_eventtype FOREIGN KEY (EventTypeId)

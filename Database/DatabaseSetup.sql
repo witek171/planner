@@ -174,7 +174,7 @@ CREATE TABLE EventSchedules
 	PlaceName   NVARCHAR(255)    NOT NULL,
 	StartTime   DATETIME         NOT NULL,
 	CreatedAt   DATETIME                     DEFAULT GETUTCDATE(),
-	Status      NVARCHAR(20)     NOT NULL,
+	Status      NVARCHAR(20)                 DEFAULT 'Active',
 	CONSTRAINT fk_eventschedules_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT fk_eventschedules_eventtype FOREIGN KEY (EventTypeId)

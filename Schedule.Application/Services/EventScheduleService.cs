@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Domain.Models;

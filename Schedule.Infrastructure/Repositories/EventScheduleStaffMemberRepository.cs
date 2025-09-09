@@ -96,12 +96,12 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<Guid> staffMemberIds = new();
+		List<Guid> eventScheduleStaffIds = new();
 
 		while (await reader.ReadAsync())
-			staffMemberIds.Add(reader.GetGuid(reader.GetOrdinal("Id")));
+			eventScheduleStaffIds.Add(reader.GetGuid(reader.GetOrdinal("Id")));
 
-		return staffMemberIds;
+		return eventScheduleStaffIds;
 	}
 
 	public async Task<bool> ExistsByIdAsync(

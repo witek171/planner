@@ -103,6 +103,7 @@ public static class DbMapper
 			reader.GetInt32(reader.GetOrdinal("Duration")),
 			reader.GetDecimal(reader.GetOrdinal("Price")),
 			reader.GetInt32(reader.GetOrdinal("MaxParticipants")),
-			reader.GetInt32(reader.GetOrdinal("MinStaff")));
+			reader.GetInt32(reader.GetOrdinal("MinStaff")),
+			reader.GetBoolean(reader.GetOrdinal("IsDeleted")));
 	}
 }

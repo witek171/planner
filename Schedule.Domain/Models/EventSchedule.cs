@@ -46,15 +46,6 @@ public class EventSchedule
 		CompanyId = companyId;
 	}
 
-	public void SetEventTypeId(Guid eventTypeId)
-	{
-		if (EventTypeId != Guid.Empty && Status != EventScheduleStatus.Deleted)
-			throw new InvalidOperationException(
-				$"EventTypeId is already set to {EventTypeId} and cannot be changed");
-
-		EventTypeId = eventTypeId;
-	}
-
 	public void Normalize()
 		=> PlaceName = PlaceName.Trim();
 

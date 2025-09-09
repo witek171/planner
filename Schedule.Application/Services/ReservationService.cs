@@ -28,12 +28,12 @@ public class ReservationService : IReservationService
 		Guid id,
 		Guid companyId)
 	{
-		Reservation? reservation = await reservationRepository.GetByIdAsync(id, companyId);
-		if (reservation == null)
-			throw new InvalidOperationException(
-				$"Reservation {id} is already marked as cancelled");
-
-		reservation.SoftDelete();
-		await _reservationRepository.UpdateStatusAsync(reservation);
+		// Reservation? reservation = await reservationRepository.GetByIdAsync(id, companyId);
+		// if (reservation == null)
+		// 	throw new InvalidOperationException(
+		// 		$"Reservation {id} is already marked as cancelled");
+		//
+		// reservation.SoftDelete();
+		// await _reservationRepository.UpdateStatusAsync(reservation);
 	}
 }

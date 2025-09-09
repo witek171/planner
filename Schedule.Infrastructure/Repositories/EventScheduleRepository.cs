@@ -20,11 +20,19 @@ public class EventScheduleRepository : IEventScheduleRepository
 		Guid staffMemberId)
 	{
 		const string sql = @"
-			SELECT es.Id, es.CompanyId, es.EventTypeId, es.PlaceName, es.StartTime, es.CreatedAt, es.Status
+			SELECT 
+				es.Id, es.CompanyId, es.EventTypeId, es.PlaceName, 
+				es.StartTime, es.CreatedAt, es.Status,
+				et.Name as EventTypeName, 
+				et.Description as EventTypeDescription, 
+				et.Duration, et.Price, et.MaxParticipants, et.MinStaff,
+				et.IsDeleted as EventTypeIsDeleted
 			FROM EventSchedules es
 			INNER JOIN EventScheduleStaff ess ON es.Id = ess.EventScheduleId
+			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
 			WHERE es.CompanyId = @CompanyId AND es.Status <> @DeletedStatus 
-			AND ess.StaffMemberId = @StaffMemberId";
+			AND ess.StaffMemberId = @StaffMemberId AND et.IsDeleted = 0
+			ORDER BY es.StartTime";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -46,18 +54,28 @@ public class EventScheduleRepository : IEventScheduleRepository
 	public async Task<List<EventSchedule>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, EventTypeId, PlaceName, StartTime, CreatedAt, Status
-			FROM EventSchedules 
-			WHERE CompanyId = @CompanyId AND Status <> @DeletedStatus";
+			SELECT 
+				es.Id, es.CompanyId, es.EventTypeId, es.PlaceName, 
+				es.StartTime, es.CreatedAt, es.Status,
+				et.Name as EventTypeName, 
+				et.Description as EventTypeDescription, 
+				et.Duration, et.Price, et.MaxParticipants, et.MinStaff,
+				et.IsDeleted as EventTypeIsDeleted
+			FROM EventSchedules es
+			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
+			WHERE es.CompanyId = @CompanyId 
+			  AND es.Status <> 'Deleted' AND et.IsDeleted = 0
+			ORDER BY es.StartTime";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
+
 		SqlDataReader reader = await command.ExecuteReaderAsync();
 		List<EventSchedule> eventSchedules = new();
+
 		while (await reader.ReadAsync())
 			eventSchedules.Add(DbMapper.MapEventSchedule(reader));
 
@@ -69,9 +87,17 @@ public class EventScheduleRepository : IEventScheduleRepository
 		Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, EventTypeId, PlaceName, StartTime, CreatedAt, Status
-			FROM EventSchedules 
-			WHERE Id = @Id AND CompanyId = @CompanyId AND Status <> @DeletedStatus";
+			SELECT 
+				es.Id, es.CompanyId, es.EventTypeId, es.PlaceName, 
+				es.StartTime, es.CreatedAt, es.Status,
+				et.Name as EventTypeName, 
+				et.Description as EventTypeDescription, 
+				et.Duration, et.Price, et.MaxParticipants, et.MinStaff, 
+				et.IsDeleted as EventTypeIsDeleted
+			FROM EventSchedules es
+			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
+			WHERE es.Id = @Id AND es.CompanyId = @CompanyId 
+			AND es.Status <> 'Deleted' AND et.IsDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -79,7 +105,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
+
 		SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
 			return DbMapper.MapEventSchedule(reader);

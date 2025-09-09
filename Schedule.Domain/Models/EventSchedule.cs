@@ -7,8 +7,9 @@ public class EventSchedule
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
 	public Guid EventTypeId { get; private set; }
+	public EventType EventType { get; private set; }
 	public string PlaceName { get; private set; }
-	public DateTime StartTime { get;private set; }
+	public DateTime StartTime { get; private set; }
 	public DateTime CreatedAt { get; }
 	public EventScheduleStatus Status { get; private set; }
 
@@ -16,6 +17,7 @@ public class EventSchedule
 		Guid id,
 		Guid companyId,
 		Guid eventTypeId,
+		EventType eventType,
 		string placeName,
 		DateTime startTime,
 		DateTime createdAt,
@@ -24,6 +26,7 @@ public class EventSchedule
 		Id = id;
 		CompanyId = companyId;
 		EventTypeId = eventTypeId;
+		EventType = eventType;
 		PlaceName = placeName;
 		StartTime = startTime;
 		CreatedAt = createdAt;

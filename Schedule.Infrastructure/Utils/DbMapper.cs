@@ -24,10 +24,22 @@ public static class DbMapper
 
 	public static EventSchedule MapEventSchedule(SqlDataReader reader)
 	{
+		EventType eventType = new(
+			reader.GetGuid(reader.GetOrdinal("EventTypeId")),
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
+			reader.GetString(reader.GetOrdinal("EventTypeName")),
+			reader.GetString(reader.GetOrdinal("EventTypeDescription")),
+			reader.GetInt32(reader.GetOrdinal("Duration")),
+			reader.GetDecimal(reader.GetOrdinal("Price")),
+			reader.GetInt32(reader.GetOrdinal("MaxParticipants")),
+			reader.GetInt32(reader.GetOrdinal("MinStaff")),
+			reader.GetBoolean(reader.GetOrdinal("EventTypeIsDeleted")));
+
 		return new EventSchedule(
 			reader.GetGuid(reader.GetOrdinal("Id")),
 			reader.GetGuid(reader.GetOrdinal("CompanyId")),
 			reader.GetGuid(reader.GetOrdinal("EventTypeId")),
+			eventType,
 			reader.GetString(reader.GetOrdinal("PlaceName")),
 			reader.GetDateTime(reader.GetOrdinal("StartTime")),
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")),

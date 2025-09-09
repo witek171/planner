@@ -20,18 +20,19 @@ public class EventTypeRepository : IEventTypeRepository
 		const string sql = @"
 			SELECT Id, CompanyId, Name, Description, Duration, Price, MaxParticipants, MinStaff
 			FROM EventTypes 
-			WHERE CompanyId = @CompanyId";
+			WHERE CompanyId = @CompanyId AND isDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
+
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
 		SqlDataReader reader = await command.ExecuteReaderAsync();
-		List<EventType> result = new();
+		List<EventType> eventTypes = new();
 		while (await reader.ReadAsync())
-			result.Add(DbMapper.MapEventType(reader));
+			eventTypes.Add(DbMapper.MapEventType(reader));
 
-		return result;
+		return eventTypes;
 	}
 
 	public async Task<EventType?> GetByIdAsync(
@@ -39,12 +40,14 @@ public class EventTypeRepository : IEventTypeRepository
 		Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, Name, Description, Duration, Price, MaxParticipants, MinStaff
+			SELECT Id, CompanyId, Name, Description, Duration, 
+			Price, MaxParticipants, MinStaff, isDeleted
 			FROM EventTypes 
-			WHERE Id = @Id AND CompanyId = @CompanyId";
+			WHERE Id = @Id AND CompanyId = @CompanyId AND isDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
+
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
@@ -123,8 +126,8 @@ public class EventTypeRepository : IEventTypeRepository
 		return affected > 0;
 	}
 
-	public async Task<bool> HasRelatedRecordsAsync(
-		Guid eventTypeId,
+	public async Task<bool> ExistsInNonDeletedEventSchedulesAsync(
+		Guid id,
 		Guid companyId)
 	{
 		const string sql = @"
@@ -133,18 +136,69 @@ public class EventTypeRepository : IEventTypeRepository
 				FROM EventSchedules 
 				WHERE EventTypeId = @EventTypeId 
 				  AND CompanyId = @CompanyId
-				  AND Status = @Status
+				  AND Status <> @DeletedStatus
 			) THEN 1 ELSE 0 END";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@EventTypeId", eventTypeId);
+		command.Parameters.AddWithValue("@EventTypeId", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@Status", nameof(EventStatus.Active));
+		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (int)result == 1;
+	}
+
+	public async Task<bool> ExistsOnlyInDeletedEventSchedulesAsync(
+		Guid id,
+		Guid companyId)
+	{
+		const string sql = @"
+		SELECT CASE WHEN EXISTS (
+			SELECT 1
+			FROM EventSchedules es
+			WHERE es.EventTypeId = @EventTypeId
+			AND es.CompanyId = @CompanyId
+			AND es.Status = @DeletedStatus
+			AND NOT EXISTS (
+				SELECT 1 
+				FROM EventSchedules es2
+				WHERE es2.EventTypeId = @EventTypeId
+				AND es2.CompanyId = @CompanyId
+				AND es2.Status <> @DeletedStatus
+			)
+		) THEN 1 ELSE 0 END";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@EventTypeId", id);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
+
+		object result = (await command.ExecuteScalarAsync())!;
+		return (int)result == 1;
+	}
+	
+	public async Task<bool> UpdateSoftDeleteAsync(EventType eventType)
+	{
+		const string sql = @"
+			UPDATE EventTypes SET
+			IsDeleted = @IsDeleted
+			WHERE Id = @Id AND CompanyId = @CompanyId";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", eventType.Id);
+		command.Parameters.AddWithValue("@CompanyId", eventType.CompanyId);
+		command.Parameters.AddWithValue("@IsDeleted", eventType.IsDeleted);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
 	}
 }

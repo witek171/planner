@@ -17,7 +17,13 @@ public interface IEventTypeRepository
 		Guid id,
 		Guid companyId);
 
-	Task<bool> HasRelatedRecordsAsync(
-		Guid eventTypeId,
+	Task<bool> ExistsInNonDeletedEventSchedulesAsync(
+		Guid id,
 		Guid companyId);
+
+	Task<bool> ExistsOnlyInDeletedEventSchedulesAsync(
+		Guid id,
+		Guid companyId);
+
+	Task<bool> UpdateSoftDeleteAsync(EventType eventType);
 }

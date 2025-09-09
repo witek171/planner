@@ -18,7 +18,8 @@ public class EventTypeRepository : IEventTypeRepository
 	public async Task<List<EventType>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
-			SELECT Id, CompanyId, Name, Description, Duration, Price, MaxParticipants, MinStaff
+			SELECT Id, CompanyId, Name, Description, Duration, 
+			Price, MaxParticipants, MinStaff, isDeleted
 			FROM EventTypes 
 			WHERE CompanyId = @CompanyId AND isDeleted = 0";
 
@@ -182,7 +183,7 @@ public class EventTypeRepository : IEventTypeRepository
 		object result = (await command.ExecuteScalarAsync())!;
 		return (int)result == 1;
 	}
-	
+
 	public async Task<bool> UpdateSoftDeleteAsync(EventType eventType)
 	{
 		const string sql = @"

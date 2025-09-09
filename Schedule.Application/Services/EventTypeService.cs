@@ -37,10 +37,17 @@ public class EventTypeService : IEventTypeService
 		Guid id,
 		Guid companyId)
 	{
-		if (await _eventTypeRepository.HasRelatedRecordsAsync(id, companyId))
+		if (await _eventTypeRepository.ExistsInNonDeletedEventSchedulesAsync(id, companyId))
 			throw new InvalidOperationException(
-				$"EventType {id} is used in event schedules and cannot be deleted");
+				$"Event type {id} is used in event schedules and cannot be deleted");
 
-		await _eventTypeRepository.DeleteAsync(id, companyId);
+		if (await _eventTypeRepository.ExistsOnlyInDeletedEventSchedulesAsync(id, companyId))
+		{
+			EventType eventType = (await _eventTypeRepository.GetByIdAsync(id, companyId))!;
+			eventType.SoftDelete();
+			await _eventTypeRepository.UpdateSoftDeleteAsync(eventType);
+		}
+		else
+			await _eventTypeRepository.DeleteAsync(id, companyId);
 	}
 }

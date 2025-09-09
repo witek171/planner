@@ -8,9 +8,9 @@ public class EventSchedule
 	public Guid CompanyId { get; private set; }
 	public Guid EventTypeId { get; private set; }
 	public string PlaceName { get; private set; }
-	public DateTime StartTime { get; }
+	public DateTime StartTime { get;private set; }
 	public DateTime CreatedAt { get; }
-	public EventStatus Status { get; private set; }
+	public EventScheduleStatus Status { get; private set; }
 
 	public EventSchedule(
 		Guid id,
@@ -19,7 +19,7 @@ public class EventSchedule
 		string placeName,
 		DateTime startTime,
 		DateTime createdAt,
-		EventStatus status)
+		EventScheduleStatus status)
 	{
 		Id = id;
 		CompanyId = companyId;
@@ -28,6 +28,10 @@ public class EventSchedule
 		StartTime = startTime;
 		CreatedAt = createdAt;
 		Status = status;
+	}
+
+	public EventSchedule()
+	{
 	}
 
 	public void SetCompanyId(Guid companyId)
@@ -41,7 +45,7 @@ public class EventSchedule
 
 	public void SetEventTypeId(Guid eventTypeId)
 	{
-		if (EventTypeId != Guid.Empty)
+		if (EventTypeId != Guid.Empty && Status != EventScheduleStatus.Deleted)
 			throw new InvalidOperationException(
 				$"EventTypeId is already set to {EventTypeId} and cannot be changed");
 
@@ -53,10 +57,19 @@ public class EventSchedule
 
 	public void SoftDelete()
 	{
-		if (Status == EventStatus.Deleted)
+		if (Status == EventScheduleStatus.Deleted)
 			throw new InvalidOperationException(
 				$"Event {Id} is already marked as deleted");
 
-		Status = EventStatus.Deleted;
+		Status = EventScheduleStatus.Deleted;
+	}
+
+	public void SetAsActive()
+	{
+		if (Status == EventScheduleStatus.Active)
+			throw new InvalidOperationException(
+				$"Event {Id} is already marked as Active");
+
+		Status = EventScheduleStatus.Active;
 	}
 }

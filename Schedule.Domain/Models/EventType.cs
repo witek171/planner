@@ -10,6 +10,7 @@ public class EventType
 	public decimal Price { get; }
 	public int MaxParticipants { get; private set; }
 	public int MinStaff { get; private set; }
+	public bool IsDeleted { get; private set; }
 
 	public EventType(
 		Guid id,
@@ -19,7 +20,8 @@ public class EventType
 		int duration,
 		decimal price,
 		int maxParticipants,
-		int minStaff)
+		int minStaff,
+		bool isDeleted) 
 	{
 		Id = id;
 		CompanyId = companyId;
@@ -29,6 +31,7 @@ public class EventType
 		Price = price;
 		MaxParticipants = maxParticipants;
 		MinStaff = minStaff;
+		IsDeleted = isDeleted;
 	}
 
 	public EventType()
@@ -48,5 +51,14 @@ public class EventType
 	{
 		Name = Name.Trim();
 		Description = Description.Trim();
+	}
+
+	public void SoftDelete()
+	{
+		if (IsDeleted)
+			throw new InvalidOperationException(
+				$"Event type {Id} is already marked as deleted for company {CompanyId}");
+
+		IsDeleted = true;
 	}
 }

@@ -7,7 +7,9 @@ using Schedule.Domain.Models;
 
 namespace PlannerNet.Controllers;
 
-public class EventScheduleController:ControllerBase
+[ApiController]
+[Route("api/[controller]/{companyId:guid}")]
+public class EventScheduleController : ControllerBase
 {
 	private readonly IEventScheduleService _eventScheduleService;
 	private readonly IMapper _mapper;

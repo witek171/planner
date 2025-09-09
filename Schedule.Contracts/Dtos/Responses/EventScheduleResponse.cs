@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Schedule.Domain.Models;
 
 namespace Schedule.Contracts.Dtos.Responses;
 

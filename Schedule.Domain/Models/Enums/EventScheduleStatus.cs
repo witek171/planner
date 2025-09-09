@@ -1,7 +1,9 @@
 ﻿namespace Schedule.Domain.Models.Enums;
 
-public enum EventStatus
+public enum EventScheduleStatus
 {
 	Active,
+	Full,
+	Completed,
 	Deleted
 }

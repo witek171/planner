@@ -34,8 +34,8 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 	}
 
 	public async Task<bool> DeleteByIdAsync(
-		Guid companyId,
-		Guid eventScheduleStaffMemberId)
+		Guid eventScheduleStaffMemberId,
+		Guid companyId)
 	{
 		const string sql = @"
 			DELETE FROM EventScheduleStaff
@@ -76,6 +76,32 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 			eventSchedules.Add(DbMapper.MapEventScheduleStaffMember(reader));
 
 		return eventSchedules;
+	}
+
+	public async Task<List<Guid>> GetEventScheduleStaffIdsByEventScheduleIdAsync(
+		Guid eventScheduleId,
+		Guid companyId)
+	{
+		const string sql = @"
+			SELECT Id
+			FROM EventScheduleStaff
+			WHERE EventScheduleId = @EventScheduleId AND CompanyId = @CompanyId";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		List<Guid> staffMemberIds = new();
+
+		while (await reader.ReadAsync())
+			staffMemberIds.Add(reader.GetGuid(reader.GetOrdinal("Id")));
+
+		return staffMemberIds;
 	}
 
 	public async Task<bool> ExistsByIdAsync(

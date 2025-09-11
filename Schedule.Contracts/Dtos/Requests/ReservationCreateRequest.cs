@@ -2,13 +2,13 @@
 
 namespace Schedule.Contracts.Dtos.Requests;
 
-public class ReservationRequest
+public class ReservationCreateRequest
 {
 	[Required] public Guid EventScheduleId { get; }
 	[Required] public string Notes { get; }
 	[Required] public IReadOnlyList<Guid> ParticipantsIds { get; }
 
-	public ReservationRequest(
+	public ReservationCreateRequest(
 		Guid eventScheduleId,
 		string notes, IReadOnlyList<Guid>
 			participantsIds)

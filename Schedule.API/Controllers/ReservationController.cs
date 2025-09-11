@@ -46,9 +46,9 @@ public class ReservationController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<Guid>> Create(
 		Guid companyId,
-		[FromBody] ReservationRequest request)
+		[FromBody] ReservationCreateRequest createRequest)
 	{
-		Reservation reservation = _mapper.Map<Reservation>(request);
+		Reservation reservation = _mapper.Map<Reservation>(createRequest);
 		reservation.SetCompanyId(companyId);
 		Guid id = await _reservationService.CreateAsync(reservation);
 		return CreatedAtAction(nameof(Create), id);
@@ -58,13 +58,13 @@ public class ReservationController : ControllerBase
 	public async Task<ActionResult> Update(
 		Guid id,
 		Guid companyId,
-		[FromBody] ReservationRequest request)
+		[FromBody] ReservationUpdateRequest updateRequest)
 	{
 		Reservation? reservation = await _reservationService.GetByIdAsync(id, companyId);
 		if (reservation == null)
 			return NotFound();
 
-		_mapper.Map(request, reservation);
+		_mapper.Map(updateRequest, reservation);
 		await _reservationService.UpdateAsync(reservation);
 		return NoContent();
 	}

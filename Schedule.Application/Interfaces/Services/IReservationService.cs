@@ -13,7 +13,6 @@ public interface IReservationService
 	Task<Guid> CreateAsync(Reservation reservation);
 	Task UpdateAsync(Reservation reservation);
 
-
 	Task DeleteAsync(
 		Guid id,
 		Guid companyId);

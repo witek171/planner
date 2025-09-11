@@ -27,7 +27,7 @@ public class ReservationRepository : IReservationRepository
 			r.CreatedAt as ReservationCreatedAt, 
 			r.CancelledAt, 
 			r.PaidAt,
-			p.Id as Id,
+			p.Id as ParticipantId,
 			p.CompanyId as CompanyId,
 			p.Email,
 			p.FirstName,
@@ -81,9 +81,9 @@ public class ReservationRepository : IReservationRepository
 				reservationData[reservationId] = (reservation, new List<Participant>());
 			}
 
-			if (!reader.IsDBNull(reader.GetOrdinal("Id")))
+			if (!reader.IsDBNull(reader.GetOrdinal("ParticipantId")))
 			{
-				Participant participant = DbMapper.MapParticipant(reader);
+				Participant participant = DbMapper.MapParticipantFromReservation(reader);
 				reservationData[reservationId].participants.Add(participant);
 			}
 		}
@@ -112,7 +112,7 @@ public class ReservationRepository : IReservationRepository
 			r.CreatedAt as ReservationCreatedAt, 
 			r.CancelledAt, 
 			r.PaidAt,
-			p.Id as Id,
+			p.Id as ParticipantId,
 			p.CompanyId as CompanyId,
 			p.Email,
 			p.FirstName,
@@ -161,8 +161,8 @@ public class ReservationRepository : IReservationRepository
 		{
 			reservation ??= DbMapper.MapReservation(reader);
 
-			if (!reader.IsDBNull(reader.GetOrdinal("Id")))
-				participants.Add(DbMapper.MapParticipant(reader));
+			if (!reader.IsDBNull(reader.GetOrdinal("ParticipantId")))
+				participants.Add(DbMapper.MapParticipantFromReservation(reader));
 		}
 
 		reservation?.SetParticipants(participants);

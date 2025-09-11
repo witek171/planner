@@ -223,8 +223,8 @@ public class ReservationRepository : IReservationRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", reservation.Id);
 		command.Parameters.AddWithValue("@CompanyId", reservation.CompanyId);
-		command.Parameters.AddWithValue("@Status", nameof(reservation.Status));
-		command.Parameters.AddWithValue("@Status", reservation.CancelledAt);
+		command.Parameters.AddWithValue("@Status", reservation.Status.ToString());
+		command.Parameters.AddWithValue("@CancelledAt", reservation.CancelledAt);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;

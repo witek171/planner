@@ -159,4 +159,17 @@ public static class DbMapper
 				? null
 				: reader.GetDateTime(reader.GetOrdinal("PaidAt")));
 	}
+
+	public static Participant MapParticipantFromReservation(SqlDataReader reader)
+	{
+		return new Participant(
+			reader.GetGuid(reader.GetOrdinal("ParticipantId")),
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
+			reader.GetString(reader.GetOrdinal("Email")),
+			reader.GetString(reader.GetOrdinal("FirstName")),
+			reader.GetString(reader.GetOrdinal("LastName")),
+			reader.GetString(reader.GetOrdinal("Phone")),
+			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
+			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
+	}
 }

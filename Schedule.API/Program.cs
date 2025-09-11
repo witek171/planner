@@ -42,6 +42,8 @@ public class Program
 			new EventTypeRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IReservationRepository>(provider =>
 			new ReservationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IReservationParticipantRepository>(provider =>
+			new ReservationParticipantRepository(EnvironmentService.SqlConnectionString));
 
 		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>

@@ -1,30 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Schedule.Domain.Models.Enums;
 
 namespace Schedule.Contracts.Dtos.Requests;
 
 public class ReservationRequest
 {
-	[Required] public int ParticipantCount { get; }
-	[Required] public ReservationStatus Status { get; }
+	[Required] public Guid EventScheduleId { get; }
 	[Required] public string Notes { get; }
-	[Required] public DateTime CreatedAt { get; }
-	[Required] public DateTime CancelledAt { get; }
-	[Required] public DateTime PaidAt { get; }
+	[Required] public IReadOnlyList<Guid> ParticipantsIds { get; }
 
 	public ReservationRequest(
-		int participantCount,
-		ReservationStatus status,
-		string notes,
-		DateTime createdAt,
-		DateTime cancelledAt,
-		DateTime paidAt)
+		Guid eventScheduleId,
+		string notes, IReadOnlyList<Guid>
+			participantsIds)
 	{
-		ParticipantCount = participantCount;
-		Status = status;
+		EventScheduleId = eventScheduleId;
 		Notes = notes;
-		CreatedAt = createdAt;
-		CancelledAt = cancelledAt;
-		PaidAt = paidAt;
+		ParticipantsIds = participantsIds;
 	}
 }

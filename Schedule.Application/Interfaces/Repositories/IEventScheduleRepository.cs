@@ -26,4 +26,12 @@ public interface IEventScheduleRepository
 		Guid companyId);
 
 	Task<bool> UpdateStatusAsync(EventSchedule eventSchedule);
+
+	Task<(int MaxParticipants, int CurrentParticipants)> GetMaxParticipantsAndCurrentParticipantsAsync(
+		Guid id,
+		Guid companyId);
+
+	Task<bool> IsParticipantAssignedAsync(
+		Guid participantId,
+		Guid eventScheduleId);
 }

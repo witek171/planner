@@ -221,4 +221,67 @@ public class EventScheduleRepository : IEventScheduleRepository
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
+
+	public async Task<(int MaxParticipants, int CurrentParticipants)> GetMaxParticipantsAndCurrentParticipantsAsync(
+		Guid id,
+		Guid companyId)
+	{
+		const string sql = @"
+			SELECT 
+				et.MaxParticipants,
+				COUNT(rp.Id) AS CurrentParticipants
+			FROM EventSchedules es
+			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
+			LEFT JOIN Reservations r 
+				ON es.Id = r.EventScheduleId 
+				AND r.CompanyId = es.CompanyId
+				AND r.Status = 'Confirmed'
+			LEFT JOIN ReservationParticipants rp 
+				ON r.Id = rp.ReservationId AND rp.CompanyId = es.CompanyId
+			WHERE es.Id = @EventScheduleId AND es.CompanyId = @CompanyId
+			GROUP BY et.MaxParticipants";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@EventScheduleId", id);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		if (await reader.ReadAsync())
+		{
+			int maxParticipants = (int)reader["MaxParticipants"];
+			int currentParticipants = (int)reader["CurrentParticipants"];
+
+			return (maxParticipants, currentParticipants);
+		}
+
+		return (0, 0);
+	}
+
+	public async Task<bool> IsParticipantAssignedAsync(
+		Guid participantId,
+		Guid eventScheduleId)
+	{
+		const string sql = @"
+			SELECT COUNT(1)
+			FROM ReservationParticipants rp
+			INNER JOIN Reservations r ON rp.ReservationId = r.Id
+			WHERE rp.ParticipantId = @ParticipantId
+				AND r.EventScheduleId = @EventScheduleId
+				AND r.Status <> @CancelledStatus";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@ParticipantId", participantId);
+		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleId);
+		command.Parameters.AddWithValue("@CancelledStatus", nameof(ReservationStatus.Cancelled));
+
+		int count = (int)(await command.ExecuteScalarAsync())!;
+		return count > 0;
+	}
 }

@@ -30,6 +30,7 @@ GO
 -- Usuń tabele w odwrotnej kolejności zależności
 DROP TABLE IF EXISTS Messages;
 DROP TABLE IF EXISTS Notifications;
+DROP TABLE IF EXISTS ReservationParticipants;
 DROP TABLE IF EXISTS Reservations;
 DROP TABLE IF EXISTS EventScheduleStaff;
 DROP TABLE IF EXISTS EventSchedules;
@@ -209,6 +210,7 @@ CREATE TABLE Reservations
 	Notes           NVARCHAR(MAX),
 	CreatedAt       DATETIME                     DEFAULT GETUTCDATE(),
 	CancelledAt     DATETIME         NULL,
+	IsPaid          BIT                          DEFAULT 0,
 	PaidAt          DATETIME         NULL,
 	CONSTRAINT fk_reservations_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
@@ -226,7 +228,7 @@ CREATE TABLE ReservationParticipants
 	CONSTRAINT fk_resparticipants_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT fk_resparticipants_reservation FOREIGN KEY (ReservationId)
-		REFERENCES Reservations (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+		REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_resparticipants_participant FOREIGN KEY (ParticipantId)
 		REFERENCES Participants (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	-- Unikatowość: jeden uczestnik może być tylko raz w danej rezerwacji

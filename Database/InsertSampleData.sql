@@ -1034,75 +1034,75 @@ DECLARE
 	@Reservation25Id UNIQUEIDENTIFIER = NEWID();
 
 -- Dodanie rezerwacji (bez ParticipantId i ParticipantCount)
-INSERT INTO Reservations (Id, CompanyId, EventScheduleId, Status, Notes, CreatedAt, CancelledAt, PaidAt)
+INSERT INTO Reservations (Id, CompanyId, EventScheduleId, Status, Notes, CreatedAt, CancelledAt, IsPaid, PaidAt)
 VALUES
 	-- Rezerwacje SportFit Centrum
 	(@Reservation1Id, @Branch1Id, @Event1Id, 'Confirmed', 'Pierwszy raz na zajęciach jogi',
-	 '2025-07-25 14:00:00', NULL, '2025-07-25 14:30:00'),
+	 '2025-07-25 14:00:00', NULL, 1, '2025-07-25 14:30:00'),
 	(@Reservation2Id, @Branch1Id, @Event2Id, 'Confirmed',
-	 'Trening personalny - cel: budowa masy mięśniowej', '2025-07-26 08:45:00', NULL, '2025-07-26 09:15:00'),
+	 'Trening personalny - cel: budowa masy mięśniowej', '2025-07-26 08:45:00', NULL, 1, '2025-07-26 09:15:00'),
 	(@Reservation3Id, @Branch1Id, @Event3Id, 'Confirmed',
-	 'Zajęcia pilates - problemy z kręgosłupem', '2025-07-27 16:15:00', NULL, '2025-07-27 16:45:00'),
+	 'Zajęcia pilates - problemy z kręgosłupem', '2025-07-27 16:15:00', NULL, 1, '2025-07-27 16:45:00'),
 	(@Reservation4Id, @Branch1Id, @Event4Id, 'Confirmed', 'Kontynuacja zajęć jogi',
-	 '2025-07-28 07:50:00', NULL, '2025-07-28 08:20:00'),
+	 '2025-07-28 07:50:00', NULL, 1, '2025-07-28 08:20:00'),
 
 	-- Rezerwacje SportFit Południe
 	(@Reservation5Id, @Branch2Id, @Event6Id, 'Confirmed', 'Doświadczony w crossfit',
-	 '2025-07-25 11:15:00', NULL, '2025-07-25 11:45:00'),
+	 '2025-07-25 11:15:00', NULL, 1, '2025-07-25 11:45:00'),
 	(@Reservation6Id, @Branch2Id, @Event7Id, 'Confirmed', 'Lubię spinning - świetna muzyka',
-	 '2025-07-26 13:00:00', NULL, '2025-07-26 13:30:00'),
+	 '2025-07-26 13:00:00', NULL, 1, '2025-07-26 13:30:00'),
 	(@Reservation7Id, @Branch2Id, @Event8Id, 'Confirmed', 'Pierwszy raz na zumbie',
-	 '2025-07-27 17:45:00', NULL, '2025-07-27 18:15:00'),
+	 '2025-07-27 17:45:00', NULL, 1, '2025-07-27 18:15:00'),
 	(@Reservation8Id, @Branch2Id, @Event9Id, 'Confirmed', 'Oczekiwanie na potwierdzenie',
-	 '2025-07-28 09:30:00', NULL, NULL),
+	 '2025-07-28 09:30:00', NULL, 0, NULL),
 
 	-- Rezerwacje SportFit Północ
 	(@Reservation9Id, @Branch3Id, @Event11Id, 'Confirmed', 'Początkujący - nauka podstaw pływania',
-	 '2025-07-25 15:50:00', NULL, '2025-07-25 16:20:00'),
+	 '2025-07-25 15:50:00', NULL, 1, '2025-07-25 16:20:00'),
 	(@Reservation10Id, @Branch3Id, @Event12Id, 'Confirmed',
-	 'Aqua aerobik - rehabilitacja po kontuzji', '2025-07-26 10:15:00', NULL, '2025-07-26 10:45:00'),
+	 'Aqua aerobik - rehabilitacja po kontuzji', '2025-07-26 10:15:00', NULL, 1, '2025-07-26 10:45:00'),
 	(@Reservation11Id, @Branch3Id, @Event13Id, 'Cancelled', 'Zmiana planów - choroba',
-	 '2025-07-27 14:30:00', '2025-07-27 15:45:00', NULL),
+	 '2025-07-27 14:30:00', '2025-07-27 15:45:00', 0, NULL),
 	(@Reservation12Id, @Branch3Id, @Event15Id, 'Confirmed', 'Kontynuacja nauki pływania',
-	 '2025-07-28 07:00:00', NULL, '2025-07-28 07:30:00'),
+	 '2025-07-28 07:00:00', NULL, 1, '2025-07-28 07:30:00'),
 
 	-- Rezerwacje SportFit Wschód
 	(@Reservation13Id, @Branch4Id, @Event16Id, 'Confirmed', 'Chcę nauczyć się boksu',
-	 '2025-07-26 15:15:00', NULL, '2025-07-26 15:45:00'),
+	 '2025-07-26 15:15:00', NULL, 1, '2025-07-26 15:45:00'),
 	(@Reservation14Id, @Branch4Id, @Event17Id, 'Confirmed', 'Kickboxing na spalanie kalorii',
-	 '2025-07-27 16:50:00', NULL, '2025-07-27 17:20:00'),
+	 '2025-07-27 16:50:00', NULL, 1, '2025-07-27 17:20:00'),
 
 	-- Rezerwacje SportFit Zachód
 	(@Reservation15Id, @Branch5Id, @Event19Id, 'Confirmed', 'TRX - trening funkcjonalny',
-	 '2025-07-26 13:40:00', NULL, '2025-07-26 14:10:00'),
+	 '2025-07-26 13:40:00', NULL, 1, '2025-07-26 14:10:00'),
 	(@Reservation16Id, @Branch5Id, @Event20Id, 'Confirmed', 'Potrzebuję relaksu po pracy',
-	 '2025-07-27 19:00:00', NULL, '2025-07-27 19:30:00'),
+	 '2025-07-27 19:00:00', NULL, 1, '2025-07-27 19:30:00'),
 
 	-- Rezerwacje FitZone Mokotów
 	(@Reservation17Id, @FitZone1Id, @Event22Id, 'Confirmed', 'HIIT - chcę szybko spalić kalorie',
-	 '2025-07-25 19:45:00', NULL, '2025-07-25 20:15:00'),
+	 '2025-07-25 19:45:00', NULL, 1, '2025-07-25 20:15:00'),
 	(@Reservation18Id, @FitZone1Id, @Event23Id, 'Confirmed', 'Body Pump - budowanie siły',
-	 '2025-07-27 16:15:00', NULL, '2025-07-27 16:45:00'),
+	 '2025-07-27 16:15:00', NULL, 1, '2025-07-27 16:45:00'),
 	(@Reservation19Id, @FitZone1Id, @Event24Id, 'Confirmed', 'Kolejne HIIT - jestem uzależniona!',
-	 '2025-07-28 06:00:00', NULL, '2025-07-28 06:30:00'),
+	 '2025-07-28 06:00:00', NULL, 1, '2025-07-28 06:30:00'),
 
 	-- Rezerwacje FitZone Katowice
 	(@Reservation20Id, @FitZone2Id, @Event25Id, 'Confirmed', 'Tabata - krótko i intensywnie',
-	 '2025-07-26 10:50:00', NULL, '2025-07-26 11:20:00'),
+	 '2025-07-26 10:50:00', NULL, 1, '2025-07-26 11:20:00'),
 	(@Reservation21Id, @FitZone2Id, @Event26Id, 'Confirmed', 'Wieczorna sesja Tabata',
-	 '2025-07-27 17:10:00', NULL, '2025-07-27 17:40:00'),
+	 '2025-07-27 17:10:00', NULL, 1, '2025-07-27 17:40:00'),
 
 	-- Rezerwacje AquaFit Marina
 	(@Reservation22Id, @AquaFit1Id, @Event29Id, 'Confirmed',
-	 'Pływanie sportowe - przygotowanie do zawodów', '2025-07-26 18:00:00', NULL, '2025-07-26 18:30:00'),
+	 'Pływanie sportowe - przygotowanie do zawodów', '2025-07-26 18:00:00', NULL, 1, '2025-07-26 18:30:00'),
 	(@Reservation23Id, @AquaFit1Id, @Event30Id, 'Confirmed', 'Trening personalny - technika kraul',
-	 '2025-07-27 11:45:00', NULL, '2025-07-27 12:15:00'),
+	 '2025-07-27 11:45:00', NULL, 1, '2025-07-27 12:15:00'),
 
 	-- Rezerwacje PowerGym Center
 	(@Reservation24Id, @PowerGym1Id, @Event34Id, 'Confirmed', 'Powerlifting - chcę bić rekordy',
-	 '2025-07-26 05:15:00', NULL, '2025-07-26 05:45:00'),
+	 '2025-07-26 05:15:00', NULL, 1, '2025-07-26 05:45:00'),
 	(@Reservation25Id, @PowerGym1Id, @Event35Id, 'Confirmed', 'Strongman - siłacz w sobie',
-	 '2025-07-27 19:20:00', NULL, '2025-07-27 19:50:00');
+	 '2025-07-27 19:20:00', NULL, 1, '2025-07-27 19:50:00');
 
 -- =============================================
 -- 12. ReservationParticipants - przypisanie uczestników do rezerwacji
@@ -1160,15 +1160,16 @@ VALUES
 -- Dodatkowa rezerwacja grupowa dla demonstracji
 DECLARE @GroupReservationId UNIQUEIDENTIFIER = NEWID();
 
-INSERT INTO Reservations (Id, CompanyId, EventScheduleId, Status, Notes, CreatedAt, CancelledAt, PaidAt)
+INSERT INTO Reservations (Id, CompanyId, EventScheduleId, Status, Notes, CreatedAt, CancelledAt, IsPaid, PaidAt)
 VALUES (@GroupReservationId, @Branch1Id, @Event1Id, 'Confirmed', 'Rezerwacja grupowa - zajęcia jogi dla przyjaciół',
-        '2025-07-29 10:00:00', NULL, '2025-07-29 10:30:00');
+        '2025-07-29 10:00:00', NULL, 1, '2025-07-29 10:30:00');
 
 -- Dodanie wielu uczestników do jednej rezerwacji
 INSERT INTO ReservationParticipants (CompanyId, ReservationId, ParticipantId)
 VALUES (@Branch1Id, @GroupReservationId, @Participant1Id), -- Anna Kowalska
        (@Branch1Id, @GroupReservationId, @Participant2Id), -- Jan Nowak
-       (@Branch1Id, @GroupReservationId, @Participant3Id); -- Maria Wiśniewska
+       (@Branch1Id, @GroupReservationId, @Participant3Id);
+-- Maria Wiśniewska
 
 -- =============================================
 -- 12. Notifications - dodanie powiadomień 

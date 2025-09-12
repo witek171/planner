@@ -155,6 +155,7 @@ public static class DbMapper
 			reader.IsDBNull(reader.GetOrdinal("CancelledAt"))
 				? null
 				: reader.GetDateTime(reader.GetOrdinal("CancelledAt")),
+			reader.GetBoolean(reader.GetOrdinal("IsPaid")),
 			reader.IsDBNull(reader.GetOrdinal("PaidAt"))
 				? null
 				: reader.GetDateTime(reader.GetOrdinal("PaidAt")));

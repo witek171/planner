@@ -69,6 +69,32 @@ public class ReservationController : ControllerBase
 		return NoContent();
 	}
 
+	[HttpPut("{id:guid}/markAsPaid")]
+	public async Task<ActionResult> MarkAsPaid(
+		Guid id,
+		Guid companyId)
+	{
+		Reservation? reservation = await _reservationService.GetByIdAsync(id, companyId);
+		if (reservation == null)
+			return NotFound();
+
+		await _reservationService.MarkAsPaidAsync(reservation);
+		return NoContent();
+	}
+
+	[HttpPut("{id:guid}/unmarkAsPaid")]
+	public async Task<ActionResult> UnmarkAsPaid(
+		Guid id,
+		Guid companyId)
+	{
+		Reservation? reservation = await _reservationService.GetByIdAsync(id, companyId);
+		if (reservation == null)
+			return NotFound();
+
+		await _reservationService.UnmarkAsPaidAsync(reservation);
+		return NoContent();
+	}
+
 	[HttpDelete("{id:guid}")]
 	public async Task<ActionResult> Delete(
 		Guid id,

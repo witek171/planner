@@ -89,4 +89,14 @@ public class Reservation
 		IsPaid = true;
 		PaidAt = DateTime.UtcNow;
 	}
+
+	public void UnmarkAsPaid()
+	{
+		if (!IsPaid)
+			throw new InvalidOperationException(
+				$"Reservation {Id} is already unmarked as paid");
+
+		IsPaid = false;
+		PaidAt = null;
+	}
 }

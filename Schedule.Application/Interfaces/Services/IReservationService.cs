@@ -16,4 +16,7 @@ public interface IReservationService
 	Task DeleteAsync(
 		Guid id,
 		Guid companyId);
+
+	Task MarkAsPaidAsync(Reservation reservation);
+	Task UnmarkAsPaidAsync(Reservation reservation);
 }

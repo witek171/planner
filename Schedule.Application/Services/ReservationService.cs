@@ -96,6 +96,18 @@ public class ReservationService : IReservationService
 		await _reservationRepository.UpdateSoftDeleteAsync(reservation);
 	}
 
+	public async Task MarkAsPaidAsync(Reservation reservation)
+	{
+		reservation.MarkAsPaid();
+		await _reservationRepository.UpdatePaymentDetailsAsync(reservation);
+	}
+	public async Task UnmarkAsPaidAsync(Reservation reservation)
+	{
+		reservation.UnmarkAsPaid();
+		await _reservationRepository.UpdatePaymentDetailsAsync(reservation);
+
+	}
+
 	private async Task ValidateEventScheduleAsync(Reservation reservation)
 	{
 		Guid eventScheduleId = reservation.EventScheduleId;

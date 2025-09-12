@@ -236,4 +236,24 @@ public class ReservationRepository : IReservationRepository
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
+
+	public async Task<bool> UpdatePaymentDetailsAsync(Reservation reservation)
+	{
+		const string sql = @"
+			UPDATE Reservations SET
+			IsPaid = @IsPaid, PaidAt = @PaidAt
+			WHERE Id = @Id AND CompanyId = @CompanyId";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", reservation.Id);
+		command.Parameters.AddWithValue("@CompanyId", reservation.CompanyId);
+		command.Parameters.AddWithValue("@IsPaid", reservation.IsPaid);
+		command.Parameters.AddWithValue("@PaidAt", reservation.PaidAt ?? (object)DBNull.Value);
+
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
 }

@@ -14,4 +14,5 @@ public interface IReservationRepository
 	Task<bool> UpdateAsync(Reservation reservation);
 
 	Task<bool> UpdateSoftDeleteAsync(Reservation reservation);
+	Task<bool> UpdatePaymentDetailsAsync(Reservation reservation);
 }

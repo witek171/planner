@@ -79,4 +79,14 @@ public class Reservation
 		Status = ReservationStatus.Cancelled;
 		CancelledAt = DateTime.UtcNow;
 	}
+
+	public void MarkAsPaid()
+	{
+		if (IsPaid)
+			throw new InvalidOperationException(
+				$"Reservation {Id} is already marked as paid");
+
+		IsPaid = true;
+		PaidAt = DateTime.UtcNow;
+	}
 }

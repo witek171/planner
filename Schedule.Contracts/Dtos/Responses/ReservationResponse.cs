@@ -11,5 +11,6 @@ public class ReservationResponse
 	[Required] public string Notes { get; private set; }
 	[Required] public DateTime CreatedAt { get; private set; }
 	public DateTime? CancelledAt { get; private set; }
+	[Required] public bool IsPaid { get; private set; }
 	public DateTime? PaidAt { get; private set; }
 }

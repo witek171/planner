@@ -14,6 +14,7 @@ public class Reservation
 	public string Notes { get; private set; }
 	public DateTime CreatedAt { get; }
 	public DateTime? CancelledAt { get; private set; }
+	public bool IsPaid { get; private set; }
 	public DateTime? PaidAt { get; private set; }
 
 	public Reservation(
@@ -26,8 +27,9 @@ public class Reservation
 		ReservationStatus status,
 		string notes,
 		DateTime createdAt,
-		DateTime? cancelledAt = null,
-		DateTime? paidAt = null)
+		DateTime? cancelledAt,
+		bool isPaid,
+		DateTime? paidAt)
 	{
 		Id = id;
 		CompanyId = companyId;
@@ -39,6 +41,7 @@ public class Reservation
 		Notes = notes;
 		CreatedAt = createdAt;
 		CancelledAt = cancelledAt;
+		IsPaid = isPaid;
 		PaidAt = paidAt;
 	}
 

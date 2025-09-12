@@ -101,11 +101,11 @@ public class ReservationService : IReservationService
 		reservation.MarkAsPaid();
 		await _reservationRepository.UpdatePaymentDetailsAsync(reservation);
 	}
+
 	public async Task UnmarkAsPaidAsync(Reservation reservation)
 	{
 		reservation.UnmarkAsPaid();
 		await _reservationRepository.UpdatePaymentDetailsAsync(reservation);
-
 	}
 
 	private async Task ValidateEventScheduleAsync(Reservation reservation)

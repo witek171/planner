@@ -235,7 +235,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 			LEFT JOIN Reservations r 
 				ON es.Id = r.EventScheduleId 
 				AND r.CompanyId = es.CompanyId
-				AND r.Status = 'Confirmed'
+				AND r.Status <> @CancelledStatus
 			LEFT JOIN ReservationParticipants rp 
 				ON r.Id = rp.ReservationId AND rp.CompanyId = es.CompanyId
 			WHERE es.Id = @EventScheduleId AND es.CompanyId = @CompanyId
@@ -247,6 +247,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@EventScheduleId", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@CancelledStatus", nameof(ReservationStatus.Cancelled));
 
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 

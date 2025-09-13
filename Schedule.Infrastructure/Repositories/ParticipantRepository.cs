@@ -158,7 +158,7 @@ public class ParticipantRepository : IParticipantRepository
 	{
 		const string sql = @"
 			SELECT COUNT(1)
-			FROM Reservations 
+			FROM ReservationParticipants 
 			WHERE CompanyId = @CompanyId AND ParticipantId = @ParticipantId";
 
 		await using SqlConnection connection = new(_connectionString);

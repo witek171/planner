@@ -85,13 +85,6 @@ public class ReservationService : IReservationService
 	{
 		Reservation reservation = (await _reservationRepository.GetByIdAsync(id, companyId))!;
 
-		List<Guid> reservationParticipantsIds = await _reservationParticipantRepository
-			.GetIdsByReservationIdAsync(id, companyId);
-
-		foreach (Guid reservationParticipantId in reservationParticipantsIds)
-			await _reservationParticipantRepository
-				.DeleteAsync(reservationParticipantId, companyId);
-
 		reservation.SoftDelete();
 		await _reservationRepository.UpdateSoftDeleteAsync(reservation);
 	}

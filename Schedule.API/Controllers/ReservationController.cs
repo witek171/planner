@@ -104,7 +104,7 @@ public class ReservationController : ControllerBase
 		if (reservation == null)
 			return NotFound();
 
-		await _reservationService.DeleteAsync(id, companyId);
+		await _reservationService.SoftDeleteAsync(id, companyId);
 		return NoContent();
 	}
 }

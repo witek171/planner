@@ -31,7 +31,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 			INNER JOIN EventScheduleStaff ess ON es.Id = ess.EventScheduleId
 			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
 			WHERE es.CompanyId = @CompanyId AND es.Status <> @DeletedStatus 
-			AND ess.StaffMemberId = @StaffMemberId AND et.IsDeleted = 0
+			AND ess.StaffMemberId = @StaffMemberId
 			ORDER BY es.StartTime";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -64,7 +64,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 			FROM EventSchedules es
 			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
 			WHERE es.CompanyId = @CompanyId 
-			  AND es.Status <> 'Deleted' AND et.IsDeleted = 0
+			  AND es.Status <> @DeletedStatus
 			ORDER BY es.StartTime";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -72,6 +72,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
 
 		SqlDataReader reader = await command.ExecuteReaderAsync();
 		List<EventSchedule> eventSchedules = new();
@@ -97,7 +98,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 			FROM EventSchedules es
 			INNER JOIN EventTypes et ON es.EventTypeId = et.Id
 			WHERE es.Id = @Id AND es.CompanyId = @CompanyId 
-			AND es.Status <> 'Deleted' AND et.IsDeleted = 0";
+			AND es.Status <> @DeletedStatus";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -105,6 +106,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
 
 		SqlDataReader reader = await command.ExecuteReaderAsync();
 		if (await reader.ReadAsync())
@@ -130,7 +132,6 @@ public class EventScheduleRepository : IEventScheduleRepository
 		command.Parameters.AddWithValue("@EventTypeId", eventSchedule.EventTypeId);
 		command.Parameters.AddWithValue("@PlaceName", eventSchedule.PlaceName);
 		command.Parameters.AddWithValue("@StartTime", eventSchedule.StartTime);
-		// command.Parameters.AddWithValue("@Status", eventSchedule.Status);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;
@@ -181,15 +182,11 @@ public class EventScheduleRepository : IEventScheduleRepository
 	{
 		const string sql = @"
 			SELECT CASE WHEN EXISTS (
-				SELECT 1 
-				FROM EventScheduleStaff 
-				WHERE EventScheduleId = @EventScheduleId 
-				AND CompanyId = @CompanyId
+				SELECT 1 FROM EventScheduleStaff 
+				WHERE EventScheduleId = @EventScheduleId AND CompanyId = @CompanyId
 				UNION ALL
-				SELECT 1 
-				FROM Reservations 
-				WHERE EventScheduleId = @EventScheduleId 
-				AND CompanyId = @CompanyId
+				SELECT 1 FROM Reservations 
+				WHERE EventScheduleId = @EventScheduleId AND CompanyId = @CompanyId
 			) THEN 1 ELSE 0 END";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -206,8 +203,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 	public async Task<bool> UpdateStatusAsync(EventSchedule eventSchedule)
 	{
 		const string sql = @"
-			UPDATE EventSchedules SET
-			Status = @Status
+			UPDATE EventSchedules SET Status = @Status
 			WHERE Id = @Id AND CompanyId = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -267,12 +263,13 @@ public class EventScheduleRepository : IEventScheduleRepository
 		Guid eventScheduleId)
 	{
 		const string sql = @"
-			SELECT COUNT(1)
-			FROM ReservationParticipants rp
-			INNER JOIN Reservations r ON rp.ReservationId = r.Id
-			WHERE rp.ParticipantId = @ParticipantId
+			SELECT CASE WHEN EXISTS (
+				SELECT 1 FROM ReservationParticipants rp
+				INNER JOIN Reservations r ON rp.ReservationId = r.Id
+				WHERE rp.ParticipantId = @ParticipantId
 				AND r.EventScheduleId = @EventScheduleId
-				AND r.Status <> @CancelledStatus";
+				AND r.Status <> @CancelledStatus
+			) THEN 1 ELSE 0 END";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -282,7 +279,7 @@ public class EventScheduleRepository : IEventScheduleRepository
 		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleId);
 		command.Parameters.AddWithValue("@CancelledStatus", nameof(ReservationStatus.Cancelled));
 
-		int count = (int)(await command.ExecuteScalarAsync())!;
-		return count > 0;
+		object result = (await command.ExecuteScalarAsync())!;
+		return (int)result == 1;
 	}
 }

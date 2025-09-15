@@ -7,19 +7,20 @@ namespace Schedule.Application.Services;
 public class EventScheduleService : IEventScheduleService
 {
 	private readonly IEventScheduleRepository _eventScheduleRepository;
-	private readonly IEventScheduleStaffMemberRepository _eventScheduleStaffMemberRepository;
 	private readonly IReservationRepository _reservationRepository;
 	private readonly IEventTypeRepository _eventTypeRepository;
+	private readonly IReservationService _reservationService;
 
-	public EventScheduleService(IEventScheduleRepository eventScheduleRepository,
-		IEventScheduleStaffMemberRepository eventScheduleStaffMemberRepository,
+	public EventScheduleService(
+		IEventScheduleRepository eventScheduleRepository,
 		IReservationRepository reservationRepository,
-		IEventTypeRepository eventTypeRepository)
+		IEventTypeRepository eventTypeRepository,
+		IReservationService reservationService)
 	{
 		_eventScheduleRepository = eventScheduleRepository;
-		_eventScheduleStaffMemberRepository = eventScheduleStaffMemberRepository;
 		_reservationRepository = reservationRepository;
 		_eventTypeRepository = eventTypeRepository;
+		_reservationService = reservationService;
 	}
 
 	public async Task<List<EventSchedule>> GetByStaffMemberIdAsync(
@@ -39,7 +40,6 @@ public class EventScheduleService : IEventScheduleService
 	{
 		await ValidateEventTypeAsync(eventSchedule);
 		eventSchedule.Normalize();
-		// eventSchedule.SetAsActive(); obecnia baza danych domyslnie ustawia status na active
 		return await _eventScheduleRepository.CreateAsync(eventSchedule);
 	}
 
@@ -56,25 +56,13 @@ public class EventScheduleService : IEventScheduleService
 	{
 		if (await _eventScheduleRepository.HasRelatedRecordsAsync(id, companyId))
 		{
-			List<Guid> ids = await _eventScheduleStaffMemberRepository
-				.GetEventScheduleStaffIdsByEventScheduleIdAsync(id, companyId);
-			foreach (Guid eventScheduleStaffId in ids)
-			{
-				await _eventScheduleStaffMemberRepository
-					.DeleteByIdAsync(eventScheduleStaffId, companyId);
-				// wyslanie powiadomienia o odwolaniu zajec do pracownika
-			}
+			// wyslanie powiadomienia o odwolaniu zajec do pracownika
+			// wyslanie powiadomienia o odwolaniu zajec do uczestnika
 
-			// List<Guid> reservationIds = await _reservationRepository
-			// 	.GetByEventScheduleIdAsync(id, companyId);
-			// foreach (Guid reservationId in reservationIds)
-			// {
-			// 	Reservation? reservation = await _reservationRepository
-			// 		.GetByIdAsync(reservationId, companyId);
-			// 	reservation?.SoftDelete();
-			// 	// await _reservationRepository.UpdateStatusAsync(reservation);
-			// 	// wyslanie powiadomienia o odwolaniu zajec do uczestnika
-			// }
+			List<Guid> reservationIds = await _reservationRepository
+				.GetByEventScheduleIdAsync(id, companyId);
+			foreach (Guid reservationId in reservationIds)
+				await _reservationService.SoftDeleteAsync(reservationId, companyId);
 
 			EventSchedule eventSchedule = (await _eventScheduleRepository.GetByIdAsync(id, companyId))!;
 			eventSchedule.SoftDelete();

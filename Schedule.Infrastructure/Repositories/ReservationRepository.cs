@@ -175,15 +175,9 @@ public class ReservationRepository : IReservationRepository
 	public async Task<Guid> CreateAsync(Reservation reservation)
 	{
 		const string sql = @"
-			DECLARE @InsertedIds TABLE (Id UNIQUEIDENTIFIER);
-
-			INSERT INTO Reservations 
-			(CompanyId, EventScheduleId, Notes, IsPaid)
-			OUTPUT INSERTED.Id INTO @InsertedIds
-			VALUES 
-			(@CompanyId, @EventScheduleId, @Notes, @IsPaid);
-
-			SELECT Id FROM @InsertedIds";
+			INSERT INTO Reservations (CompanyId, EventScheduleId, Notes, IsPaid, PaidAt)
+			OUTPUT INSERTED.Id
+			VALUES (@CompanyId, @EventScheduleId, @Notes, @IsPaid, @PaidAt)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -193,6 +187,7 @@ public class ReservationRepository : IReservationRepository
 		command.Parameters.AddWithValue("@EventScheduleId", reservation.EventScheduleId);
 		command.Parameters.AddWithValue("@Notes", reservation.Notes);
 		command.Parameters.AddWithValue("@IsPaid", reservation.IsPaid);
+		command.Parameters.AddWithValue("@PaidAt", reservation.PaidAt ?? (object)DBNull.Value);
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (Guid)result;

@@ -78,32 +78,6 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 		return eventSchedules;
 	}
 
-	public async Task<List<Guid>> GetEventScheduleStaffIdsByEventScheduleIdAsync(
-		Guid eventScheduleId,
-		Guid companyId)
-	{
-		const string sql = @"
-			SELECT Id
-			FROM EventScheduleStaff
-			WHERE EventScheduleId = @EventScheduleId AND CompanyId = @CompanyId";
-
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
-
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleId);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
-
-		await using SqlDataReader reader = await command.ExecuteReaderAsync();
-
-		List<Guid> eventScheduleStaffIds = new();
-
-		while (await reader.ReadAsync())
-			eventScheduleStaffIds.Add(reader.GetGuid(reader.GetOrdinal("Id")));
-
-		return eventScheduleStaffIds;
-	}
-
 	public async Task<bool> ExistsByIdAsync(
 		Guid companyId,
 		Guid id)

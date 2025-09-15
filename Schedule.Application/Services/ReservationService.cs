@@ -61,6 +61,9 @@ public class ReservationService : IReservationService
 				$"registered and you are trying to add {participantsCount} more");
 
 		reservation.Normalize();
+		if (reservation.IsPaid)
+			reservation.InitializePaidAt();
+
 		Guid reservationId = await _reservationRepository.CreateAsync(reservation);
 
 		foreach (Guid participantId in participantsIds)

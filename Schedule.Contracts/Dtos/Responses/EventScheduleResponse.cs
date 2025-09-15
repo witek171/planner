@@ -8,6 +8,7 @@ public class EventScheduleResponse
 	[Required] public EventTypeResponse EventType { get; }
 	[Required] public string PlaceName { get; }
 	[Required] public DateTime StartTime { get; }
+	[Required] public DateTime EndTime => StartTime.AddMinutes(EventType.Duration);
 	[Required] public DateTime CreatedAt { get; }
 	[Required] public string Status { get; }
 

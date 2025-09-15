@@ -82,7 +82,7 @@ public class ReservationService : IReservationService
 		await _reservationRepository.UpdateAsync(reservation);
 	}
 
-	public async Task DeleteAsync(
+	public async Task SoftDeleteAsync(
 		Guid id,
 		Guid companyId)
 	{

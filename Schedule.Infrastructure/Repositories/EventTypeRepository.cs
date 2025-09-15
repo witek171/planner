@@ -127,17 +127,14 @@ public class EventTypeRepository : IEventTypeRepository
 		return affected > 0;
 	}
 
-	public async Task<bool> ExistsInNonDeletedEventSchedulesAsync(
+	public async Task<bool> ExistsInEventSchedulesAsync(
 		Guid id,
 		Guid companyId)
 	{
 		const string sql = @"
 			SELECT CASE WHEN EXISTS (
-				SELECT 1 
-				FROM EventSchedules 
-				WHERE EventTypeId = @EventTypeId 
-				  AND CompanyId = @CompanyId
-				  AND Status <> @DeletedStatus
+				SELECT 1 FROM EventSchedules 
+				WHERE EventTypeId = @EventTypeId AND CompanyId = @CompanyId
 			) THEN 1 ELSE 0 END";
 
 		await using SqlConnection connection = new(_connectionString);
@@ -146,39 +143,6 @@ public class EventTypeRepository : IEventTypeRepository
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@EventTypeId", id);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
-
-		object result = (await command.ExecuteScalarAsync())!;
-		return (int)result == 1;
-	}
-
-	public async Task<bool> ExistsOnlyInDeletedEventSchedulesAsync(
-		Guid id,
-		Guid companyId)
-	{
-		const string sql = @"
-		SELECT CASE WHEN EXISTS (
-			SELECT 1
-			FROM EventSchedules es
-			WHERE es.EventTypeId = @EventTypeId
-			AND es.CompanyId = @CompanyId
-			AND es.Status = @DeletedStatus
-			AND NOT EXISTS (
-				SELECT 1 
-				FROM EventSchedules es2
-				WHERE es2.EventTypeId = @EventTypeId
-				AND es2.CompanyId = @CompanyId
-				AND es2.Status <> @DeletedStatus
-			)
-		) THEN 1 ELSE 0 END";
-
-		await using SqlConnection connection = new(_connectionString);
-		await connection.OpenAsync();
-
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@EventTypeId", id);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
-		command.Parameters.AddWithValue("@DeletedStatus", nameof(EventScheduleStatus.Deleted));
 
 		object result = (await command.ExecuteScalarAsync())!;
 		return (int)result == 1;
@@ -187,8 +151,7 @@ public class EventTypeRepository : IEventTypeRepository
 	public async Task<bool> UpdateSoftDeleteAsync(EventType eventType)
 	{
 		const string sql = @"
-			UPDATE EventTypes SET
-			IsDeleted = @IsDeleted
+			UPDATE EventTypes SET IsDeleted = @IsDeleted
 			WHERE Id = @Id AND CompanyId = @CompanyId";
 
 		await using SqlConnection connection = new(_connectionString);

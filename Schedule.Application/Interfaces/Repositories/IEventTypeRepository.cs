@@ -17,11 +17,7 @@ public interface IEventTypeRepository
 		Guid id,
 		Guid companyId);
 
-	Task<bool> ExistsInNonDeletedEventSchedulesAsync(
-		Guid id,
-		Guid companyId);
-
-	Task<bool> ExistsOnlyInDeletedEventSchedulesAsync(
+	Task<bool> ExistsInEventSchedulesAsync(
 		Guid id,
 		Guid companyId);
 

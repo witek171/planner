@@ -80,6 +80,15 @@ public class Reservation
 		CancelledAt = DateTime.UtcNow;
 	}
 
+	public void InitializePaidAt()
+	{
+		if (PaidAt != null)
+			throw new InvalidOperationException(
+				$"Paid date for reservation {Id} is already set and cannot be changed");
+
+		PaidAt = DateTime.UtcNow;
+	}
+
 	public void MarkAsPaid()
 	{
 		if (IsPaid)

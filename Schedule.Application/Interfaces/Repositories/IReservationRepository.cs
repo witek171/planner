@@ -15,4 +15,8 @@ public interface IReservationRepository
 
 	Task<bool> UpdateSoftDeleteAsync(Reservation reservation);
 	Task<bool> UpdatePaymentDetailsAsync(Reservation reservation);
+
+	Task<List<Guid>> GetByEventScheduleIdAsync(
+		Guid eventScheduleId,
+		Guid companyId);
 }

@@ -251,4 +251,31 @@ public class ReservationRepository : IReservationRepository
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
 	}
+
+	public async Task<List<Guid>> GetByEventScheduleIdAsync(
+		Guid eventScheduleId,
+		Guid companyId)
+	{
+		const string sql = @"
+			SELECT id
+			FROM Reservations
+			WHERE CompanyId = @CompanyId AND EventScheduleId = @EventScheduleId
+			AND Status <> @CancelledStatus";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@EventScheduleId", eventScheduleId);
+		command.Parameters.AddWithValue("@CancelledStatus", nameof(ReservationStatus.Cancelled));
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		List<Guid> ids = new();
+		while (await reader.ReadAsync())
+			ids.Add(reader.GetGuid(reader.GetOrdinal("Id")));
+
+		return ids;
+	}
 }

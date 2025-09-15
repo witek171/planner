@@ -4,35 +4,13 @@ namespace Schedule.Contracts.Dtos.Responses;
 
 public class ReservationResponse
 {
-	[Required] public Guid Id { get; }
-	[Required] public Guid ParticipantId { get; }
-	[Required] public Guid EventScheduleId { get; }
-	[Required] public int ParticipantCount { get; }
-	[Required] public string Status { get; }
-	[Required] public string Notes { get; }
-	[Required] public DateTime CreatedAt { get; }
-	[Required] public DateTime CancelledAt { get; }
-	[Required] public DateTime PaidAt { get; }
-
-	public ReservationResponse(
-		Guid id,
-		Guid participantId,
-		Guid eventScheduleId,
-		int participantCount,
-		string status,
-		string notes,
-		DateTime createdAt,
-		DateTime cancelledAt,
-		DateTime paidAt)
-	{
-		Id = id;
-		ParticipantId = participantId;
-		EventScheduleId = eventScheduleId;
-		ParticipantCount = participantCount;
-		Status = status;
-		Notes = notes;
-		CreatedAt = createdAt;
-		CancelledAt = cancelledAt;
-		PaidAt = paidAt;
-	}
+	[Required] public Guid Id { get; private set; }
+	[Required] public EventScheduleResponse EventSchedule { get; private set; }
+	[Required] public IReadOnlyList<ParticipantResponse> Participants { get; private set; }
+	[Required] public string Status { get; private set; }
+	[Required] public string Notes { get; private set; }
+	[Required] public DateTime CreatedAt { get; private set; }
+	public DateTime? CancelledAt { get; private set; }
+	[Required] public bool IsPaid { get; private set; }
+	public DateTime? PaidAt { get; private set; }
 }

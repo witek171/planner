@@ -6,37 +6,47 @@ public class Reservation
 {
 	public Guid Id { get; }
 	public Guid CompanyId { get; private set; }
-	public Guid ParticipantId { get; private set; }
 	public Guid EventScheduleId { get; private set; }
-	public int ParticipantCount { get; }
+	public EventSchedule EventSchedule { get; private set; }
+	public IReadOnlyList<Guid> ParticipantsIds { get; private set; }
+	public IReadOnlyList<Participant> Participants { get; private set; }
 	public ReservationStatus Status { get; private set; }
 	public string Notes { get; private set; }
 	public DateTime CreatedAt { get; }
-	public DateTime CancelledAt { get; private set; }
-	public DateTime PaidAt { get; }
+	public DateTime? CancelledAt { get; private set; }
+	public bool IsPaid { get; private set; }
+	public DateTime? PaidAt { get; private set; }
 
 	public Reservation(
 		Guid id,
 		Guid companyId,
-		Guid participantId,
 		Guid eventScheduleId,
-		int participantCount,
+		EventSchedule eventSchedule,
+		IReadOnlyList<Guid> participantsIds,
+		IReadOnlyList<Participant> participants,
 		ReservationStatus status,
 		string notes,
 		DateTime createdAt,
-		DateTime cancelledAt,
-		DateTime paidAt)
+		DateTime? cancelledAt,
+		bool isPaid,
+		DateTime? paidAt)
 	{
 		Id = id;
 		CompanyId = companyId;
-		ParticipantId = participantId;
 		EventScheduleId = eventScheduleId;
-		ParticipantCount = participantCount;
+		EventSchedule = eventSchedule;
+		ParticipantsIds = participantsIds;
+		Participants = participants;
 		Status = status;
 		Notes = notes;
 		CreatedAt = createdAt;
 		CancelledAt = cancelledAt;
+		IsPaid = isPaid;
 		PaidAt = paidAt;
+	}
+
+	public Reservation()
+	{
 	}
 
 	public void SetCompanyId(Guid companyId)
@@ -48,22 +58,13 @@ public class Reservation
 		CompanyId = companyId;
 	}
 
-	public void SetParticipantId(Guid participantId)
+	public void SetParticipants(List<Participant> participants)
 	{
-		if (ParticipantId != Guid.Empty)
+		if (Participants.Any())
 			throw new InvalidOperationException(
-				$"ParticipantId is already set to {ParticipantId} and cannot be changed");
+				$"Participants for reservation {Id} are already set and cannot be changed");
 
-		ParticipantId = participantId;
-	}
-
-	public void SetEventScheduleId(Guid eventScheduleId)
-	{
-		if (EventScheduleId != Guid.Empty)
-			throw new InvalidOperationException(
-				$"EventScheduleId is already set to {EventScheduleId} and cannot be changed");
-
-		EventScheduleId = eventScheduleId;
+		Participants = participants;
 	}
 
 	public void Normalize()
@@ -77,5 +78,34 @@ public class Reservation
 
 		Status = ReservationStatus.Cancelled;
 		CancelledAt = DateTime.UtcNow;
+	}
+
+	public void InitializePaidAt()
+	{
+		if (PaidAt != null)
+			throw new InvalidOperationException(
+				$"Paid date for reservation {Id} is already set and cannot be changed");
+
+		PaidAt = DateTime.UtcNow;
+	}
+
+	public void MarkAsPaid()
+	{
+		if (IsPaid)
+			throw new InvalidOperationException(
+				$"Reservation {Id} is already marked as paid");
+
+		IsPaid = true;
+		PaidAt = DateTime.UtcNow;
+	}
+
+	public void UnmarkAsPaid()
+	{
+		if (!IsPaid)
+			throw new InvalidOperationException(
+				$"Reservation {Id} is already unmarked as paid");
+
+		IsPaid = false;
+		PaidAt = null;
 	}
 }

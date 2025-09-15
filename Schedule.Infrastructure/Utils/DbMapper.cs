@@ -118,4 +118,59 @@ public static class DbMapper
 			reader.GetInt32(reader.GetOrdinal("MinStaff")),
 			reader.GetBoolean(reader.GetOrdinal("IsDeleted")));
 	}
+
+	public static Reservation MapReservation(SqlDataReader reader)
+	{
+		EventType eventType = new(
+			reader.GetGuid(reader.GetOrdinal("EventTypeId")),
+			reader.GetGuid(reader.GetOrdinal("EventTypeCompanyId")),
+			reader.GetString(reader.GetOrdinal("EventTypeName")),
+			reader.GetString(reader.GetOrdinal("EventTypeDescription")),
+			reader.GetInt32(reader.GetOrdinal("Duration")),
+			reader.GetDecimal(reader.GetOrdinal("Price")),
+			reader.GetInt32(reader.GetOrdinal("MaxParticipants")),
+			reader.GetInt32(reader.GetOrdinal("MinStaff")),
+			reader.GetBoolean(reader.GetOrdinal("EventTypeIsDeleted")));
+
+		EventSchedule eventSchedule = new(
+			reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
+			reader.GetGuid(reader.GetOrdinal("EventScheduleCompanyId")),
+			reader.GetGuid(reader.GetOrdinal("EventTypeId")),
+			eventType,
+			reader.GetString(reader.GetOrdinal("PlaceName")),
+			reader.GetDateTime(reader.GetOrdinal("StartTime")),
+			reader.GetDateTime(reader.GetOrdinal("EventScheduleCreatedAt")),
+			Enum.Parse<EventScheduleStatus>(reader.GetString(reader.GetOrdinal("EventScheduleStatus"))));
+
+		return new Reservation(
+			reader.GetGuid(reader.GetOrdinal("ReservationId")),
+			reader.GetGuid(reader.GetOrdinal("ReservationCompanyId")),
+			reader.GetGuid(reader.GetOrdinal("EventScheduleId")),
+			eventSchedule,
+			new List<Guid>(),
+			new List<Participant>(),
+			Enum.Parse<ReservationStatus>(reader.GetString(reader.GetOrdinal("Status"))),
+			reader.GetString(reader.GetOrdinal("Notes")),
+			reader.GetDateTime(reader.GetOrdinal("ReservationCreatedAt")),
+			reader.IsDBNull(reader.GetOrdinal("CancelledAt"))
+				? null
+				: reader.GetDateTime(reader.GetOrdinal("CancelledAt")),
+			reader.GetBoolean(reader.GetOrdinal("IsPaid")),
+			reader.IsDBNull(reader.GetOrdinal("PaidAt"))
+				? null
+				: reader.GetDateTime(reader.GetOrdinal("PaidAt")));
+	}
+
+	public static Participant MapParticipantFromReservation(SqlDataReader reader)
+	{
+		return new Participant(
+			reader.GetGuid(reader.GetOrdinal("ParticipantId")),
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
+			reader.GetString(reader.GetOrdinal("Email")),
+			reader.GetString(reader.GetOrdinal("FirstName")),
+			reader.GetString(reader.GetOrdinal("LastName")),
+			reader.GetString(reader.GetOrdinal("Phone")),
+			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
+			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
+	}
 }

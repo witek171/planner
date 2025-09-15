@@ -30,6 +30,7 @@ GO
 -- Usuń tabele w odwrotnej kolejności zależności
 DROP TABLE IF EXISTS Messages;
 DROP TABLE IF EXISTS Notifications;
+DROP TABLE IF EXISTS ReservationParticipants;
 DROP TABLE IF EXISTS Reservations;
 DROP TABLE IF EXISTS EventScheduleStaff;
 DROP TABLE IF EXISTS EventSchedules;
@@ -202,22 +203,36 @@ CREATE TABLE EventScheduleStaff
 -- Tabela Reservations (rezerwacje)
 CREATE TABLE Reservations
 (
-	Id               UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-	CompanyId        UNIQUEIDENTIFIER NOT NULL,
-	ParticipantId    UNIQUEIDENTIFIER NOT NULL,
-	EventScheduleId  UNIQUEIDENTIFIER NOT NULL,
-	ParticipantCount INT                          DEFAULT 1,
-	Status           NVARCHAR(20)                 DEFAULT 'Confirmed',
-	Notes            NVARCHAR(MAX),
-	CreatedAt        DATETIME                     DEFAULT GETUTCDATE(),
-	CancelledAt      DATETIME         NULL,
-	PaidAt           DATETIME         NULL,
+	Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+	CompanyId       UNIQUEIDENTIFIER NOT NULL,
+	EventScheduleId UNIQUEIDENTIFIER NOT NULL,
+	Status          NVARCHAR(20)                 DEFAULT 'Confirmed',
+	Notes           NVARCHAR(MAX),
+	CreatedAt       DATETIME                     DEFAULT GETUTCDATE(),
+	CancelledAt     DATETIME         NULL,
+	IsPaid          BIT                          DEFAULT 0,
+	PaidAt          DATETIME         NULL,
 	CONSTRAINT fk_reservations_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
-	CONSTRAINT fk_reservations_participant FOREIGN KEY (ParticipantId)
-		REFERENCES Participants (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_reservations_eventschedule FOREIGN KEY (EventScheduleId)
 		REFERENCES EventSchedules (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+-- NOWA TABELA: ReservationParticipants (tabela asocjacyjna)
+CREATE TABLE ReservationParticipants
+(
+	Id            UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+	CompanyId     UNIQUEIDENTIFIER NOT NULL,
+	ReservationId UNIQUEIDENTIFIER NOT NULL,
+	ParticipantId UNIQUEIDENTIFIER NOT NULL,
+	CONSTRAINT fk_resparticipants_company FOREIGN KEY (CompanyId)
+		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+	CONSTRAINT fk_resparticipants_reservation FOREIGN KEY (ReservationId)
+		REFERENCES Reservations (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_resparticipants_participant FOREIGN KEY (ParticipantId)
+		REFERENCES Participants (Id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	-- Unikatowość: jeden uczestnik może być tylko raz w danej rezerwacji
+	CONSTRAINT uk_reservation_participant UNIQUE (ReservationId, ParticipantId)
 );
 
 -- Tabela Notifications (powiadomienia)
@@ -265,6 +280,10 @@ CREATE INDEX idx_companies_is_reception ON Companies (IsReception);
 -- Indeks na CompanyHierarchies dla zapytań hierarchicznych
 CREATE INDEX idx_company_hierarchy_parent ON CompanyHierarchies (ParentCompanyId);
 
+-- Indeks na ReservationParticipants dla szybkiego wyszukiwania uczestników rezerwacji
+CREATE INDEX idx_reservation_participants_reservation ON ReservationParticipants (ReservationId);
+CREATE INDEX idx_reservation_participants_participant ON ReservationParticipants (ParticipantId);
+
 -- =============================================
 -- PRZYKŁADOWE ZAPYTANIA POMOCNICZE
 -- =============================================
@@ -279,13 +298,13 @@ CREATE INDEX idx_company_hierarchy_parent ON CompanyHierarchies (ParentCompanyId
 -- INNER JOIN CompanyHierarchies ch ON parent.Id = ch.ParentCompanyId
 -- WHERE ch.CompanyId = @ReceptionId;
 
--- =============================================
+	-- =============================================
 -- TRIGGER: usuwa powiązane dane i na końcu usuwa firmę
 -- (kolejność dobrana tak, by nie łamać ograniczeń FK)
 -- =============================================
 
-IF OBJECT_ID('dbo.trg_delete_company', 'TR') IS NOT NULL
-	DROP TRIGGER dbo.trg_delete_company;
+	IF OBJECT_ID('dbo.trg_delete_company', 'TR') IS NOT NULL
+		DROP TRIGGER dbo.trg_delete_company;
 GO
 
 CREATE TRIGGER dbo.trg_delete_company
@@ -305,6 +324,11 @@ BEGIN
 	-- Usuń powiadomienia
 	DELETE
 	FROM dbo.Notifications
+	WHERE CompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń uczestników rezerwacji (NOWA TABELA)
+	DELETE
+	FROM dbo.ReservationParticipants
 	WHERE CompanyId IN (SELECT Id FROM deleted);
 
 	-- Usuń rezerwacje

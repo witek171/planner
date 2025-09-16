@@ -4,8 +4,7 @@ namespace Schedule.Domain.Models;
 
 public class StaffMember
 {
-	public Guid Id { get; }
-	public Guid CompanyId { get; private set; }
+	public Guid Id { get; private set; }
 	public StaffRole Role { get; }
 	public string Email { get; private set; }
 	public string Password { get; private set; }
@@ -15,14 +14,18 @@ public class StaffMember
 	public DateTime CreatedAt { get; }
 	public bool IsDeleted { get; private set; }
 	public IReadOnlyList<Specialization> Specializations { get; private set; }
+	public IReadOnlyList<StaffMemberCompany> StaffCompanies { get; private set; }
+
+	public IEnumerable<Guid> CompanyIds => StaffCompanies.Select(sc => sc.CompanyId);
 
 	public StaffMember()
 	{
+		Specializations = new List<Specialization>();
+		StaffCompanies = new List<StaffMemberCompany>();
 	}
 
 	public StaffMember(
 		Guid id,
-		Guid companyId,
 		StaffRole role,
 		string email,
 		string password,
@@ -31,10 +34,10 @@ public class StaffMember
 		string phone,
 		DateTime createdAt,
 		bool isDeleted,
-		List<Specialization> specializations)
+		List<Specialization> specializations,
+		List<StaffMemberCompany> staffCompanies)
 	{
 		Id = id;
-		CompanyId = companyId;
 		Role = role;
 		Email = email;
 		Password = password;
@@ -44,15 +47,7 @@ public class StaffMember
 		CreatedAt = createdAt;
 		IsDeleted = isDeleted;
 		Specializations = specializations;
-	}
-
-	public void SetCompanyId(Guid companyId)
-	{
-		if (CompanyId != Guid.Empty)
-			throw new InvalidOperationException(
-				$"CompanyId is already set to {CompanyId} and cannot be changed");
-
-		CompanyId = companyId;
+		StaffCompanies = staffCompanies;
 	}
 
 	public void Normalize()
@@ -72,12 +67,27 @@ public class StaffMember
 		Specializations = specializations;
 	}
 
+	public void AddCompany(Guid companyId)
+	{
+		if (StaffCompanies.Any(sc => sc.CompanyId == companyId))
+			return;
+
+		var companies = StaffCompanies.ToList();
+		companies.Add(new StaffMemberCompany(Guid.NewGuid(), Id, companyId, DateTime.UtcNow));
+		StaffCompanies = companies;
+	}
+
 	public void SoftDelete()
 	{
 		if (IsDeleted)
 			throw new InvalidOperationException(
-				$"Staff member {Id} is already marked as deleted for company {CompanyId}");
+				$"Staff member {Id} is already marked as deleted");
 
 		IsDeleted = true;
+	}
+
+	public void SetStaffCompanies(List<StaffMemberCompany> staffCompanies)
+	{
+		StaffCompanies = staffCompanies;
 	}
 }

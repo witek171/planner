@@ -32,4 +32,9 @@ public interface IStaffMemberRepository
 		string phone);
 
 	Task<bool> UpdateSoftDeleteAsync(StaffMember staffMember);
+
+	Task<bool> AssignToCompanyAsync(Guid staffMemberId, Guid companyId);
+	Task<bool> UnassignFromCompanyAsync(Guid staffMemberId, Guid companyId);
+
+	Task<List<StaffMemberCompany>> GetAssignedCompanyAsync(Guid staffMemberId);
 }

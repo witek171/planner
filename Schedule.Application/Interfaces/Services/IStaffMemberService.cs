@@ -10,10 +10,14 @@ public interface IStaffMemberService
 		Guid id,
 		Guid companyId);
 
-	Task<Guid> CreateAsync(StaffMember staffMember);
-	Task PutAsync(StaffMember staffMember);
+	Task<Guid> CreateAsync(StaffMember staffMember, Guid companyId);
+	Task PutAsync(StaffMember staffMember, Guid companyId);
 
 	Task DeleteAsync(
 		Guid id,
 		Guid companyId);
+
+	Task<bool> AssignToCompanyAsync(Guid staffMemberId, Guid companyId);
+	Task<bool> UnassignFromCompanyAsync(Guid staffMemberId, Guid companyId);
+	Task<List<StaffMemberCompany>> GetAssignedCompanyAsync(Guid staffMemberId);
 }

@@ -62,9 +62,8 @@ public class StaffMemberController : ControllerBase
 		[FromBody] StaffMemberRequest request)
 	{
 		StaffMember staffMember = _mapper.Map<StaffMember>(request);
-		staffMember.SetCompanyId(companyId);
-
-		Guid staffMemberId = await _staffMemberService.CreateAsync(staffMember);
+		staffMember.AddCompany(companyId);
+		Guid staffMemberId = await _staffMemberService.CreateAsync(staffMember, companyId);
 		return CreatedAtAction(nameof(Create), staffMemberId);
 	}
 
@@ -80,7 +79,7 @@ public class StaffMemberController : ControllerBase
 			return NotFound();
 
 		_mapper.Map(request, staffMember);
-		await _staffMemberService.PutAsync(staffMember!);
+		await _staffMemberService.PutAsync(staffMember, companyId);
 		return NoContent();
 	}
 
@@ -220,5 +219,33 @@ public class StaffMemberController : ControllerBase
 
 		await _eventScheduleStaffMemberService.DeleteAsync(companyId, eventScheduleStaffMemberId);
 		return NoContent();
+	}
+
+	[HttpPost("assign")]
+	public async Task<ActionResult<StaffMemberCompanyResponse>> AssignToCompany([FromBody] StaffMemberCompanyRequest request)
+	{
+		StaffMemberCompany staffCompany = _mapper.Map<StaffMemberCompany>(request);
+		bool result = await _staffMemberService.AssignToCompanyAsync(staffCompany.StaffMemberId, staffCompany.CompanyId);
+		if (!result)
+			return BadRequest("Could not assign staff member to company.");
+		StaffMemberCompanyResponse response = _mapper.Map<StaffMemberCompanyResponse>(staffCompany);
+		return Ok(response);
+	}
+
+	[HttpDelete("unassign")]
+	public async Task<ActionResult> UnassignFromCompany([FromBody] StaffMemberCompanyRequest request)
+	{
+		bool result = await _staffMemberService.UnassignFromCompanyAsync(request.StaffMemberId, request.CompanyId);
+		if (!result)
+			return BadRequest("Could not unassign staff member from company.");
+		return NoContent();
+	}
+
+	[HttpGet("{staffMemberId:guid}/companies")]
+	public async Task<ActionResult<List<StaffMemberCompanyResponse>>> GetAssignedCompany(Guid staffMemberId)
+	{
+		List<StaffMemberCompany> staffCompanies = await _staffMemberService.GetAssignedCompanyAsync(staffMemberId);
+		List<StaffMemberCompanyResponse> response = _mapper.Map<List<StaffMemberCompanyResponse>>(staffCompanies);
+		return Ok(response);
 	}
 }

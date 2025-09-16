@@ -144,188 +144,161 @@ VALUES
 -- =============================================
 
 -- Pracownicy recepcji
-DECLARE
-	@StaffRec1Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec2Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec3Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec4Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec5Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec6Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec7Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec8Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec9Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec10Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec11Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec12Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@StaffRec13Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec1Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec2Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec3Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec4Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec5Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec6Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec7Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec8Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec9Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec10Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec11Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec12Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @StaffRec13Id UNIQUEIDENTIFIER = NEWID();
 
 -- Trenerzy
-DECLARE
-	@Trainer1Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer2Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer3Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer4Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer5Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer6Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer7Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer8Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer9Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer10Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer11Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer12Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer13Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer14Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer15Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer16Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer17Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer18Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer19Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Trainer20Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer1Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer2Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer3Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer4Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer5Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer6Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer7Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer8Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer9Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer10Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer11Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer12Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer13Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer14Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer15Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer16Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer17Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer18Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer19Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Trainer20Id UNIQUEIDENTIFIER = NEWID();
 
 -- Managerowie
-DECLARE
-	@Manager1Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager2Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager3Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager4Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager5Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager6Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager7Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager8Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager9Id UNIQUEIDENTIFIER = NEWID();
-DECLARE
-	@Manager10Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager1Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager2Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager3Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager4Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager5Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager6Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager7Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager8Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager9Id UNIQUEIDENTIFIER = NEWID();
+DECLARE @Manager10Id UNIQUEIDENTIFIER = NEWID();
 
-INSERT INTO Staff (Id, CompanyId, Role, Email, Password, FirstName, LastName, Phone)
+-- =============================================
+-- Wstawiamy personel (bez CompanyId)
+-- =============================================
+INSERT INTO Staff (Id, Role, Email, Password, FirstName, LastName, Phone)
 VALUES
-	-- Pracownicy recepcji SportFit
-	(@StaffRec1Id, @Branch1Id, 'ReceptionEmployee', 'kowalska@sportfit.pl', 'password123', 'Anna', 'Kowalska',
-	 '+48700100101'),
-	(@StaffRec2Id, @Branch2Id, 'ReceptionEmployee', 'nowak@sportfit.pl', 'password123', 'Barbara', 'Nowak',
-	 '+48700100102'),
-	(@StaffRec3Id, @Branch3Id, 'ReceptionEmployee', 'wisniewska@sportfit.pl', 'password123', 'Celina', 'Wiśniewska',
-	 '+48700100103'),
-	(@StaffRec4Id, @Branch4Id, 'ReceptionEmployee', 'kaminska@sportfit.pl', 'password123', 'Diana', 'Kamińska',
-	 '+48700100104'),
-	(@StaffRec5Id, @Branch5Id, 'ReceptionEmployee', 'lewandowska@sportfit.pl', 'password123', 'Ewa', 'Lewandowska',
-	 '+48700100105'),
+	-- Pracownicy recepcji
+	(@StaffRec1Id, 'ReceptionEmployee', 'kowalska@sportfit.pl', 'password123', 'Anna', 'Kowalska', '+48700100101'),
+	(@StaffRec2Id, 'ReceptionEmployee', 'nowak@sportfit.pl', 'password123', 'Barbara', 'Nowak', '+48700100102'),
+	(@StaffRec3Id, 'ReceptionEmployee', 'wisniewska@sportfit.pl', 'password123', 'Celina', 'Wiśniewska', '+48700100103'),
+	(@StaffRec4Id, 'ReceptionEmployee', 'kaminska@sportfit.pl', 'password123', 'Diana', 'Kamińska', '+48700100104'),
+	(@StaffRec5Id, 'ReceptionEmployee', 'lewandowska@sportfit.pl', 'password123', 'Ewa', 'Lewandowska', '+48700100105'),
+	(@StaffRec6Id, 'ReceptionEmployee', 'zielinska@fitzone.pl', 'password123', 'Fatima', 'Zielińska', '+48700100106'),
+	(@StaffRec7Id, 'ReceptionEmployee', 'szymanska@fitzone.pl', 'password123', 'Gabriela', 'Szymańska', '+48700100107'),
+	(@StaffRec8Id, 'ReceptionEmployee', 'wojcik@fitzone.pl', 'password123', 'Hanna', 'Wójcik', '+48700100108'),
+	(@StaffRec9Id, 'ReceptionEmployee', 'kowalczyk@aquafit.pl', 'password123', 'Irena', 'Kowalczyk', '+48700100109'),
+	(@StaffRec10Id, 'ReceptionEmployee', 'kozlowska@aquafit.pl', 'password123', 'Justyna', 'Kozłowska', '+48700100110'),
+	(@StaffRec11Id, 'ReceptionEmployee', 'jankowska@powergym.pl', 'password123', 'Klara', 'Jankowska', '+48700100111'),
+	(@StaffRec12Id, 'ReceptionEmployee', 'zawadzka@powergym.pl', 'password123', 'Laura', 'Zawadzka', '+48700100112'),
+	(@StaffRec13Id, 'ReceptionEmployee', 'mazur@flexyoga.pl', 'password123', 'Monika', 'Mazur', '+48700100113'),
 
-	-- Pracownicy recepcji FitZone
-	(@StaffRec6Id, @FitZone1Id, 'ReceptionEmployee', 'zielinska@fitzone.pl', 'password123', 'Fatima', 'Zielińska',
-	 '+48700100106'),
-	(@StaffRec7Id, @FitZone2Id, 'ReceptionEmployee', 'szymanska@fitzone.pl', 'password123', 'Gabriela', 'Szymańska',
-	 '+48700100107'),
-	(@StaffRec8Id, @FitZone3Id, 'ReceptionEmployee', 'wojcik@fitzone.pl', 'password123', 'Hanna', 'Wójcik',
-	 '+48700100108'),
-
-	-- Pracownicy recepcji AquaFit
-	(@StaffRec9Id, @AquaFit1Id, 'ReceptionEmployee', 'kowalczyk@aquafit.pl', 'password123', 'Irena', 'Kowalczyk',
-	 '+48700100109'),
-	(@StaffRec10Id, @AquaFit2Id, 'ReceptionEmployee', 'kozlowska@aquafit.pl', 'password123', 'Justyna', 'Kozłowska',
-	 '+48700100110'),
-
-	-- Pracownicy recepcji PowerGym
-	(@StaffRec11Id, @PowerGym1Id, 'ReceptionEmployee', 'jankowska@powergym.pl', 'password123', 'Klara', 'Jankowska',
-	 '+48700100111'),
-	(@StaffRec12Id, @PowerGym2Id, 'ReceptionEmployee', 'zawadzka@powergym.pl', 'password123', 'Laura', 'Zawadzka',
-	 '+48700100112'),
-
-	-- Pracownicy recepcji FlexYoga
-	(@StaffRec13Id, @FlexYoga1Id, 'ReceptionEmployee', 'mazur@flexyoga.pl', 'password123', 'Monika', 'Mazur',
-	 '+48700100113'),
-
-	-- Trenerzy SportFit
-	(@Trainer1Id, @Branch1Id, 'Trainer', 'malinowski@sportfit.pl', 'password123', 'Dariusz', 'Malinowski',
-	 '+48700200201'),
-	(@Trainer2Id, @Branch1Id, 'Trainer', 'jablonska@sportfit.pl', 'password123', 'Ewa', 'Jabłońska', '+48700200202'),
-	(@Trainer3Id, @Branch2Id, 'Trainer', 'kowalczyk@sportfit.pl', 'password123', 'Filip', 'Kowalczyk', '+48700200203'),
-	(@Trainer4Id, @Branch2Id, 'Trainer', 'lewandowska2@sportfit.pl', 'password123', 'Grażyna', 'Lewandowska',
-	 '+48700200204'),
-	(@Trainer5Id, @Branch3Id, 'Trainer', 'zielinski@sportfit.pl', 'password123', 'Henryk', 'Zieliński', '+48700200205'),
-	(@Trainer6Id, @Branch3Id, 'Trainer', 'szymanska2@sportfit.pl', 'password123', 'Iwona', 'Szymańska', '+48700200206'),
-	(@Trainer7Id, @Branch4Id, 'Trainer', 'borkowski@sportfit.pl', 'password123', 'Jacek', 'Borkowski', '+48700200207'),
-	(@Trainer8Id, @Branch5Id, 'Trainer', 'krawczyk@sportfit.pl', 'password123', 'Kinga', 'Krawczyk', '+48700200208'),
-
-	-- Trenerzy FitZone
-	(@Trainer9Id, @FitZone1Id, 'Trainer', 'nowicki@fitzone.pl', 'password123', 'Łukasz', 'Nowicki', '+48700200209'),
-	(@Trainer10Id, @FitZone1Id, 'Trainer', 'pawlak@fitzone.pl', 'password123', 'Marta', 'Pawlak', '+48700200210'),
-	(@Trainer11Id, @FitZone2Id, 'Trainer', 'michalski@fitzone.pl', 'password123', 'Norbert', 'Michalski',
-	 '+48700200211'),
-	(@Trainer12Id, @FitZone3Id, 'Trainer', 'olszewska@fitzone.pl', 'password123', 'Oliwia', 'Olszewska',
-	 '+48700200212'),
-
-	-- Trenerzy AquaFit
-	(@Trainer13Id, @AquaFit1Id, 'Trainer', 'adamczyk@aquafit.pl', 'password123', 'Piotr', 'Adamczyk', '+48700200213'),
-	(@Trainer14Id, @AquaFit1Id, 'Trainer', 'rutkowska@aquafit.pl', 'password123', 'Renata', 'Rutkowska',
-	 '+48700200214'),
-	(@Trainer15Id, @AquaFit2Id, 'Trainer', 'sikora@aquafit.pl', 'password123', 'Sebastian', 'Sikora', '+48700200215'),
-
-	-- Trenerzy PowerGym
-	(@Trainer16Id, @PowerGym1Id, 'Trainer', 'baran@powergym.pl', 'password123', 'Tomasz', 'Baran', '+48700200216'),
-	(@Trainer17Id, @PowerGym1Id, 'Trainer', 'urbanska@powergym.pl', 'password123', 'Urszula', 'Urbańska',
-	 '+48700200217'),
-	(@Trainer18Id, @PowerGym2Id, 'Trainer', 'walczak@powergym.pl', 'password123', 'Władysław', 'Walczak',
-	 '+48700200218'),
-
-	-- Trenerzy FlexYoga
-	(@Trainer19Id, @FlexYoga1Id, 'Trainer', 'zakrzewski@flexyoga.pl', 'password123', 'Yolanda', 'Zakrzewska',
-	 '+48700200219'),
-	(@Trainer20Id, @FlexYoga1Id, 'Trainer', 'adamski@flexyoga.pl', 'password123', 'Zbigniew', 'Adamski',
-	 '+48700200220'),
+	-- Trenerzy
+	(@Trainer1Id, 'Trainer', 'malinowski@sportfit.pl', 'password123', 'Dariusz', 'Malinowski', '+48700200201'),
+	(@Trainer2Id, 'Trainer', 'jablonska@sportfit.pl', 'password123', 'Ewa', 'Jabłońska', '+48700200202'),
+	(@Trainer3Id, 'Trainer', 'kowalczyk@sportfit.pl', 'password123', 'Filip', 'Kowalczyk', '+48700200203'),
+	(@Trainer4Id, 'Trainer', 'lewandowska2@sportfit.pl', 'password123', 'Grażyna', 'Lewandowska', '+48700200204'),
+	(@Trainer5Id, 'Trainer', 'zielinski@sportfit.pl', 'password123', 'Henryk', 'Zieliński', '+48700200205'),
+	(@Trainer6Id, 'Trainer', 'szymanska2@sportfit.pl', 'password123', 'Iwona', 'Szymańska', '+48700200206'),
+	(@Trainer7Id, 'Trainer', 'borkowski@sportfit.pl', 'password123', 'Jacek', 'Borkowski', '+48700200207'),
+	(@Trainer8Id, 'Trainer', 'krawczyk@sportfit.pl', 'password123', 'Kinga', 'Krawczyk', '+48700200208'),
+	(@Trainer9Id, 'Trainer', 'nowicki@fitzone.pl', 'password123', 'Łukasz', 'Nowicki', '+48700200209'),
+	(@Trainer10Id, 'Trainer', 'pawlak@fitzone.pl', 'password123', 'Marta', 'Pawlak', '+48700200210'),
+	(@Trainer11Id, 'Trainer', 'michalski@fitzone.pl', 'password123', 'Norbert', 'Michalski', '+48700200211'),
+	(@Trainer12Id, 'Trainer', 'olszewska@fitzone.pl', 'password123', 'Oliwia', 'Olszewska', '+48700200212'),
+	(@Trainer13Id, 'Trainer', 'adamczyk@aquafit.pl', 'password123', 'Piotr', 'Adamczyk', '+48700200213'),
+	(@Trainer14Id, 'Trainer', 'rutkowska@aquafit.pl', 'password123', 'Renata', 'Rutkowska', '+48700200214'),
+	(@Trainer15Id, 'Trainer', 'sikora@aquafit.pl', 'password123', 'Sebastian', 'Sikora', '+48700200215'),
+	(@Trainer16Id, 'Trainer', 'baran@powergym.pl', 'password123', 'Tomasz', 'Baran', '+48700200216'),
+	(@Trainer17Id, 'Trainer', 'urbanska@powergym.pl', 'password123', 'Urszula', 'Urbańska', '+48700200217'),
+	(@Trainer18Id, 'Trainer', 'walczak@powergym.pl', 'password123', 'Władysław', 'Walczak', '+48700200218'),
+	(@Trainer19Id, 'Trainer', 'zakrzewski@flexyoga.pl', 'password123', 'Yolanda', 'Zakrzewska', '+48700200219'),
+	(@Trainer20Id, 'Trainer', 'adamski@flexyoga.pl', 'password123', 'Zbigniew', 'Adamski', '+48700200220'),
 
 	-- Managerowie
-	(@Manager1Id, @Branch1Id, 'Manager', 'mazur.manager@sportfit.pl', 'password123', 'Janusz', 'Mazur', '+48700300301'),
-	(@Manager2Id, @Branch2Id, 'Manager', 'kaczmarek@sportfit.pl', 'password123', 'Kamila', 'Kaczmarek', '+48700300302'),
-	(@Manager3Id, @Branch3Id, 'Manager', 'grabowski@sportfit.pl', 'password123', 'Leszek', 'Grabowski', '+48700300303'),
-	(@Manager4Id, @Branch4Id, 'Manager', 'kowalski@sportfit.pl', 'password123', 'Marcin', 'Kowalski', '+48700300304'),
-	(@Manager5Id, @Branch5Id, 'Manager', 'nowakowska@sportfit.pl', 'password123', 'Nina', 'Nowakowska', '+48700300305'),
-	(@Manager6Id, @FitZone1Id, 'Manager', 'pawlowski@fitzone.pl', 'password123', 'Oscar', 'Pawłowski', '+48700300306'),
-	(@Manager7Id, @FitZone2Id, 'Manager', 'piotrowska@fitzone.pl', 'password123', 'Patrycja', 'Piotrowska',
-	 '+48700300307'),
-	(@Manager8Id, @AquaFit1Id, 'Manager', 'rybak@aquafit.pl', 'password123', 'Robert', 'Rybak', '+48700300308'),
-	(@Manager9Id, @PowerGym1Id, 'Manager', 'sokolowska@powergym.pl', 'password123', 'Sylwia', 'Sokołowska',
-	 '+48700300309'),
-	(@Manager10Id, @FlexYoga1Id, 'Manager', 'tomaszewski@flexyoga.pl', 'password123', 'Tomasz', 'Tomaszewski',
-	 '+48700300310');
+	(@Manager1Id, 'Manager', 'mazur.manager@sportfit.pl', 'password123', 'Janusz', 'Mazur', '+48700300301'),
+	(@Manager2Id, 'Manager', 'kaczmarek@sportfit.pl', 'password123', 'Kamila', 'Kaczmarek', '+48700300302'),
+	(@Manager3Id, 'Manager', 'grabowski@sportfit.pl', 'password123', 'Leszek', 'Grabowski', '+48700300303'),
+	(@Manager4Id, 'Manager', 'kowalski@sportfit.pl', 'password123', 'Marcin', 'Kowalski', '+48700300304'),
+	(@Manager5Id, 'Manager', 'nowakowska@sportfit.pl', 'password123', 'Nina', 'Nowakowska', '+48700300305'),
+	(@Manager6Id, 'Manager', 'pawlowski@fitzone.pl', 'password123', 'Oscar', 'Pawłowski', '+48700300306'),
+	(@Manager7Id, 'Manager', 'piotrowska@fitzone.pl', 'password123', 'Patrycja', 'Piotrowska', '+48700300307'),
+	(@Manager8Id, 'Manager', 'rybak@aquafit.pl', 'password123', 'Robert', 'Rybak', '+48700300308'),
+	(@Manager9Id, 'Manager', 'sokolowska@powergym.pl', 'password123', 'Sylwia', 'Sokołowska', '+48700300309'),
+	(@Manager10Id, 'Manager', 'tomaszewski@flexyoga.pl', 'password123', 'Tomasz', 'Tomaszewski', '+48700300310');
+
+-- =============================================
+-- Powiązania Staff z Companies (wiele-do-wielu)
+-- =============================================
+INSERT INTO StaffCompanies (StaffId, CompanyId)
+VALUES
+	-- Pracownicy recepcji
+	(@StaffRec1Id, @Branch1Id),
+	(@StaffRec2Id, @Branch2Id),
+	(@StaffRec3Id, @Branch3Id),
+	(@StaffRec4Id, @Branch4Id),
+	(@StaffRec5Id, @Branch5Id),
+	(@StaffRec6Id, @FitZone1Id),
+	(@StaffRec7Id, @FitZone2Id),
+	(@StaffRec8Id, @FitZone3Id),
+	(@StaffRec9Id, @AquaFit1Id),
+	(@StaffRec10Id, @AquaFit2Id),
+	(@StaffRec11Id, @PowerGym1Id),
+	(@StaffRec12Id, @PowerGym2Id),
+	(@StaffRec13Id, @FlexYoga1Id),
+
+	-- Trenerzy
+	(@Trainer1Id, @Branch1Id),
+	(@Trainer2Id, @Branch1Id),
+	(@Trainer3Id, @Branch2Id),
+	(@Trainer4Id, @Branch2Id),
+	(@Trainer5Id, @Branch3Id),
+	(@Trainer6Id, @Branch3Id),
+	(@Trainer7Id, @Branch4Id),
+	(@Trainer8Id, @Branch5Id),
+	(@Trainer9Id, @FitZone1Id),
+	(@Trainer10Id, @FitZone1Id),
+	(@Trainer11Id, @FitZone2Id),
+	(@Trainer12Id, @FitZone3Id),
+	(@Trainer13Id, @AquaFit1Id),
+	(@Trainer14Id, @AquaFit1Id),
+	(@Trainer15Id, @AquaFit2Id),
+	(@Trainer16Id, @PowerGym1Id),
+	(@Trainer17Id, @PowerGym1Id),
+	(@Trainer18Id, @PowerGym2Id),
+	(@Trainer19Id, @FlexYoga1Id),
+	(@Trainer20Id, @FlexYoga1Id),
+
+	-- Managerowie
+	(@Manager1Id, @Branch1Id),
+	(@Manager2Id, @Branch2Id),
+	(@Manager3Id, @Branch3Id),
+	(@Manager4Id, @Branch4Id),
+	(@Manager5Id, @Branch5Id),
+	(@Manager6Id, @FitZone1Id),
+	(@Manager7Id, @FitZone2Id),
+	(@Manager8Id, @AquaFit1Id),
+	(@Manager9Id, @PowerGym1Id),
+	(@Manager10Id, @FlexYoga1Id);
 
 -- =============================================
 -- 4. Participants - uczestnicy

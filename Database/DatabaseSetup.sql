@@ -39,8 +39,8 @@ DROP TABLE IF EXISTS StaffAvailability;
 DROP TABLE IF EXISTS StaffSpecializations;
 DROP TABLE IF EXISTS Specializations;
 DROP TABLE IF EXISTS Participants;
+DROP TABLE IF EXISTS StaffCompanies;
 DROP TABLE IF EXISTS Staff;
-DROP TABLE IF EXISTS Receptions;
 DROP TABLE IF EXISTS CompanyHierarchy;
 DROP TABLE IF EXISTS CompanyHierarchies;
 DROP TABLE IF EXISTS Companies;
@@ -76,11 +76,10 @@ CREATE TABLE CompanyHierarchies
 		REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabela Staff (personel)
+-- Tabela Staff (personel) – bez CompanyId
 CREATE TABLE Staff
 (
 	Id        UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-	CompanyId UNIQUEIDENTIFIER NOT NULL,
 	Role      NVARCHAR(50)     NOT NULL,
 	Email     NVARCHAR(255)    NOT NULL,
 	Password  NVARCHAR(255)    NOT NULL,
@@ -88,9 +87,21 @@ CREATE TABLE Staff
 	LastName  NVARCHAR(100)    NOT NULL,
 	Phone     NVARCHAR(30)     NOT NULL,
 	CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
-	IsDeleted BIT                          DEFAULT 0,
-	CONSTRAINT fk_staff_company FOREIGN KEY (CompanyId)
-		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
+	IsDeleted BIT                          DEFAULT 0
+);
+
+-- Tabela StaffCompanies (wiele-do-wielu pomiędzy Staff a Companies)
+CREATE TABLE StaffCompanies
+(
+	Id        UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+	StaffId   UNIQUEIDENTIFIER NOT NULL,
+	CompanyId UNIQUEIDENTIFIER NOT NULL,
+	CreatedAt DATETIME                     DEFAULT GETUTCDATE()
+	CONSTRAINT fk_sc_staff FOREIGN KEY (StaffId)
+		REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+	CONSTRAINT fk_sc_company FOREIGN KEY (CompanyId)
+		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+	CONSTRAINT uq_staff_company UNIQUE (StaffId, CompanyId)
 );
 
 -- Tabela Participants (uczestnicy)
@@ -371,9 +382,9 @@ BEGIN
 	FROM dbo.Participants
 	WHERE CompanyId IN (SELECT Id FROM deleted);
 
-	-- Usuń personel
+	-- Usuń przypisania pracowników do firm
 	DELETE
-	FROM dbo.Staff
+	FROM dbo.StaffCompanies
 	WHERE CompanyId IN (SELECT Id FROM deleted);
 
 	-- Usuń hierarchię firm (najpierw gdzie firma jest dzieckiem)
@@ -398,4 +409,4 @@ GO
 -- KOMUNIKAT KOŃCOWY
 -- =============================================
 PRINT
-	'Baza danych została pomyślnie utworzona z nową strukturą!';
+	'Baza danych została pomyślnie utworzona z nową strukturą (StaffCompanies dla relacji wiele-do-wielu)!';

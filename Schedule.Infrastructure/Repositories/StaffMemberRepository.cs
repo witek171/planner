@@ -18,15 +18,14 @@ public class StaffMemberRepository : IStaffMemberRepository
 	public async Task<Guid> CreateAsync(StaffMember staffMember)
 	{
 		const string sql = @"
-			INSERT INTO Staff (CompanyId, Role, Email, Password, FirstName, LastName, Phone)
+			INSERT INTO Staff (Role, Email, Password, FirstName, LastName, Phone)
 			OUTPUT INSERTED.Id
-			VALUES (@CompanyId, @Role, @Email, @Password, @FirstName, @LastName, @Phone)";
+			VALUES (@Role, @Email, @Password, @FirstName, @LastName, @Phone)";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
 		command.Parameters.AddWithValue("@Role", staffMember.Role.ToString());
 		command.Parameters.AddWithValue("@Email", staffMember.Email);
 		command.Parameters.AddWithValue("@Password", staffMember.Password);
@@ -35,7 +34,20 @@ public class StaffMemberRepository : IStaffMemberRepository
 		command.Parameters.AddWithValue("@Phone", staffMember.Phone);
 
 		object result = (await command.ExecuteScalarAsync())!;
-		return (Guid)result;
+		Guid staffId = (Guid)result;
+
+		foreach (var staffCompany in staffMember.StaffCompanies)
+		{
+			const string staffCompanySql = @"INSERT INTO StaffCompanies (Id, StaffId, CompanyId, CreatedAt) VALUES (@Id, @StaffId, @CompanyId, @CreatedAt)";
+			await using SqlCommand staffCompanyCommand = new(staffCompanySql, connection);
+			staffCompanyCommand.Parameters.AddWithValue("@Id", staffCompany.Id);
+			staffCompanyCommand.Parameters.AddWithValue("@StaffId", staffId);
+			staffCompanyCommand.Parameters.AddWithValue("@CompanyId", staffCompany.CompanyId);
+			staffCompanyCommand.Parameters.AddWithValue("@CreatedAt", staffCompany.CreatedAt);
+			await staffCompanyCommand.ExecuteNonQueryAsync();
+		}
+
+		return staffId;
 	}
 
 	public async Task<bool> PutAsync(StaffMember staffMember)
@@ -48,14 +60,13 @@ public class StaffMemberRepository : IStaffMemberRepository
 			FirstName = @FirstName,
 			LastName = @LastName,
 			Phone = @Phone
-			WHERE Id = @Id AND CompanyId = @CompanyId";
+			WHERE Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMember.Id);
-		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
 		command.Parameters.AddWithValue("@Role", staffMember.Role.ToString());
 		command.Parameters.AddWithValue("@Email", staffMember.Email);
 		command.Parameters.AddWithValue("@Password", staffMember.Password);
@@ -67,117 +78,142 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return rowsAffected > 0;
 	}
 
-	public async Task<bool> DeleteByIdAsync(
-		Guid staffMemberId,
-		Guid companyId)
+	public async Task<bool> DeleteByIdAsync(Guid staffMemberId, Guid companyId)
 	{
-		const string sql = @"
-			DELETE FROM Staff 
-			WHERE CompanyId = @CompanyId AND Id = @Id";
-
+		const string staffCompanySql = @"DELETE FROM StaffCompanies WHERE StaffId = @StaffId AND CompanyId = @CompanyId";
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
+		await using SqlCommand staffCompanyCommand = new(staffCompanySql, connection);
+		staffCompanyCommand.Parameters.AddWithValue("@StaffId", staffMemberId);
+		staffCompanyCommand.Parameters.AddWithValue("@CompanyId", companyId);
+		await staffCompanyCommand.ExecuteNonQueryAsync();
 
-		await using SqlCommand command = new(sql, connection);
-		command.Parameters.AddWithValue("@Id", staffMemberId);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
-
-		int rowsAffected = await command.ExecuteNonQueryAsync();
-		return rowsAffected > 0;
+		const string checkSql = @"SELECT COUNT(*) FROM StaffCompanies WHERE StaffId = @StaffId";
+		await using SqlCommand checkCommand = new(checkSql, connection);
+		checkCommand.Parameters.AddWithValue("@StaffId", staffMemberId);
+		int count = (int)(await checkCommand.ExecuteScalarAsync())!;
+		if (count == 0)
+		{
+			const string staffSql = @"DELETE FROM Staff WHERE Id = @Id";
+			await using SqlCommand staffCommand = new(staffSql, connection);
+			staffCommand.Parameters.AddWithValue("@Id", staffMemberId);
+			await staffCommand.ExecuteNonQueryAsync();
+		}
+		return true;
 	}
 
 	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
 	{
 		const string sql = @"
-			SELECT 
-				s.Id as StaffMemberId, s.CompanyId, s.Role, s.Email, s.Password, 
-				s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
-				sp.Id, sp.Name as Name, sp.Description as Description
+			SELECT s.Id as StaffMemberId, s.Role, s.Email, s.Password, s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted
 			FROM Staff s
-			LEFT JOIN StaffSpecializations ss 
-				ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
-			LEFT JOIN Specializations sp 
-				ON ss.SpecializationId = sp.Id
-			WHERE s.CompanyId = @CompanyId AND s.IsDeleted = 0
+			INNER JOIN StaffCompanies sc ON s.Id = sc.StaffId
+			WHERE sc.CompanyId = @CompanyId AND s.IsDeleted = 0
 			ORDER BY s.CreatedAt DESC";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
-
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		Dictionary<Guid, StaffMember> staffMap = new();
-		Dictionary<Guid, List<Specialization>> staffMemberSpecializationsMap = new();
-
+		List<StaffMember> staffMembers = new List<StaffMember>();
+		List<Guid> staffIds = new List<Guid>();
 		while (await reader.ReadAsync())
 		{
-			Guid staffMemberId = reader.GetGuid(reader.GetOrdinal("StaffMemberId"));
-
-			if (!staffMap.ContainsKey(staffMemberId))
-			{
-				staffMap[staffMemberId] = DbMapper.MapStaffMember(reader);
-				staffMemberSpecializationsMap[staffMemberId] = new List<Specialization>();
-			}
-
-			if (!reader.IsDBNull(reader.GetOrdinal("Id")))
-				staffMemberSpecializationsMap[staffMemberId].Add(DbMapper.MapSpecialization(reader));
+			StaffMember? staffMember = DbMapper.MapStaffMember(reader);
+			staffMembers.Add(staffMember);
+			staffIds.Add(staffMember.Id);
 		}
+		reader.Close();
 
-		foreach ((Guid staffMemberId, List<Specialization> specializations)
-				in staffMemberSpecializationsMap)
-			staffMap[staffMemberId].SetSpecializations(specializations);
-
-		return staffMap.Values.ToList();
+		if (staffIds.Count > 0)
+		{
+			string staffIdsParam = string.Join(",", staffIds.Select(id => $"'{id}'"));
+			string companiesSql = $@"SELECT Id, StaffId, CompanyId, CreatedAt FROM StaffCompanies WHERE StaffId IN ({staffIdsParam})";
+			await using SqlCommand companiesCommand = new(companiesSql, connection);
+			await using SqlDataReader companiesReader = await companiesCommand.ExecuteReaderAsync();
+			Dictionary<Guid, List<StaffMemberCompany>> companiesDict = staffMembers.ToDictionary(sm => sm.Id, sm => new List<StaffMemberCompany>());
+			while (await companiesReader.ReadAsync())
+			{
+				Guid staffId = companiesReader.GetGuid(companiesReader.GetOrdinal("StaffId"));
+				StaffMemberCompany? staffCompany = new StaffMemberCompany(
+					companiesReader.GetGuid(companiesReader.GetOrdinal("Id")),
+					staffId,
+					companiesReader.GetGuid(companiesReader.GetOrdinal("CompanyId")),
+					companiesReader.GetDateTime(companiesReader.GetOrdinal("CreatedAt")));
+				if (companiesDict.ContainsKey(staffId))
+					companiesDict[staffId].Add(staffCompany);
+			}
+			companiesReader.Close();
+			foreach (StaffMember? staffMember in staffMembers)
+			{
+				staffMember.SetStaffCompanies(companiesDict[staffMember.Id]);
+			}
+		}
+		return staffMembers;
 	}
 
-	public async Task<StaffMember?> GetByIdAsync(
-		Guid staffMemberId,
-		Guid companyId)
+	public async Task<StaffMember?> GetByIdAsync(Guid staffMemberId, Guid companyId)
 	{
 		const string sql = @"
-			SELECT 
-				s.Id as StaffMemberId, s.CompanyId, s.Role, s.Email, s.Password, 
-				s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted,
-				sp.Id, sp.Name as Name, sp.Description as Description
+			SELECT s.Id as StaffMemberId, s.Role, s.Email, s.Password, s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted
 			FROM Staff s
-			LEFT JOIN StaffSpecializations ss ON s.Id = ss.StaffMemberId AND s.CompanyId = ss.CompanyId
-			LEFT JOIN Specializations sp ON ss.SpecializationId = sp.Id
-			WHERE s.Id = @Id AND s.CompanyId = @CompanyId AND s.IsDeleted = 0";
+			INNER JOIN StaffCompanies sc ON s.Id = sc.StaffId
+			WHERE s.Id = @Id AND sc.CompanyId = @CompanyId AND s.IsDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
-
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMemberId);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
-
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
-		List<Specialization> specializations = new();
 		StaffMember? staffMember = null;
-
-		while (await reader.ReadAsync())
+		if (await reader.ReadAsync())
 		{
-			if (staffMember == null)
-				staffMember = DbMapper.MapStaffMember(reader);
-
-			if (!reader.IsDBNull(reader.GetOrdinal("Id")))
-				specializations.Add(DbMapper.MapSpecialization(reader));
+			staffMember = DbMapper.MapStaffMember(reader);
 		}
+		reader.Close();
 
-		if (staffMember == null)
-			return null;
-
-		staffMember.SetSpecializations(specializations);
+		if (staffMember != null)
+		{
+			staffMember = await AttachStaffCompaniesAsync(staffMember, connection);
+		}
 		return staffMember;
 	}
 
-	public async Task<bool> HasRelatedRecordsAsync(
-		Guid staffMemberId,
-		Guid companyId)
+	private async Task<StaffMember> AttachStaffCompaniesAsync(StaffMember staffMember, SqlConnection connection)
+	{
+		const string sql = @"SELECT Id, StaffId, CompanyId, CreatedAt FROM StaffCompanies WHERE StaffId = @StaffId";
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@StaffId", staffMember.Id);
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+		List<StaffMemberCompany> companies = new List<StaffMemberCompany>();
+		while (await reader.ReadAsync())
+		{
+			companies.Add(new StaffMemberCompany(
+				reader.GetGuid(reader.GetOrdinal("Id")),
+				reader.GetGuid(reader.GetOrdinal("StaffId")),
+				reader.GetGuid(reader.GetOrdinal("CompanyId")),
+				reader.GetDateTime(reader.GetOrdinal("CreatedAt"))));
+		}
+		staffMember = new StaffMember(
+			staffMember.Id,
+			staffMember.Role,
+			staffMember.Email,
+			staffMember.Password,
+			staffMember.FirstName,
+			staffMember.LastName,
+			staffMember.Phone,
+			staffMember.CreatedAt,
+			staffMember.IsDeleted,
+			staffMember.Specializations.ToList(),
+			companies);
+		return staffMember;
+	}
+
+	public async Task<bool> HasRelatedRecordsAsync(Guid staffMemberId, Guid companyId)
 	{
 		const string sql = @"
 			SELECT CASE 
@@ -206,18 +242,16 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return result == 1;
 	}
 
-	public async Task<bool> EmailExistsForOtherAsync(
-		Guid companyId,
-		Guid staffMemberId,
-		string email)
+	public async Task<bool> EmailExistsForOtherAsync(Guid companyId, Guid staffMemberId, string email)
 	{
 		const string sql = @"
 			SELECT 1 
-			FROM Staff
-			WHERE CompanyId = @CompanyId 
-			AND Email = @Email 
-			AND Id <> @StaffMemberId
-			AND isDeleted = 0";
+			FROM Staff s
+			INNER JOIN StaffCompanies sc ON s.Id = sc.StaffId
+			WHERE sc.CompanyId = @CompanyId 
+			AND s.Email = @Email 
+			AND s.Id <> @StaffMemberId
+			AND s.isDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -231,18 +265,16 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return result != null;
 	}
 
-	public async Task<bool> PhoneExistsForOtherAsync(
-		Guid companyId,
-		Guid staffMemberId,
-		string phone)
+	public async Task<bool> PhoneExistsForOtherAsync(Guid companyId, Guid staffMemberId, string phone)
 	{
 		const string sql = @"
 			SELECT 1 
-			FROM Staff
-			WHERE CompanyId = @CompanyId 
-			AND Phone = @Phone 
-			AND Id <> @StaffMemberId
-			AND isDeleted = 0";
+			FROM Staff s
+			INNER JOIN StaffCompanies sc ON s.Id = sc.StaffId
+			WHERE sc.CompanyId = @CompanyId 
+			AND s.Phone = @Phone 
+			AND s.Id <> @StaffMemberId
+			AND s.isDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
@@ -261,17 +293,64 @@ public class StaffMemberRepository : IStaffMemberRepository
 		const string sql = @"
 			UPDATE Staff SET
 			IsDeleted = @IsDeleted
-			WHERE Id = @Id AND CompanyId = @CompanyId";
+			WHERE Id = @Id";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Id", staffMember.Id);
-		command.Parameters.AddWithValue("@CompanyId", staffMember.CompanyId);
 		command.Parameters.AddWithValue("@IsDeleted", staffMember.IsDeleted);
 
 		int rowsAffected = await command.ExecuteNonQueryAsync();
 		return rowsAffected > 0;
+	}
+
+	public async Task<bool> AssignToCompanyAsync(Guid staffMemberId, Guid companyId)
+	{
+		const string sql = @"INSERT INTO StaffCompanies (Id, StaffId, CompanyId, CreatedAt) VALUES (@Id, @StaffId, @CompanyId, @CreatedAt)";
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Id", Guid.NewGuid());
+		command.Parameters.AddWithValue("@StaffId", staffMemberId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
+
+	public async Task<bool> UnassignFromCompanyAsync(Guid staffMemberId, Guid companyId)
+	{
+		const string sql = @"DELETE FROM StaffCompanies WHERE StaffId = @StaffId AND CompanyId = @CompanyId";
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@StaffId", staffMemberId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		int rowsAffected = await command.ExecuteNonQueryAsync();
+		return rowsAffected > 0;
+	}
+
+
+	public async Task<List<StaffMemberCompany>> GetAssignedCompanyAsync(Guid staffMemberId)
+	{
+		const string sql = @"SELECT Id, StaffId, CompanyId, CreatedAt FROM StaffCompanies WHERE StaffId = @StaffId";
+		using SqlConnection connection = new SqlConnection(_connectionString);
+		await connection.OpenAsync();
+		using SqlCommand command = new SqlCommand(sql, connection);
+		command.Parameters.AddWithValue("@StaffId", staffMemberId);
+		using SqlDataReader reader = await command.ExecuteReaderAsync();
+		List<StaffMemberCompany> staffCompanies = new List<StaffMemberCompany>();
+		while (await reader.ReadAsync())
+		{
+			StaffMemberCompany staffCompany = new StaffMemberCompany(
+				reader.GetGuid(reader.GetOrdinal("Id")),
+				reader.GetGuid(reader.GetOrdinal("StaffId")),
+				reader.GetGuid(reader.GetOrdinal("CompanyId")),
+				reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
+			staffCompanies.Add(staffCompany);
+		}
+		return staffCompanies;
 	}
 }

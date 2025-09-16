@@ -93,7 +93,6 @@ public static class DbMapper
 	{
 		return new StaffMember(
 			reader.GetGuid(reader.GetOrdinal("StaffMemberId")),
-			reader.GetGuid(reader.GetOrdinal("CompanyId")),
 			Enum.Parse<StaffRole>(reader.GetString(reader.GetOrdinal("Role"))),
 			reader.GetString(reader.GetOrdinal("Email")),
 			reader.GetString(reader.GetOrdinal("Password")),
@@ -102,7 +101,8 @@ public static class DbMapper
 			reader.GetString(reader.GetOrdinal("Phone")),
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
 			reader.GetBoolean(reader.GetOrdinal("IsDeleted")),
-			new List<Specialization>());
+			new List<Specialization>(),
+			new List<StaffMemberCompany>());
 	}
 
 	public static EventType MapEventType(SqlDataReader reader)

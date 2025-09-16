@@ -48,5 +48,9 @@ public class MappingProfile : Profile
 			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 		CreateMap<ReservationCreateRequest, Reservation>();
 		CreateMap<ReservationUpdateRequest, Reservation>();
+		CreateMap<EventSchedule, EventScheduleResponse>();
+
+		CreateMap<StaffMemberCompany, StaffMemberCompanyResponse>();
+		CreateMap<StaffMemberCompanyRequest, StaffMemberCompany>();
 	}
 }

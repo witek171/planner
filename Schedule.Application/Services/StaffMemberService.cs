@@ -21,18 +21,33 @@ public class StaffMemberService : IStaffMemberService
 		Guid companyId)
 		=> await _staffMemberRepository.GetByIdAsync(id, companyId);
 
-	public async Task<Guid> CreateAsync(StaffMember staffMember)
+	private async Task ValidateEmailAndPhoneAsync(StaffMember staffMember, Guid companyId)
+	{
+		Guid staffMemberId = staffMember.Id;
+		string email = staffMember.Email;
+		string phone = staffMember.Phone;
+
+		if (await _staffMemberRepository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
+			throw new ArgumentException(
+				$"Email {email} already exists for company {companyId}");
+
+		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
+			throw new ArgumentException(
+				$"Phone {phone} already exists for company {companyId}");
+	}
+
+	public async Task<Guid> CreateAsync(StaffMember staffMember, Guid companyId)
 	{
 		staffMember.Normalize();
-		await ValidateEmailAndPhoneAsync(staffMember);
-
+		await ValidateEmailAndPhoneAsync(staffMember, companyId);
+		staffMember.AddCompany(companyId);
 		return await _staffMemberRepository.CreateAsync(staffMember);
 	}
 
-	public async Task PutAsync(StaffMember staffMember)
+	public async Task PutAsync(StaffMember staffMember, Guid companyId)
 	{
 		staffMember.Normalize();
-		await ValidateEmailAndPhoneAsync(staffMember);
+		await ValidateEmailAndPhoneAsync(staffMember, companyId);
 		await _staffMemberRepository.PutAsync(staffMember);
 	}
 
@@ -54,19 +69,18 @@ public class StaffMemberService : IStaffMemberService
 			await _staffMemberRepository.DeleteByIdAsync(id, companyId);
 	}
 
-	private async Task ValidateEmailAndPhoneAsync(StaffMember staffMember)
+	public async Task<bool> AssignToCompanyAsync(Guid staffMemberId, Guid companyId)
 	{
-		Guid companyId = staffMember.CompanyId;
-		Guid staffMemberId = staffMember.Id;
-		string email = staffMember.Email;
-		string phone = staffMember.Phone;
+		return await _staffMemberRepository.AssignToCompanyAsync(staffMemberId, companyId);
+	}
 
-		if (await _staffMemberRepository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
-			throw new ArgumentException(
-				$"Email {email} already exists for company {companyId}");
+	public async Task<bool> UnassignFromCompanyAsync(Guid staffMemberId, Guid companyId)
+	{
+		return await _staffMemberRepository.UnassignFromCompanyAsync(staffMemberId, companyId);
+	}
 
-		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
-			throw new ArgumentException(
-				$"Phone {phone} already exists for company {companyId}");
+	public async Task<List<StaffMemberCompany>> GetAssignedCompanyAsync(Guid staffMemberId)
+	{
+		return await _staffMemberRepository.GetAssignedCompanyAsync(staffMemberId);
 	}
 }

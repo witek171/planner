@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections;
+using AutoMapper;
 using Schedule.Contracts.Dtos.Requests;
 using Schedule.Contracts.Dtos.Responses;
 using Schedule.Domain.Models;
@@ -36,6 +37,16 @@ public class MappingProfile : Profile
 		CreateMap<EventScheduleStaffMember, EventScheduleStaffMemberResponse>();
 		CreateMap<EventScheduleStaffMemberRequest, EventScheduleStaffMember>();
 
-		CreateMap<EventSchedule, EventScheduleResponse>();
+		CreateMap<EventSchedule, EventScheduleResponse>()
+			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+		CreateMap<EventScheduleRequest, EventSchedule>();
+
+		CreateMap<EventType, EventTypeResponse>();
+		CreateMap<EventTypeRequest, EventType>();
+
+		CreateMap<Reservation, ReservationResponse>()
+			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+		CreateMap<ReservationCreateRequest, Reservation>();
+		CreateMap<ReservationUpdateRequest, Reservation>();
 	}
 }

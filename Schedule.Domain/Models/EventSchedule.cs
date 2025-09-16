@@ -10,6 +10,7 @@ public class EventSchedule
 	public EventType EventType { get; private set; }
 	public string PlaceName { get; private set; }
 	public DateTime StartTime { get; private set; }
+	public DateTime EndTime => StartTime.AddMinutes(EventType.Duration);
 	public DateTime CreatedAt { get; }
 	public EventScheduleStatus Status { get; private set; }
 

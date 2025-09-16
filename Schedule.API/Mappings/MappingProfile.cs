@@ -51,5 +51,7 @@ public class MappingProfile : Profile
 
 		CreateMap<StaffMemberCompany, StaffMemberCompanyResponse>();
 		CreateMap<StaffMemberCompanyRequest, StaffMemberCompany>();
+
+		CreateMap<UpdateCompanyBreakTimesRequest, CompanyConfig>();
 	}
 }

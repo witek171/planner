@@ -42,6 +42,7 @@ DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS StaffCompanies;
 DROP TABLE IF EXISTS Staff;
 DROP TABLE IF EXISTS CompanyConfig;
+DROP TABLE IF EXISTS CompanyConfigs;
 DROP TABLE IF EXISTS CompanyHierarchy;
 DROP TABLE IF EXISTS CompanyHierarchies;
 DROP TABLE IF EXISTS Companies;
@@ -77,8 +78,8 @@ CREATE TABLE CompanyHierarchies
 		REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
--- Tabela CompanyConfig (konfiguracja firmy)
-CREATE TABLE CompanyConfig
+-- Tabela CompanyConfigs (konfiguracja firmy)
+CREATE TABLE CompanyConfigs
 (
 	CompanyId             UNIQUEIDENTIFIER PRIMARY KEY NOT NULL,
 	BreakTimeStaff        INT                          NOT NULL DEFAULT 0,
@@ -410,7 +411,7 @@ BEGIN
 
 	-- Usuń konfigurację firmy
 	DELETE
-	FROM dbo.CompanyConfig
+	FROM dbo.CompanyConfigs
 	WHERE CompanyId IN (SELECT Id FROM deleted);
 
 	-- Na końcu usuń samą firmę

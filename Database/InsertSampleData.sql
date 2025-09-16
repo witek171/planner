@@ -196,7 +196,7 @@ DECLARE @Manager10Id UNIQUEIDENTIFIER = NEWID();
 -- CompanyConfig - konfiguracja dla firm
 -- =============================================
 
-INSERT INTO CompanyConfig (CompanyId, BreakTimeStaff, BreakTimeParticipants)
+INSERT INTO CompanyConfigs (CompanyId, BreakTimeStaff, BreakTimeParticipants)
 VALUES
 	-- SportFit Group (firma główna + oddziały)
 	(@MainCompanyId, 15, 10),

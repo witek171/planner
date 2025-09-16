@@ -252,7 +252,7 @@ public class ReservationRepository : IReservationRepository
 		return rowsAffected > 0;
 	}
 
-	public async Task<List<Guid>> GetByEventScheduleIdAsync(
+	public async Task<List<Guid>> GetIdsByEventScheduleIdAsync(
 		Guid eventScheduleId,
 		Guid companyId)
 	{
@@ -277,5 +277,93 @@ public class ReservationRepository : IReservationRepository
 			ids.Add(reader.GetGuid(reader.GetOrdinal("Id")));
 
 		return ids;
+	}
+
+	public async Task<List<Reservation>> GetByParticipantIdAsync(
+		Guid participantId,
+		Guid companyId)
+	{
+		const string sql = @"
+			SELECT 
+			r.Id as ReservationId, 
+			r.CompanyId as ReservationCompanyId, 
+			r.EventScheduleId, 
+			r.Status,
+			r.Notes, 
+			r.CreatedAt as ReservationCreatedAt, 
+			r.CancelledAt, 
+			r.IsPaid,
+			r.PaidAt,
+			p.Id as ParticipantId,
+			p.CompanyId as CompanyId,
+			p.Email,
+			p.FirstName,
+			p.LastName,
+			p.Phone,
+			p.GdprConsent,
+			p.CreatedAt as CreatedAt,
+			es.Id as EventScheduleId,
+			es.CompanyId as EventScheduleCompanyId,
+			es.EventTypeId,
+			es.PlaceName,
+			es.StartTime,
+			es.CreatedAt as EventScheduleCreatedAt,
+			es.Status as EventScheduleStatus,
+			et.Id as EventTypeId,
+			et.CompanyId as EventTypeCompanyId,
+			et.Name as EventTypeName,
+			et.Description as EventTypeDescription,
+			et.Duration,
+			et.Price,
+			et.MaxParticipants,
+			et.MinStaff,
+			et.IsDeleted as EventTypeIsDeleted
+
+		FROM Reservations r
+		LEFT JOIN ReservationParticipants rp ON r.Id = rp.ReservationId
+		LEFT JOIN Participants p ON rp.ParticipantId = p.Id
+		INNER JOIN EventSchedules es ON r.EventScheduleId = es.Id
+		INNER JOIN EventTypes et ON es.EventTypeId = et.Id
+		WHERE p.Id = @ParticipantId AND r.CompanyId = @CompanyId 
+		AND r.Status <> @CancelledStatus
+		ORDER BY r.CreatedAt";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@ParticipantId", participantId);
+		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@CancelledStatus", nameof(ReservationStatus.Cancelled));
+
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		Dictionary<Guid, (Reservation reservation, List<Participant> participants)> reservationData = new();
+
+		while (await reader.ReadAsync())
+		{
+			Guid reservationId = reader.GetGuid(reader.GetOrdinal("ReservationId"));
+
+			if (!reservationData.ContainsKey(reservationId))
+			{
+				Reservation reservation = DbMapper.MapReservation(reader);
+				reservationData[reservationId] = (reservation, new List<Participant>());
+			}
+
+			if (!reader.IsDBNull(reader.GetOrdinal("ParticipantId")))
+			{
+				Participant participant = DbMapper.MapParticipantFromReservation(reader);
+				reservationData[reservationId].participants.Add(participant);
+			}
+		}
+
+		List<Reservation> reservations = new();
+		foreach ((Reservation reservation, List<Participant> participants) in reservationData.Values)
+		{
+			reservation.SetParticipants(participants);
+			reservations.Add(reservation);
+		}
+
+		return reservations;
 	}
 }

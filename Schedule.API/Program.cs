@@ -38,6 +38,12 @@ public class Program
 			new SpecializationRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<ICompanyRepository>(provider =>
 			new CompanyRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventTypeRepository>(provider =>
+			new EventTypeRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IReservationRepository>(provider =>
+			new ReservationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IReservationParticipantRepository>(provider =>
+			new ReservationParticipantRepository(EnvironmentService.SqlConnectionString));
 
 		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>
@@ -56,6 +62,8 @@ public class Program
 		builder.Services.AddScoped<IEventScheduleService, EventScheduleService>();
 		builder.Services.AddScoped<ISpecializationService, SpecializationService>();
 		builder.Services.AddScoped<ICompanyService, CompanyService>();
+		builder.Services.AddScoped<IEventTypeService, EventTypeService>();
+		builder.Services.AddScoped<IReservationService, ReservationService>();
 
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 

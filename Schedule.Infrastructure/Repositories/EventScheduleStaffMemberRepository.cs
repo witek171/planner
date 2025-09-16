@@ -34,8 +34,8 @@ public class EventScheduleStaffMemberRepository : IEventScheduleStaffMemberRepos
 	}
 
 	public async Task<bool> DeleteByIdAsync(
-		Guid companyId,
-		Guid eventScheduleStaffMemberId)
+		Guid eventScheduleStaffMemberId,
+		Guid companyId)
 	{
 		const string sql = @"
 			DELETE FROM EventScheduleStaff

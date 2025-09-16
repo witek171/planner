@@ -4,5 +4,20 @@ namespace Schedule.Application.Interfaces.Services;
 
 public interface IEventScheduleService
 {
-	Task<List<EventSchedule>> GetByStaffMemberIdAsync(Guid companyId, Guid staffMemberId);
+	Task<List<EventSchedule>> GetByStaffMemberIdAsync(
+		Guid companyId,
+		Guid staffMemberId);
+
+	Task<List<EventSchedule>> GetAllAsync(Guid companyId);
+
+	Task<EventSchedule?> GetByIdAsync(
+		Guid id,
+		Guid companyId);
+
+	Task<Guid> CreateAsync(EventSchedule eventSchedule);
+	Task UpdateAsync(EventSchedule eventSchedule);
+
+	Task DeleteAsync(
+		Guid id,
+		Guid companyId);
 }

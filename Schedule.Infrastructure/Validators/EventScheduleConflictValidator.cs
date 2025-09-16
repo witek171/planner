@@ -57,10 +57,8 @@ public class EventScheduleConflictValidator : IEventScheduleConflictValidator
 		TimeRange bufferedEventScheduleRange = new(start.AddMinutes(-breakTime), end.AddMinutes(breakTime));
 		List<EventSchedule> eventSchedules = await _eventScheduleRepository
 			.GetByStaffMemberIdAsync(companyId, staffMemberId);
-		// Console.WriteLine($"New: {bufferedEventScheduleRange.Start} - {bufferedEventScheduleRange.End}");
 		foreach (EventSchedule eventSchedule in eventSchedules)
 		{
-			// Console.WriteLine($"Existing: {eventSchedule.StartTime} - {eventSchedule.EndTime}");
 			DateTime startTime = eventSchedule.StartTime;
 			DateTime endTime = eventSchedule.EndTime;
 			TimeRange existingRange = new(startTime, endTime);

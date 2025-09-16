@@ -80,9 +80,9 @@ CREATE TABLE CompanyHierarchies
 -- Tabela CompanyConfig (konfiguracja firmy)
 CREATE TABLE CompanyConfig
 (
-	CompanyId             UNIQUEIDENTIFIER PRIMARY KEY,
-	BreakTimeStaff        INT NOT NULL DEFAULT 0,
-	BreakTimeParticipants INT NOT NULL DEFAULT 0,
+	CompanyId             UNIQUEIDENTIFIER PRIMARY KEY NOT NULL,
+	BreakTimeStaff        INT                          NOT NULL DEFAULT 0,
+	BreakTimeParticipants INT                          NOT NULL DEFAULT 0,
 	CONSTRAINT fk_companyconfig_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
 );

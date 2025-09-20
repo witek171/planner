@@ -1,26 +1,31 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Schedule.Infrastructure.Extensions;
 
 public class GlobalExceptionMiddleware
 {
-	private readonly RequestDelegate _next;
+	private readonly RequestDelegate _requestDelegate;
 	private readonly ILogger<GlobalExceptionMiddleware> _logger;
+	private readonly IHostEnvironment _environment;
+
 
 	public GlobalExceptionMiddleware(
-		RequestDelegate next,
-		ILogger<GlobalExceptionMiddleware> logger)
+		RequestDelegate requestDelegate,
+		ILogger<GlobalExceptionMiddleware> logger,
+		IHostEnvironment environment)
 	{
-		_next = next;
+		_requestDelegate = requestDelegate;
 		_logger = logger;
+		_environment = environment;
 	}
 
 	public async Task InvokeAsync(HttpContext context)
 	{
 		try
 		{
-			await _next(context);
+			await _requestDelegate(context);
 		}
 		catch (Exception ex)
 		{
@@ -31,7 +36,7 @@ public class GlobalExceptionMiddleware
 		}
 	}
 
-	private static async Task HandleExceptionAsync(
+	private async Task HandleExceptionAsync(
 		HttpContext context,
 		Exception exception)
 	{
@@ -46,7 +51,21 @@ public class GlobalExceptionMiddleware
 
 		context.Response.StatusCode = statusCode;
 
-		object response = new { error = message, statusCode };
+		object response = _environment.IsDevelopment()
+			? new
+			{
+				error = exception.Message,
+				exception = exception.GetType().Name,
+				statusCode,
+				stackTrace = exception.StackTrace?
+					.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+			}
+			: new
+			{
+				error = message,
+				statusCode
+			};
+
 		await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
 	}
 }

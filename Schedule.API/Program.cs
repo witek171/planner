@@ -20,91 +20,80 @@ public class Program
 			.WriteTo.Console()
 			.CreateLogger();
 
-		try
+		Log.Information("Starting Planner application");
+
+		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+		builder.Services.AddControllers();
+		builder.Services.AddAutoMapper(typeof(MappingProfile));
+		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
+
+		// Repositories
+		builder.Services.AddScoped<IParticipantRepository>(provider =>
+			new ParticipantRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffMemberRepository>(provider =>
+			new StaffMemberRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffMemberSpecializationRepository>(provider =>
+			new StaffMemberSpecializationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IStaffMemberAvailabilityRepository>(provider =>
+			new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventScheduleRepository>(provider =>
+			new EventScheduleRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventScheduleStaffMemberRepository>(provider =>
+			new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<ISpecializationRepository>(provider =>
+			new SpecializationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<ICompanyRepository>(provider =>
+			new CompanyRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IEventTypeRepository>(provider =>
+			new EventTypeRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IReservationRepository>(provider =>
+			new ReservationRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<IReservationParticipantRepository>(provider =>
+			new ReservationParticipantRepository(EnvironmentService.SqlConnectionString));
+
+		// Services
+		builder.Services.AddScoped<IHealthCheckService>(provider =>
 		{
-			Log.Information("Starting Planner application");
+			IHealthCheckUtils healthCheckUtils = provider.GetRequiredService<IHealthCheckUtils>();
+			ILogger<HealthCheckService> logger = provider.GetRequiredService<ILogger<HealthCheckService>>();
+			string connectionString = EnvironmentService.SqlConnectionString;
 
-			WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+			return new HealthCheckService(healthCheckUtils, logger, connectionString);
+		});
+		builder.Services.AddScoped<IParticipantService, ParticipantService>();
+		builder.Services.AddScoped<IStaffMemberService, StaffMemberService>();
+		builder.Services.AddScoped<IStaffMemberSpecializationService, StaffMemberSpecializationService>();
+		builder.Services.AddScoped<IStaffMemberAvailabilityService, StaffMemberAvailabilityService>();
+		builder.Services.AddScoped<IEventScheduleStaffMemberService, EventScheduleStaffMemberService>();
+		builder.Services.AddScoped<IEventScheduleService, EventScheduleService>();
+		builder.Services.AddScoped<ISpecializationService, SpecializationService>();
+		builder.Services.AddScoped<ICompanyService, CompanyService>();
+		builder.Services.AddScoped<IEventTypeService, EventTypeService>();
+		builder.Services.AddScoped<IReservationService, ReservationService>();
 
-			builder.Services.AddControllers();
-			builder.Services.AddAutoMapper(typeof(MappingProfile));
-			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen();
+		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 
-			// Repositories
-			builder.Services.AddScoped<IParticipantRepository>(provider =>
-				new ParticipantRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IStaffMemberRepository>(provider =>
-				new StaffMemberRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IStaffMemberSpecializationRepository>(provider =>
-				new StaffMemberSpecializationRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IStaffMemberAvailabilityRepository>(provider =>
-				new StaffMemberAvailabilityRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IEventScheduleRepository>(provider =>
-				new EventScheduleRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IEventScheduleStaffMemberRepository>(provider =>
-				new EventScheduleStaffMemberRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<ISpecializationRepository>(provider =>
-				new SpecializationRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<ICompanyRepository>(provider =>
-				new CompanyRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IEventTypeRepository>(provider =>
-				new EventTypeRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IReservationRepository>(provider =>
-				new ReservationRepository(EnvironmentService.SqlConnectionString));
-			builder.Services.AddScoped<IReservationParticipantRepository>(provider =>
-				new ReservationParticipantRepository(EnvironmentService.SqlConnectionString));
+		WebApplication app = builder.Build();
 
-			// Services
-			builder.Services.AddScoped<IHealthCheckService>(provider =>
-			{
-				IHealthCheckUtils healthCheckUtils = provider.GetRequiredService<IHealthCheckUtils>();
-				ILogger<HealthCheckService> logger = provider.GetRequiredService<ILogger<HealthCheckService>>();
-				string connectionString = EnvironmentService.SqlConnectionString;
-
-				return new HealthCheckService(healthCheckUtils, logger, connectionString);
-			});
-			builder.Services.AddScoped<IParticipantService, ParticipantService>();
-			builder.Services.AddScoped<IStaffMemberService, StaffMemberService>();
-			builder.Services.AddScoped<IStaffMemberSpecializationService, StaffMemberSpecializationService>();
-			builder.Services.AddScoped<IStaffMemberAvailabilityService, StaffMemberAvailabilityService>();
-			builder.Services.AddScoped<IEventScheduleStaffMemberService, EventScheduleStaffMemberService>();
-			builder.Services.AddScoped<IEventScheduleService, EventScheduleService>();
-			builder.Services.AddScoped<ISpecializationService, SpecializationService>();
-			builder.Services.AddScoped<ICompanyService, CompanyService>();
-			builder.Services.AddScoped<IEventTypeService, EventTypeService>();
-			builder.Services.AddScoped<IReservationService, ReservationService>();
-
-			builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
-
-			WebApplication app = builder.Build();
-
-			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
-			{
-				app.UseMiddleware<GlobalExceptionMiddleware>();
-				app.UseSwagger();
-				app.UseSwaggerUI();
-			}
-			else
-				app.UseMiddleware<GlobalExceptionMiddleware>();
-
-			app.UseHttpsRedirection();
-
-			app.UseAuthorization();
-
-			app.MapControllers();
-
-			app.Run();
-		}
-		catch (Exception ex)
+		// Configure the HTTP request pipeline.
+		if (app.Environment.IsDevelopment())
 		{
-			Log.Fatal(ex, "Application terminated unexpectedly");
+			app.UseMiddleware<GlobalExceptionMiddleware>();
+			app.UseSwagger();
+			app.UseSwaggerUI();
 		}
-		finally
-		{
-			Log.CloseAndFlush();
-		}
+		else
+			app.UseMiddleware<GlobalExceptionMiddleware>();
+
+		app.UseHttpsRedirection();
+
+		app.UseAuthorization();
+
+		app.MapControllers();
+
+		app.Run();
 	}
 }

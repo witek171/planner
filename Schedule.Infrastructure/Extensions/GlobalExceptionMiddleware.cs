@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -42,11 +43,12 @@ public class GlobalExceptionMiddleware
 	{
 		context.Response.ContentType = "application/json";
 
-		(int statusCode, string message) = exception switch
+		int statusCode = exception switch
 		{
-			InvalidOperationException => (400, exception.Message),
-			ArgumentException => (400, exception.Message),
-			_ => (500, "Internal server error")
+			// BusinessRuleException => StatusCodes.Status400BadRequest,
+			ArgumentException => StatusCodes.Status400BadRequest,
+			InvalidOperationException => StatusCodes.Status400BadRequest,
+			_ => StatusCodes.Status500InternalServerError
 		};
 
 		context.Response.StatusCode = statusCode;
@@ -62,7 +64,7 @@ public class GlobalExceptionMiddleware
 			}
 			: new
 			{
-				error = message,
+				error = exception.Message,
 				statusCode
 			};
 

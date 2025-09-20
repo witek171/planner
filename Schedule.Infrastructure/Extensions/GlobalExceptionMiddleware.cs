@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +9,6 @@ public class GlobalExceptionMiddleware
 	private readonly RequestDelegate _requestDelegate;
 	private readonly ILogger<GlobalExceptionMiddleware> _logger;
 	private readonly IHostEnvironment _environment;
-
 
 	public GlobalExceptionMiddleware(
 		RequestDelegate requestDelegate,
@@ -45,6 +43,7 @@ public class GlobalExceptionMiddleware
 
 		int statusCode = exception switch
 		{
+			// narazie nie robilem customowych wyjatkow
 			// BusinessRuleException => StatusCodes.Status400BadRequest,
 			ArgumentException => StatusCodes.Status400BadRequest,
 			InvalidOperationException => StatusCodes.Status400BadRequest,
@@ -54,20 +53,29 @@ public class GlobalExceptionMiddleware
 		context.Response.StatusCode = statusCode;
 
 		object response = _environment.IsDevelopment()
-			? new
-			{
-				error = exception.Message,
-				exception = exception.GetType().Name,
-				statusCode,
-				stackTrace = exception.StackTrace?
-					.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
-			}
-			: new
-			{
-				error = exception.Message,
-				statusCode
-			};
+			? new { statusCode, exceptions = GetExceptionDetails(exception) }
+			: new { error = exception.Message, statusCode };
 
 		await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
+	}
+
+	private static IEnumerable<object> GetExceptionDetails(Exception ex)
+	{
+		List<object> details = new();
+
+		while (ex != null)
+		{
+			details.Add(new
+			{
+				type = ex.GetType().Name,
+				message = ex.Message,
+				stackTrace = ex.StackTrace?
+					.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+			});
+
+			ex = ex.InnerException;
+		}
+
+		return details;
 	}
 }

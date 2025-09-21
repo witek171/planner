@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Schedule.Domain.Exceptions;
 
 namespace Schedule.Infrastructure.Extensions;
 
@@ -43,8 +44,10 @@ public class GlobalExceptionMiddleware
 
 		int statusCode = exception switch
 		{
-			// narazie nie robilem customowych wyjatkow
+			// narazie zrobilem tylko 2 customowe wyjatki, czy tak to ma wygladac?
 			// BusinessRuleException => StatusCodes.Status400BadRequest,
+			EmailAlreadyExistsException => StatusCodes.Status400BadRequest,
+			PhoneAlreadyExistsException => StatusCodes.Status400BadRequest,
 			ArgumentException => StatusCodes.Status400BadRequest,
 			InvalidOperationException => StatusCodes.Status400BadRequest,
 			_ => StatusCodes.Status500InternalServerError

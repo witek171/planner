@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
+using Schedule.Application.Services;
 using Schedule.Contracts.Dtos.Requests;
 using Schedule.Contracts.Dtos.Responses;
 using Schedule.Domain.Models;
+using System.Security.Authentication;
 
 namespace PlannerNet.Controllers;
 
@@ -17,6 +19,7 @@ public class StaffMemberController : ControllerBase
 	private readonly IEventScheduleStaffMemberService _eventScheduleStaffMemberService;
 	private readonly IEventScheduleService _eventScheduleService;
 	private readonly IMapper _mapper;
+	private readonly ILoginService _loginService;
 
 	public StaffMemberController(
 		IStaffMemberService staffMemberService,
@@ -24,7 +27,8 @@ public class StaffMemberController : ControllerBase
 		IStaffMemberAvailabilityService staffMemberAvailabilityService,
 		IEventScheduleStaffMemberService eventScheduleStaffMemberService,
 		IEventScheduleService eventScheduleService,
-		IMapper mapper)
+		IMapper mapper,
+		ILoginService loginService)
 	{
 		_staffMemberService = staffMemberService;
 		_staffMemberSpecializationService = staffMemberSpecializationService;
@@ -32,6 +36,7 @@ public class StaffMemberController : ControllerBase
 		_eventScheduleStaffMemberService = eventScheduleStaffMemberService;
 		_eventScheduleService = eventScheduleService;
 		_mapper = mapper;
+		_loginService = loginService;
 	}
 
 	[HttpGet("all")]
@@ -65,6 +70,15 @@ public class StaffMemberController : ControllerBase
 		staffMember.AddCompany(companyId);
 		Guid staffMemberId = await _staffMemberService.CreateAsync(staffMember, companyId);
 		return CreatedAtAction(nameof(Create), staffMemberId);
+	}
+
+	[HttpPost("login")]
+	public async Task<IActionResult> Login(
+		Guid companyId,
+		[FromBody] LoginRequest request)
+	{
+			var token = await _loginService.LoginAsync(companyId, request.Email, request.Password);
+			return Ok(new { token });
 	}
 
 	[HttpPut("{staffMemberId:guid}")]

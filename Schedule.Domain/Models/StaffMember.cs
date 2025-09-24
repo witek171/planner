@@ -90,4 +90,12 @@ public class StaffMember
 	{
 		StaffCompanies = staffCompanies;
 	}
+
+	public void SetPassword(string hashedPassword)
+	{
+		if (string.IsNullOrWhiteSpace(hashedPassword))
+			throw new ArgumentException("Password hash cannot be empty", nameof(hashedPassword));
+
+		Password = hashedPassword;
+	}
 }

@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using Schedule.API.Mappings;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
@@ -19,7 +20,37 @@ public class Program
 		builder.Services.AddAutoMapper(typeof(MappingProfile));
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
-		builder.Services.AddSwaggerGen();
+		builder.Services.AddSwaggerGen(c =>
+		{
+			c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+			{
+				Description = "Wpisz token w formacie: Bearer {token}",
+				Name = "Authorization",
+				In = ParameterLocation.Header,
+				Type = SecuritySchemeType.ApiKey,
+				Scheme = "Bearer"
+			});
+
+			c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+		  {
+			{
+			  new OpenApiSecurityScheme
+			  {
+				Reference = new OpenApiReference
+				  {
+					Type = ReferenceType.SecurityScheme,
+					Id = "Bearer"
+				  },
+				  Scheme = "oauth2",
+				  Name = "Bearer",
+				  In = ParameterLocation.Header,
+
+				},
+				new List<string>()
+			  }
+			});
+		});
 
 		// Repositories
 		builder.Services.AddScoped<IParticipantRepository>(provider =>
@@ -64,7 +95,9 @@ public class Program
 		builder.Services.AddScoped<ICompanyService, CompanyService>();
 		builder.Services.AddScoped<IEventTypeService, EventTypeService>();
 		builder.Services.AddScoped<IReservationService, ReservationService>();
-
+		builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+		builder.Services.AddScoped<ILoginService, LoginService>();
+		builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 
 		WebApplication app = builder.Build();

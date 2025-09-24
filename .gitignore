@@ -85,3 +85,4 @@ artifacts/
 
 # Others
 TestResults/
+/Schedule.API/Data/private.key

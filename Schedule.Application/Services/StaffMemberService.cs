@@ -1,16 +1,21 @@
 ﻿using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
+using Schedule.Application.Interfaces.Utils;
 using Schedule.Domain.Models;
+using Schedule.Domain.Exceptions.Register;
 
 namespace Schedule.Application.Services;
 
 public class StaffMemberService : IStaffMemberService
 {
 	private readonly IStaffMemberRepository _staffMemberRepository;
+	private readonly IPasswordHasher _passwordHasher;
 
-	public StaffMemberService(IStaffMemberRepository staffMemberRepository)
+	public StaffMemberService(IStaffMemberRepository staffMemberRepository, IPasswordHasher passwordHasher)
 	{
 		_staffMemberRepository = staffMemberRepository;
+		_passwordHasher = passwordHasher;
+
 	}
 
 	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
@@ -28,12 +33,10 @@ public class StaffMemberService : IStaffMemberService
 		string phone = staffMember.Phone;
 
 		if (await _staffMemberRepository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
-			throw new ArgumentException(
-				$"Email {email} already exists for company {companyId}");
+			throw new EmailAlreadyExistsException();
 
 		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
-			throw new ArgumentException(
-				$"Phone {phone} already exists for company {companyId}");
+			throw new PhoneAlreadyExistsException();
 	}
 
 	public async Task<Guid> CreateAsync(StaffMember staffMember, Guid companyId)
@@ -41,6 +44,8 @@ public class StaffMemberService : IStaffMemberService
 		staffMember.Normalize();
 		await ValidateEmailAndPhoneAsync(staffMember, companyId);
 		staffMember.AddCompany(companyId);
+		string hashed = _passwordHasher.Hash(staffMember.Password);
+		staffMember.SetPassword(hashed);
 		return await _staffMemberRepository.CreateAsync(staffMember);
 	}
 

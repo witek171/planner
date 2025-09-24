@@ -4,6 +4,7 @@ public static class EnvironmentService
 {
 	public static string SqlConnectionString => GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 	public static string EnvName => GetEnvironmentVariable("OtherEnvVariable");
+	public static string PasswordPepper => GetEnvironmentVariable("PasswordPepper");
 
 	public static string GetEnvironmentVariable(string variable)
 	{

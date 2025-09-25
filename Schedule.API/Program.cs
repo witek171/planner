@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Schedule.API.Mappings;
 using Schedule.Application.Interfaces.Repositories;
@@ -7,6 +8,7 @@ using Schedule.Application.Services;
 using Schedule.Infrastructure.Repositories;
 using Schedule.Infrastructure.Services;
 using Schedule.Infrastructure.Utils;
+using System.Security.Cryptography;
 
 namespace PlannerNet;
 
@@ -18,8 +20,9 @@ public class Program
 
 		builder.Services.AddControllers();
 		builder.Services.AddAutoMapper(typeof(MappingProfile));
-		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
+
+		//Swagger + Bearer auth
 		builder.Services.AddSwaggerGen(c =>
 		{
 			c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
@@ -28,29 +31,52 @@ public class Program
 				Description = "Wpisz token w formacie: Bearer {token}",
 				Name = "Authorization",
 				In = ParameterLocation.Header,
-				Type = SecuritySchemeType.ApiKey,
-				Scheme = "Bearer"
+				Type = SecuritySchemeType.Http,
+				Scheme = "bearer",
+				BearerFormat = "JWT"
 			});
 
-			c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-		  {
+			c.AddSecurityRequirement(new OpenApiSecurityRequirement
 			{
-			  new OpenApiSecurityScheme
-			  {
-				Reference = new OpenApiReference
-				  {
-					Type = ReferenceType.SecurityScheme,
-					Id = "Bearer"
-				  },
-				  Scheme = "oauth2",
-				  Name = "Bearer",
-				  In = ParameterLocation.Header,
-
-				},
-				new List<string>()
-			  }
+				{
+					new OpenApiSecurityScheme
+					{
+						Reference = new OpenApiReference
+						{
+							Type = ReferenceType.SecurityScheme,
+							Id = "Bearer"
+						},
+						Scheme = "bearer",
+						Name = "Bearer",
+						In = ParameterLocation.Header
+					},
+					new List<string>()
+				}
 			});
 		});
+
+		// JWT Authentication
+		var rsa = RSA.Create();
+		rsa.ImportFromPem(File.ReadAllText("./data/public.key"));
+
+		builder.Services.AddAuthentication("Bearer")
+			.AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuer = true,
+					ValidIssuer = EnvironmentService.JwtIssuer,
+
+					ValidateAudience = true,
+					ValidAudience = EnvironmentService.JwtAudience,
+
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new RsaSecurityKey(rsa)
+				};
+			});
+
+		builder.Services.AddAuthorization();
 
 		// Repositories
 		builder.Services.AddScoped<IParticipantRepository>(provider =>
@@ -112,6 +138,7 @@ public class Program
 
 		app.UseHttpsRedirection();
 
+		app.UseAuthentication();
 		app.UseAuthorization();
 
 		app.MapControllers();

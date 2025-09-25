@@ -7,7 +7,10 @@
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development",
 				"ConnectionStrings__DefaultConnection": "Server=localhost;Database=PlannerDB;Trusted_Connection=True;TrustServerCertificate=True",
-				"PasswordPepper": "MojaSuperSekretnaPepper123!"
+				"PasswordPepper": "MojaSuperSekretnaPepper123!",
+				"Jwt__Issuer": "Schedule.Auth",
+				"Jwt__Audience": "Schedule.Api",
+				"Jwt__ExpiresInMinutes": "240"
 			},
 			"dotnetRunMessages": true,
 			"applicationUrl": "https://localhost:5021;http://localhost:5020"

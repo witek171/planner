@@ -77,7 +77,7 @@ public class StaffMemberController : ControllerBase
 		Guid companyId,
 		[FromBody] LoginRequest request)
 	{
-			var token = await _loginService.LoginAsync(companyId, request.Email, request.Password);
+			String token = await _loginService.LoginAsync(companyId, request.Email, request.Password);
 			return Ok(new { token });
 	}
 

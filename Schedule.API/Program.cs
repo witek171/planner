@@ -7,7 +7,6 @@ using Schedule.Infrastructure.Extensions;
 using Schedule.Infrastructure.Repositories;
 using Schedule.Infrastructure.Services;
 using Schedule.Infrastructure.Utils;
-using Serilog;
 
 namespace PlannerNet;
 
@@ -15,13 +14,6 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
-		Log.Logger = new LoggerConfiguration()
-			.MinimumLevel.Error()
-			.WriteTo.Console()
-			.CreateLogger();
-
-		Log.Information("Starting Planner application");
-
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 		builder.Services.AddControllers();

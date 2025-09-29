@@ -3,6 +3,7 @@ using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
 using Schedule.Application.Services;
+using Schedule.Infrastructure.Extensions;
 using Schedule.Infrastructure.Repositories;
 using Schedule.Infrastructure.Services;
 using Schedule.Infrastructure.Utils;
@@ -72,10 +73,12 @@ public class Program
 		// Configure the HTTP request pipeline.
 		if (app.Environment.IsDevelopment())
 		{
-			app.UseDeveloperExceptionPage();
+			app.UseMiddleware<GlobalExceptionMiddleware>();
 			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
+		else
+			app.UseMiddleware<GlobalExceptionMiddleware>();
 
 		app.UseHttpsRedirection();
 

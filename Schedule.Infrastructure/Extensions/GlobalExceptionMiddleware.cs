@@ -44,8 +44,6 @@ public class GlobalExceptionMiddleware
 
 		int statusCode = exception switch
 		{
-			// narazie zrobilem tylko 2 customowe wyjatki, czy tak to ma wygladac?
-			// BusinessRuleException => StatusCodes.Status400BadRequest,
 			EmailAlreadyExistsException => StatusCodes.Status400BadRequest,
 			PhoneAlreadyExistsException => StatusCodes.Status400BadRequest,
 			ArgumentException => StatusCodes.Status400BadRequest,

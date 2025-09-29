@@ -1,4 +1,5 @@
 ﻿using Schedule.Application.Interfaces.Repositories;
+using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Validators;
 using Schedule.Domain.Models;
 
@@ -6,23 +7,20 @@ namespace Schedule.Infrastructure.Validators;
 
 using Itenso.TimePeriod;
 
-public class EventScheduleConflictValidator : IEventScheduleConflictValidator
+public class ScheduleConflictValidator : IScheduleConflictValidator
 {
-	private readonly IEventScheduleRepository _eventScheduleRepository;
 	private readonly IReservationRepository _reservationRepository;
-	private readonly IStaffMemberAvailabilityRepository _staffMemberAvailabilityRepository;
 	private readonly ICompanyConfigRepository _companyConfigRepository;
+	private readonly IStaffMemberAvailabilityService _staffMemberAvailabilityService;
 
-	public EventScheduleConflictValidator(
-		IEventScheduleRepository eventScheduleRepository,
+	public ScheduleConflictValidator(
 		IReservationRepository reservationRepository,
-		IStaffMemberAvailabilityRepository staffMemberAvailabilityRepository,
-		ICompanyConfigRepository companyConfigRepository)
+		ICompanyConfigRepository companyConfigRepository,
+		IStaffMemberAvailabilityService staffMemberAvailabilityService)
 	{
-		_eventScheduleRepository = eventScheduleRepository;
 		_reservationRepository = reservationRepository;
-		_staffMemberAvailabilityRepository = staffMemberAvailabilityRepository;
 		_companyConfigRepository = companyConfigRepository;
+		_staffMemberAvailabilityService = staffMemberAvailabilityService;
 	}
 
 	public async Task<bool> CanAssignStaffMemberAsync(
@@ -32,41 +30,19 @@ public class EventScheduleConflictValidator : IEventScheduleConflictValidator
 		DateTime end)
 	{
 		TimeRange eventScheduleRange = new(start, end);
-		List<StaffMemberAvailability> availabilities = await _staffMemberAvailabilityRepository
+		List<StaffMemberAvailability> availabilities = await _staffMemberAvailabilityService
 			.GetByStaffMemberIdAsync(companyId, staffMemberId);
 
-		bool isAvailable = false;
 		foreach (StaffMemberAvailability availability in availabilities)
 		{
 			DateTime startTime = availability.StartTime;
 			DateTime endTime = availability.EndTime;
 			TimeRange availabilityRange = new(startTime, endTime);
 			if (availabilityRange.HasInside(eventScheduleRange))
-			{
-				isAvailable = true;
-				break;
-			}
+				return true;
 		}
 
-		if (!isAvailable)
-			return false;
-
-		CompanyConfig companyConfig = (await _companyConfigRepository.GetByIdAsync(companyId))!;
-		int breakTime = companyConfig.BreakTimeStaff;
-
-		TimeRange bufferedEventScheduleRange = new(start.AddMinutes(-breakTime), end.AddMinutes(breakTime));
-		List<EventSchedule> eventSchedules = await _eventScheduleRepository
-			.GetByStaffMemberIdAsync(companyId, staffMemberId);
-		foreach (EventSchedule eventSchedule in eventSchedules)
-		{
-			DateTime startTime = eventSchedule.StartTime;
-			DateTime endTime = eventSchedule.EndTime;
-			TimeRange existingRange = new(startTime, endTime);
-			if (bufferedEventScheduleRange.IntersectsWith(existingRange))
-				return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	public async Task<bool> CanAssignParticipantAsync(

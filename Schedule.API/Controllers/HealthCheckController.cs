@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Contracts.Dtos.Responses;
@@ -8,6 +9,7 @@ namespace PlannerNet.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Manager")]
 public class HealthCheckController : ControllerBase
 {
 	private readonly IHealthCheckService _healthCheckService;

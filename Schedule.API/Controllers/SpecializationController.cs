@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Contracts.Dtos.Requests;
@@ -9,6 +10,7 @@ namespace Schedule.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]/{companyId:guid}")]
+[Authorize(Roles = "Manager")]
 public class SpecializationController : ControllerBase
 {
 	private readonly ISpecializationService _service;

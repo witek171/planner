@@ -72,7 +72,7 @@ public class StaffMember
 		if (StaffCompanies.Any(sc => sc.CompanyId == companyId))
 			return;
 
-		var companies = StaffCompanies.ToList();
+		List<StaffMemberCompany> companies = StaffCompanies.ToList();
 		companies.Add(new StaffMemberCompany(Guid.NewGuid(), Id, companyId, DateTime.UtcNow));
 		StaffCompanies = companies;
 	}

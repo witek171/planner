@@ -27,7 +27,7 @@ public class AuthService : IAuthService
 		if (!isPasswordValid)
 			throw new InvalidCredentialsException();
 
-		String token = _jwtTokenService.GenerateToken(staffMember.Id);
+		String token = _jwtTokenService.GenerateToken(staffMember.Id, staffMember.Role);
 		return token;
 	}
 

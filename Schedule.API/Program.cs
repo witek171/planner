@@ -29,7 +29,7 @@ public class Program
 			c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 			{
-				Description = "Wpisz token w formacie: Bearer {token}",
+				Description = "Wpisz token w formacie: {token}",
 				Name = "Authorization",
 				In = ParameterLocation.Header,
 				Type = SecuritySchemeType.Http,
@@ -57,7 +57,7 @@ public class Program
 		});
 
 		// JWT Authentication
-		var rsa = RSA.Create();
+		RSA rsa = RSA.Create();
 		rsa.ImportFromPem(File.ReadAllText("./data/public.key"));
 
 		builder.Services.AddAuthentication("Bearer")
@@ -75,7 +75,7 @@ public class Program
 					ValidateIssuerSigningKey = true,
 					IssuerSigningKey = new RsaSecurityKey(rsa)
 				};
-			});
+            });
 
 		builder.Services.AddAuthorization();
 

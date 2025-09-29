@@ -36,7 +36,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		object result = (await command.ExecuteScalarAsync())!;
 		Guid staffId = (Guid)result;
 
-		foreach (var staffCompany in staffMember.StaffCompanies)
+		foreach (StaffMemberCompany staffCompany in staffMember.StaffCompanies)
 		{
 			const string staffCompanySql = @"INSERT INTO StaffCompanies (Id, StaffId, CompanyId, CreatedAt) VALUES (@Id, @StaffId, @CompanyId, @CreatedAt)";
 			await using SqlCommand staffCompanyCommand = new(staffCompanySql, connection);

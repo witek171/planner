@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Schedule.Application.Interfaces.Services;
+using Schedule.Domain.Models.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -14,11 +15,12 @@ public class JwtTokenService : IJwtTokenService
 
 	}
 
-	public string GenerateToken(Guid userId)
+	public string GenerateToken(Guid userId, StaffRole role)
 	{
 		List<Claim> claims = new List<Claim>
 			{
-				new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+				new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+				new Claim(ClaimTypes.Role, role.ToString())
 			};
 
 

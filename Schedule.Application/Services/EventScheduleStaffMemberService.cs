@@ -8,18 +8,18 @@ namespace Schedule.Application.Services;
 public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 {
 	private readonly IEventScheduleStaffMemberRepository _eventScheduleStaffMemberRepository;
-	private readonly IEventScheduleConflictValidator _eventScheduleConflictValidator;
+	private readonly IScheduleConflictValidator _scheduleConflictValidator;
 	private readonly IEventScheduleRepository _eventScheduleRepository;
 	private readonly IStaffMemberRepository _staffMemberRepository;
 
 	public EventScheduleStaffMemberService(
 		IEventScheduleStaffMemberRepository eventScheduleStaffMemberRepository,
-		IEventScheduleConflictValidator eventScheduleConflictValidator,
+		IScheduleConflictValidator scheduleConflictValidator,
 		IEventScheduleRepository eventScheduleRepository,
 		IStaffMemberRepository staffMemberRepository)
 	{
 		_eventScheduleStaffMemberRepository = eventScheduleStaffMemberRepository;
-		_eventScheduleConflictValidator = eventScheduleConflictValidator;
+		_scheduleConflictValidator = scheduleConflictValidator;
 		_eventScheduleRepository = eventScheduleRepository;
 		_staffMemberRepository = staffMemberRepository;
 	}
@@ -42,7 +42,7 @@ public class EventScheduleStaffMemberService : IEventScheduleStaffMemberService
 		DateTime startTime = eventSchedule.StartTime;
 		DateTime endTime = eventSchedule.EndTime;
 
-		if (!await _eventScheduleConflictValidator
+		if (!await _scheduleConflictValidator
 				.CanAssignStaffMemberAsync(companyId, staffMemberId, startTime, endTime))
 			throw new InvalidOperationException(
 				$"Staff member {staffMemberId} has a time conflict");

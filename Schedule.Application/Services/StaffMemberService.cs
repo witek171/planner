@@ -3,19 +3,16 @@ using Schedule.Application.Interfaces.Services;
 using Schedule.Domain.Exceptions;
 using Schedule.Application.Interfaces.Utils;
 using Schedule.Domain.Models;
-using Schedule.Domain.Exceptions.Register;
 
 namespace Schedule.Application.Services;
 
 public class StaffMemberService : IStaffMemberService
 {
 	private readonly IStaffMemberRepository _staffMemberRepository;
-	private readonly IPasswordHasher _passwordHasher;
 
-	public StaffMemberService(IStaffMemberRepository staffMemberRepository, IPasswordHasher passwordHasher)
+	public StaffMemberService(IStaffMemberRepository staffMemberRepository)
 	{
 		_staffMemberRepository = staffMemberRepository;
-		_passwordHasher = passwordHasher;
 
 	}
 
@@ -27,19 +24,6 @@ public class StaffMemberService : IStaffMemberService
 		Guid companyId)
 		=> await _staffMemberRepository.GetByIdAsync(id, companyId);
 
-	private async Task ValidateEmailAndPhoneAsync(StaffMember staffMember, Guid companyId)
-	{
-		Guid staffMemberId = staffMember.Id;
-		string email = staffMember.Email;
-		string phone = staffMember.Phone;
-
-		if (await _staffMemberRepository.EmailExistsForOtherAsync(companyId, staffMemberId, email))
-			throw new EmailAlreadyExistsException();
-
-		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
-			throw new PhoneAlreadyExistsException();
-	}
-
 	public async Task<StaffMember?> GetByEmailAsync(String email)
 	{
 		return await _staffMemberRepository.GetByEmailAsync(email);
@@ -47,7 +31,7 @@ public class StaffMemberService : IStaffMemberService
 
 	public async Task<Guid> CreateAsync(StaffMember staffMember)
 	{
-		// trzeba podmienic walidacje maila i telefonu na taka bez companyId
+		await ValidateEmailAndPhoneWithoutCompanyIdAsync(staffMember);
 		return await _staffMemberRepository.CreateAsync(staffMember);
 	}
 
@@ -106,5 +90,19 @@ public class StaffMemberService : IStaffMemberService
 
 		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
 			throw new PhoneAlreadyExistsException(phone, companyId);
+	}
+
+	private async Task ValidateEmailAndPhoneWithoutCompanyIdAsync(
+	StaffMember staffMember)
+	{
+		Guid staffMemberId = staffMember.Id;
+		string email = staffMember.Email;
+		string phone = staffMember.Phone;
+
+		if (await _staffMemberRepository.EmailExistsForOtherWithoutCompanyIdAsync(staffMemberId, email))
+			throw new EmailAlreadyExistsException(email);
+
+		if (await _staffMemberRepository.PhoneExistsForOtherWithoutCompanyIdAsync(staffMemberId, phone))
+			throw new PhoneAlreadyExistsException(phone);
 	}
 }

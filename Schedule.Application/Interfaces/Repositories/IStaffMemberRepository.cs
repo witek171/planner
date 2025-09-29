@@ -33,6 +33,14 @@ public interface IStaffMemberRepository
 		Guid staffMemberId,
 		string phone);
 
+	Task<bool> EmailExistsForOtherWithoutCompanyIdAsync(
+	Guid staffMemberId,
+	string email);
+
+	Task<bool> PhoneExistsForOtherWithoutCompanyIdAsync(
+		Guid staffMemberId,
+		string phone);
+
 	Task<bool> UpdateSoftDeleteAsync(StaffMember staffMember);
 
 	Task<bool> AssignToCompanyAsync(Guid staffMemberId, Guid companyId);

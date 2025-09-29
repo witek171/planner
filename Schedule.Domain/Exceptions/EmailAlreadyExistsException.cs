@@ -1,4 +1,4 @@
-﻿namespace Schedule.Domain.Exceptions.Register;
+﻿namespace Schedule.Domain.Exceptions;
 
 public class EmailAlreadyExistsException : Exception
 {

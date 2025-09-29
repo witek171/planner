@@ -1,4 +1,4 @@
-﻿namespace Schedule.Domain.Exceptions.Login;
+﻿namespace Schedule.Domain.Exceptions;
 
 public class InvalidCredentialsException : Exception
 {

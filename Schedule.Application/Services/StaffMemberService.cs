@@ -39,13 +39,14 @@ public class StaffMemberService : IStaffMemberService
 			throw new PhoneAlreadyExistsException();
 	}
 
-	public async Task<Guid> CreateAsync(StaffMember staffMember, Guid companyId)
+	public async Task<StaffMember?> GetByEmailAsync(String email)
 	{
-		staffMember.Normalize();
-		await ValidateEmailAndPhoneAsync(staffMember, companyId);
-		staffMember.AddCompany(companyId);
-		string hashed = _passwordHasher.Hash(staffMember.Password);
-		staffMember.SetPassword(hashed);
+		return await _staffMemberRepository.GetByEmailAsync(email);
+	}
+
+	public async Task<Guid> CreateAsync(StaffMember staffMember)
+	{
+		// trzeba podmienic walidacje maila i telefonu na taka bez companyId
 		return await _staffMemberRepository.CreateAsync(staffMember);
 	}
 

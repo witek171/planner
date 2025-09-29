@@ -10,7 +10,7 @@ public interface IStaffMemberRepository
 		Guid staffMemberId,
 		Guid companyId);
 
-	Task<StaffMember?> GetByEmailAsync(string email, Guid companyId);
+	Task<StaffMember?> GetByEmailAsync(string email);
 
 	Task<Guid> CreateAsync(StaffMember staffMember);
 	Task<bool> PutAsync(StaffMember staffMember);

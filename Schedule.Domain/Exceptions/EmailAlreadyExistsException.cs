@@ -6,4 +6,9 @@ public class EmailAlreadyExistsException : Exception
 		: base($"Email {email} already exists for company {companyId}")
 	{
 	}
+
+	public EmailAlreadyExistsException(string email)
+		: base($"Email {email} already exists")
+	{
+	}
 }

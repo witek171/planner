@@ -6,4 +6,9 @@ public class PhoneAlreadyExistsException : Exception
 		: base($"Phone {phone} already exists for company {companyId}")
 	{
 	}
+
+	public PhoneAlreadyExistsException(string phone)
+		: base($"Phone {phone} already exists")
+	{
+	}
 }

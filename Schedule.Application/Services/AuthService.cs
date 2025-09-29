@@ -1,6 +1,6 @@
 ﻿using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
-using Schedule.Domain.Exceptions.Login;
+using Schedule.Domain.Exceptions;
 using Schedule.Domain.Models;
 
 namespace Schedule.Application.Services;

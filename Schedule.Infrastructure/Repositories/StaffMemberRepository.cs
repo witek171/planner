@@ -315,6 +315,46 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return result != null;
 	}
 
+	public async Task<bool> EmailExistsForOtherWithoutCompanyIdAsync(Guid staffMemberId, string email)
+	{
+		const string sql = @"
+			SELECT 1 
+			FROM Staff s
+			WHERE s.Email = @Email 
+			AND s.Id <> @StaffMemberId
+			AND s.isDeleted = 0";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Email", email);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
+
+	public async Task<bool> PhoneExistsForOtherWithoutCompanyIdAsync(Guid staffMemberId, string phone)
+	{
+		const string sql = @"
+			SELECT 1 
+			FROM Staff s
+			WHERE s.Phone = @Phone 
+			AND s.Id <> @StaffMemberId
+			AND s.isDeleted = 0";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Phone", phone);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
+
 	public async Task<bool> UpdateSoftDeleteAsync(StaffMember staffMember)
 	{
 		const string sql = @"

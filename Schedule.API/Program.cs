@@ -72,7 +72,8 @@ public class Program
 
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 
-		builder.Services.AddScoped<IEventScheduleConflictValidator, EventScheduleConflictValidator>();
+		builder.Services.AddScoped<IScheduleConflictValidator, ScheduleConflictValidator>();
+		builder.Services.AddScoped<IAvailabilityCalculator, AvailabilityCalculator>();
 
 		WebApplication app = builder.Build();
 

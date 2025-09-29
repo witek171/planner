@@ -183,19 +183,17 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return staffMember;
 	}
 
-	public async Task<StaffMember?> GetByEmailAsync(string email, Guid companyId)
+	public async Task<StaffMember?> GetByEmailAsync(string email)
 	{
 		const string sql = @"
 			SELECT s.Id as StaffMemberId, s.Role, s.Email, s.Password, s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted
 			FROM Staff s
-			INNER JOIN StaffCompanies sc ON s.Id = sc.StaffId
-			WHERE s.Email = @Email AND sc.CompanyId = @CompanyId AND s.IsDeleted = 0";
+			WHERE s.Email = @Email AND s.IsDeleted = 0";
 
 		await using SqlConnection connection = new(_connectionString);
 		await connection.OpenAsync();
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Email", email);
-		command.Parameters.AddWithValue("@CompanyId", companyId);
 		await using SqlDataReader reader = await command.ExecuteReaderAsync();
 
 		StaffMember? staffMember = null;

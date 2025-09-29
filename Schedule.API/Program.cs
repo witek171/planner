@@ -122,7 +122,7 @@ public class Program
 		builder.Services.AddScoped<IEventTypeService, EventTypeService>();
 		builder.Services.AddScoped<IReservationService, ReservationService>();
 		builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-		builder.Services.AddScoped<ILoginService, LoginService>();
+		builder.Services.AddScoped<IAuthService, AuthService>();
 		builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
 

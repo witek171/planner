@@ -11,20 +11,20 @@ public class ReservationService : IReservationService
 	private readonly IReservationParticipantRepository _reservationParticipantRepository;
 	private readonly IEventScheduleRepository _eventScheduleRepository;
 	private readonly IParticipantRepository _participantRepository;
-	private readonly IEventScheduleConflictValidator _eventScheduleConflictValidator;
+	private readonly IScheduleConflictValidator _scheduleConflictValidator;
 
 	public ReservationService(
 		IReservationRepository reservationRepository,
 		IReservationParticipantRepository reservationParticipantRepository,
 		IEventScheduleRepository eventScheduleRepository,
 		IParticipantRepository participantRepository,
-		IEventScheduleConflictValidator eventScheduleConflictValidator)
+		IScheduleConflictValidator scheduleConflictValidator)
 	{
 		_reservationRepository = reservationRepository;
 		_reservationParticipantRepository = reservationParticipantRepository;
 		_eventScheduleRepository = eventScheduleRepository;
 		_participantRepository = participantRepository;
-		_eventScheduleConflictValidator = eventScheduleConflictValidator;
+		_scheduleConflictValidator = scheduleConflictValidator;
 	}
 
 	public async Task<List<Reservation>> GetAllAsync(Guid companyId)
@@ -57,7 +57,7 @@ public class ReservationService : IReservationService
 				throw new InvalidOperationException(
 					$"Participant {participantId} is already assigned to event schedule {eventScheduleId}");
 
-			if (!await _eventScheduleConflictValidator
+			if (!await _scheduleConflictValidator
 					.CanAssignParticipantAsync(companyId, participantId, startTime, endTime))
 				throw new InvalidOperationException(
 					$"Participant {participantId} has a time conflict");

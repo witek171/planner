@@ -2,12 +2,8 @@
 
 public class PhoneAlreadyExistsException : Exception
 {
-	public PhoneAlreadyExistsException()
-	: base("Phone already exists for another staff member in this company.") { }
-
-	public PhoneAlreadyExistsException(string message)
-		: base(message) { }
-
-	public PhoneAlreadyExistsException(string message, Exception innerException)
-		: base(message, innerException) { }
+	public PhoneAlreadyExistsException(string phone, Guid companyId)
+		: base($"Phone {phone} already exists for company {companyId}")
+	{
+	}
 }

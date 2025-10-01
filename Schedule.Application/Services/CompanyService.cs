@@ -7,16 +7,22 @@ namespace Schedule.Application.Services;
 public class CompanyService : ICompanyService
 {
 	private readonly ICompanyRepository _companyRepository;
+	private readonly ICompanyConfigRepository _companyConfigRepository;
 
-	public CompanyService(ICompanyRepository companyRepository)
+	public CompanyService(ICompanyRepository companyRepository,
+		ICompanyConfigRepository companyConfigRepository)
 	{
 		_companyRepository = companyRepository;
+		_companyConfigRepository = companyConfigRepository;
 	}
 
 	public async Task<Guid> CreateAsync(Company company)
 	{
 		company.Normalize();
-		return await _companyRepository.CreateAsync(company);
+		Guid companyId = await _companyRepository.CreateAsync(company);
+		await _companyConfigRepository.CreateAsync(companyId);
+
+		return companyId;
 	}
 
 	public async Task PutAsync(Company company)

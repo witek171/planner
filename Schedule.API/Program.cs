@@ -4,12 +4,14 @@ using Schedule.API.Mappings;
 using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Application.Interfaces.Utils;
+using Schedule.Application.Interfaces.Validators;
 using Schedule.Application.Services;
 using Schedule.Infrastructure.Extensions;
 using Schedule.Infrastructure.Repositories;
 using Schedule.Infrastructure.Services;
 using Schedule.Infrastructure.Utils;
 using System.Security.Cryptography;
+using Schedule.Infrastructure.Validators;
 
 namespace PlannerNet;
 
@@ -102,6 +104,8 @@ public class Program
 			new ReservationRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IReservationParticipantRepository>(provider =>
 			new ReservationParticipantRepository(EnvironmentService.SqlConnectionString));
+		builder.Services.AddScoped<ICompanyConfigRepository>(provider =>
+			new CompanyConfigRepository(EnvironmentService.SqlConnectionString));
 
 		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>
@@ -125,7 +129,12 @@ public class Program
 		builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 		builder.Services.AddScoped<IAuthService, AuthService>();
 		builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+		builder.Services.AddScoped<ICompanyConfigService, CompanyConfigService>();
+
 		builder.Services.AddScoped<IHealthCheckUtils, HealthCheckUtils>();
+
+		builder.Services.AddScoped<IScheduleConflictValidator, ScheduleConflictValidator>();
+		builder.Services.AddScoped<IAvailabilityCalculator, AvailabilityCalculator>();
 
 		WebApplication app = builder.Build();
 

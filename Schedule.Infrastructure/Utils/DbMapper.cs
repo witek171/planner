@@ -173,4 +173,12 @@ public static class DbMapper
 			reader.GetBoolean(reader.GetOrdinal("GdprConsent")),
 			reader.GetDateTime(reader.GetOrdinal("CreatedAt")));
 	}
+
+	public static CompanyConfig MapCompanyConfig(SqlDataReader reader)
+	{
+		return new CompanyConfig(
+			reader.GetGuid(reader.GetOrdinal("CompanyId")),
+			reader.GetInt32(reader.GetOrdinal("BreakTimeStaff")),
+			reader.GetInt32(reader.GetOrdinal("BreakTimeParticipants")));
+	}
 }

@@ -1,5 +1,6 @@
 ﻿using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
+using Schedule.Application.Interfaces.Validators;
 using Schedule.Domain.Models;
 
 namespace Schedule.Application.Services;
@@ -7,17 +8,31 @@ namespace Schedule.Application.Services;
 public class StaffMemberAvailabilityService : IStaffMemberAvailabilityService
 {
 	private readonly IStaffMemberAvailabilityRepository _staffMemberAvailabilityRepository;
+	private readonly IEventScheduleRepository _eventScheduleRepository;
+	private readonly IAvailabilityCalculator _availabilityCalculator;
 
-	public StaffMemberAvailabilityService(IStaffMemberAvailabilityRepository staffMemberAvailabilityRepository)
+	public StaffMemberAvailabilityService(
+		IStaffMemberAvailabilityRepository staffMemberAvailabilityRepository,
+		IEventScheduleRepository eventScheduleRepository,
+		IAvailabilityCalculator availabilityCalculator)
 	{
 		_staffMemberAvailabilityRepository = staffMemberAvailabilityRepository;
+		_eventScheduleRepository = eventScheduleRepository;
+		_availabilityCalculator = availabilityCalculator;
 	}
 
 	public async Task<List<StaffMemberAvailability>> GetByStaffMemberIdAsync(
 		Guid companyId,
 		Guid staffMemberId)
-		=> await _staffMemberAvailabilityRepository
+	{
+		List<StaffMemberAvailability> staffMemberAvailabilities = await _staffMemberAvailabilityRepository
 			.GetByStaffMemberIdAsync(companyId, staffMemberId);
+		List<EventSchedule> staffMemberEvents = await _eventScheduleRepository
+			.GetByStaffMemberIdAsync(companyId, staffMemberId);
+
+		return await _availabilityCalculator
+			.CalculateAvailableTimeSlots(staffMemberAvailabilities, staffMemberEvents, companyId);
+	}
 
 	public async Task<Guid> CreateAsync(StaffMemberAvailability availability)
 	{

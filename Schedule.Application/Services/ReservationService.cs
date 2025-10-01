@@ -1,5 +1,6 @@
 ﻿using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
+using Schedule.Application.Interfaces.Validators;
 using Schedule.Domain.Models;
 
 namespace Schedule.Application.Services;
@@ -10,17 +11,20 @@ public class ReservationService : IReservationService
 	private readonly IReservationParticipantRepository _reservationParticipantRepository;
 	private readonly IEventScheduleRepository _eventScheduleRepository;
 	private readonly IParticipantRepository _participantRepository;
+	private readonly IScheduleConflictValidator _scheduleConflictValidator;
 
 	public ReservationService(
 		IReservationRepository reservationRepository,
 		IReservationParticipantRepository reservationParticipantRepository,
 		IEventScheduleRepository eventScheduleRepository,
-		IParticipantRepository participantRepository)
+		IParticipantRepository participantRepository,
+		IScheduleConflictValidator scheduleConflictValidator)
 	{
 		_reservationRepository = reservationRepository;
 		_reservationParticipantRepository = reservationParticipantRepository;
 		_eventScheduleRepository = eventScheduleRepository;
 		_participantRepository = participantRepository;
+		_scheduleConflictValidator = scheduleConflictValidator;
 	}
 
 	public async Task<List<Reservation>> GetAllAsync(Guid companyId)
@@ -41,6 +45,10 @@ public class ReservationService : IReservationService
 
 		Guid companyId = reservation.CompanyId;
 		Guid eventScheduleId = reservation.EventScheduleId;
+		EventSchedule eventSchedule = (await _eventScheduleRepository
+			.GetByIdAsync(eventScheduleId, companyId))!;
+		DateTime startTime = eventSchedule.StartTime;
+		DateTime endTime = eventSchedule.EndTime;
 		foreach (Guid participantId in participantsIds)
 		{
 			bool isParticipantAssigned = await _eventScheduleRepository
@@ -48,6 +56,11 @@ public class ReservationService : IReservationService
 			if (isParticipantAssigned)
 				throw new InvalidOperationException(
 					$"Participant {participantId} is already assigned to event schedule {eventScheduleId}");
+
+			if (!await _scheduleConflictValidator
+					.CanAssignParticipantAsync(companyId, participantId, startTime, endTime))
+				throw new InvalidOperationException(
+					$"Participant {participantId} has a time conflict");
 		}
 
 		int participantsCount = reservation.ParticipantsIds.Count;

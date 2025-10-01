@@ -7,8 +7,8 @@ public interface IEventScheduleStaffMemberRepository
 	Task<Guid> CreateAsync(EventScheduleStaffMember eventScheduleStaffMember);
 
 	Task<bool> DeleteByIdAsync(
-		Guid eventScheduleStaffMemberId,
-		Guid companyId);
+		Guid companyId,
+		Guid eventScheduleStaffMemberId);
 
 	Task<List<EventScheduleStaffMember>> GetByStaffMemberIdAsync(
 		Guid companyId,

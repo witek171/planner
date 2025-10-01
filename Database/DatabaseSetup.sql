@@ -41,6 +41,8 @@ DROP TABLE IF EXISTS Specializations;
 DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS StaffCompanies;
 DROP TABLE IF EXISTS Staff;
+DROP TABLE IF EXISTS CompanyConfig;
+DROP TABLE IF EXISTS CompanyConfigs;
 DROP TABLE IF EXISTS CompanyHierarchy;
 DROP TABLE IF EXISTS CompanyHierarchies;
 DROP TABLE IF EXISTS Companies;
@@ -76,16 +78,26 @@ CREATE TABLE CompanyHierarchies
 		REFERENCES Companies (Id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+-- Tabela CompanyConfigs (konfiguracja firmy)
+CREATE TABLE CompanyConfigs
+(
+	CompanyId             UNIQUEIDENTIFIER PRIMARY KEY NOT NULL,
+	BreakTimeStaff        INT                          NOT NULL DEFAULT 0,
+	BreakTimeParticipants INT                          NOT NULL DEFAULT 0,
+	CONSTRAINT fk_companyconfig_company FOREIGN KEY (CompanyId)
+		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+
 -- Tabela Staff (personel) – bez CompanyId
 CREATE TABLE Staff
 (
 	Id        UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-	Role      NVARCHAR(50)     NOT NULL,
-	Email     NVARCHAR(255)    NOT NULL,
-	Password  NVARCHAR(255)    NOT NULL,
-	FirstName NVARCHAR(100)    NOT NULL,
-	LastName  NVARCHAR(100)    NOT NULL,
-	Phone     NVARCHAR(30)     NOT NULL,
+	Role      NVARCHAR(50)  NOT NULL,
+	Email     NVARCHAR(255) NOT NULL,
+	Password  NVARCHAR(255) NOT NULL,
+	FirstName NVARCHAR(100) NOT NULL,
+	LastName  NVARCHAR(100) NOT NULL,
+	Phone     NVARCHAR(30)  NOT NULL,
 	CreatedAt DATETIME                     DEFAULT GETUTCDATE(),
 	IsDeleted BIT                          DEFAULT 0
 );
@@ -97,8 +109,8 @@ CREATE TABLE StaffCompanies
 	StaffId   UNIQUEIDENTIFIER NOT NULL,
 	CompanyId UNIQUEIDENTIFIER NOT NULL,
 	CreatedAt DATETIME                     DEFAULT GETUTCDATE()
-	CONSTRAINT fk_sc_staff FOREIGN KEY (StaffId)
-		REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
+		CONSTRAINT fk_sc_staff FOREIGN KEY (StaffId)
+			REFERENCES Staff (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT fk_sc_company FOREIGN KEY (CompanyId)
 		REFERENCES Companies (Id) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT uq_staff_company UNIQUE (StaffId, CompanyId)
@@ -309,13 +321,13 @@ CREATE INDEX idx_reservation_participants_participant ON ReservationParticipants
 -- INNER JOIN CompanyHierarchies ch ON parent.Id = ch.ParentCompanyId
 -- WHERE ch.CompanyId = @ReceptionId;
 
-	-- =============================================
+-- =============================================
 -- TRIGGER: usuwa powiązane dane i na końcu usuwa firmę
 -- (kolejność dobrana tak, by nie łamać ograniczeń FK)
 -- =============================================
 
-	IF OBJECT_ID('dbo.trg_delete_company', 'TR') IS NOT NULL
-		DROP TRIGGER dbo.trg_delete_company;
+IF OBJECT_ID('dbo.trg_delete_company', 'TR') IS NOT NULL
+	DROP TRIGGER dbo.trg_delete_company;
 GO
 
 CREATE TRIGGER dbo.trg_delete_company
@@ -396,6 +408,11 @@ BEGIN
 	DELETE
 	FROM dbo.CompanyHierarchies
 	WHERE ParentCompanyId IN (SELECT Id FROM deleted);
+
+	-- Usuń konfigurację firmy
+	DELETE
+	FROM dbo.CompanyConfigs
+	WHERE CompanyId IN (SELECT Id FROM deleted);
 
 	-- Na końcu usuń samą firmę
 	DELETE

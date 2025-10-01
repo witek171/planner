@@ -12,13 +12,16 @@ namespace PlannerNet.Controllers;
 public class CompanyController : ControllerBase
 {
 	private readonly ICompanyService _companyService;
+	private readonly ICompanyConfigService _companyConfigService;
 	private readonly IMapper _mapper;
 
 	public CompanyController(
 		ICompanyService companyService,
+		ICompanyConfigService companyConfigService,
 		IMapper mapper)
 	{
 		_companyService = companyService;
+		_companyConfigService = companyConfigService;
 		_mapper = mapper;
 	}
 
@@ -126,5 +129,21 @@ public class CompanyController : ControllerBase
 
 		List<CompanyResponse> responses = _mapper.Map<List<CompanyResponse>>(companies);
 		return Ok(responses);
+	}
+
+	[HttpPut("{companyId:guid}/breakTimes")]
+	public async Task<IActionResult> UpdateCompanyBreakTimes(
+		Guid companyId,
+		[FromBody] UpdateCompanyBreakTimesRequest request)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		CompanyConfig companyConfig = await _companyConfigService.GetByIdAsync(companyId);
+		_mapper.Map(request, companyConfig);
+
+		await _companyConfigService.UpdateBreakTimesAsync(companyConfig);
+		return NoContent();
 	}
 }

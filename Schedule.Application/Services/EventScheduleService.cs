@@ -60,7 +60,7 @@ public class EventScheduleService : IEventScheduleService
 			// wyslanie powiadomienia o odwolaniu zajec do uczestnika
 
 			List<Guid> reservationIds = await _reservationRepository
-				.GetByEventScheduleIdAsync(id, companyId);
+				.GetIdsByEventScheduleIdAsync(id, companyId);
 			foreach (Guid reservationId in reservationIds)
 				await _reservationService.SoftDeleteAsync(reservationId, companyId);
 

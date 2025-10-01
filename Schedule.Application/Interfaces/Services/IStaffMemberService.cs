@@ -9,8 +9,8 @@ public interface IStaffMemberService
 	Task<StaffMember?> GetByIdAsync(
 		Guid id,
 		Guid companyId);
-
-	Task<Guid> CreateAsync(StaffMember staffMember, Guid companyId);
+	Task<StaffMember?> GetByEmailAsync(String email);
+	Task<Guid> CreateAsync(StaffMember staffMember);
 	Task PutAsync(StaffMember staffMember, Guid companyId);
 
 	Task DeleteAsync(

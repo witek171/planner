@@ -10,6 +10,8 @@ public interface IStaffMemberRepository
 		Guid staffMemberId,
 		Guid companyId);
 
+	Task<StaffMember?> GetByEmailAsync(string email);
+
 	Task<Guid> CreateAsync(StaffMember staffMember);
 	Task<bool> PutAsync(StaffMember staffMember);
 
@@ -28,6 +30,14 @@ public interface IStaffMemberRepository
 
 	Task<bool> PhoneExistsForOtherAsync(
 		Guid companyId,
+		Guid staffMemberId,
+		string phone);
+
+	Task<bool> EmailExistsForOtherWithoutCompanyIdAsync(
+	Guid staffMemberId,
+	string email);
+
+	Task<bool> PhoneExistsForOtherWithoutCompanyIdAsync(
 		Guid staffMemberId,
 		string phone);
 

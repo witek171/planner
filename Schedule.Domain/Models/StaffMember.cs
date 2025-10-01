@@ -72,7 +72,7 @@ public class StaffMember
 		if (StaffCompanies.Any(sc => sc.CompanyId == companyId))
 			return;
 
-		var companies = StaffCompanies.ToList();
+		List<StaffMemberCompany> companies = StaffCompanies.ToList();
 		companies.Add(new StaffMemberCompany(Guid.NewGuid(), Id, companyId, DateTime.UtcNow));
 		StaffCompanies = companies;
 	}
@@ -89,5 +89,13 @@ public class StaffMember
 	public void SetStaffCompanies(List<StaffMemberCompany> staffCompanies)
 	{
 		StaffCompanies = staffCompanies;
+	}
+
+	public void SetPassword(string hashedPassword)
+	{
+		if (string.IsNullOrWhiteSpace(hashedPassword))
+			throw new ArgumentException("Password hash cannot be empty", nameof(hashedPassword));
+
+		Password = hashedPassword;
 	}
 }

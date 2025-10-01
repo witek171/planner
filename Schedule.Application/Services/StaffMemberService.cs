@@ -1,6 +1,7 @@
 ﻿using Schedule.Application.Interfaces.Repositories;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Domain.Exceptions;
+using Schedule.Application.Interfaces.Utils;
 using Schedule.Domain.Models;
 
 namespace Schedule.Application.Services;
@@ -12,6 +13,7 @@ public class StaffMemberService : IStaffMemberService
 	public StaffMemberService(IStaffMemberRepository staffMemberRepository)
 	{
 		_staffMemberRepository = staffMemberRepository;
+
 	}
 
 	public async Task<List<StaffMember>> GetAllAsync(Guid companyId)
@@ -22,13 +24,14 @@ public class StaffMemberService : IStaffMemberService
 		Guid companyId)
 		=> await _staffMemberRepository.GetByIdAsync(id, companyId);
 
-	public async Task<Guid> CreateAsync(
-		StaffMember staffMember,
-		Guid companyId)
+	public async Task<StaffMember?> GetByEmailAsync(String email)
 	{
-		staffMember.Normalize();
-		await ValidateEmailAndPhoneAsync(staffMember, companyId);
-		staffMember.AddCompany(companyId);
+		return await _staffMemberRepository.GetByEmailAsync(email);
+	}
+
+	public async Task<Guid> CreateAsync(StaffMember staffMember)
+	{
+		await ValidateEmailAndPhoneWithoutCompanyIdAsync(staffMember);
 		return await _staffMemberRepository.CreateAsync(staffMember);
 	}
 
@@ -87,5 +90,19 @@ public class StaffMemberService : IStaffMemberService
 
 		if (await _staffMemberRepository.PhoneExistsForOtherAsync(companyId, staffMemberId, phone))
 			throw new PhoneAlreadyExistsException(phone, companyId);
+	}
+
+	private async Task ValidateEmailAndPhoneWithoutCompanyIdAsync(
+	StaffMember staffMember)
+	{
+		Guid staffMemberId = staffMember.Id;
+		string email = staffMember.Email;
+		string phone = staffMember.Phone;
+
+		if (await _staffMemberRepository.EmailExistsForOtherWithoutCompanyIdAsync(staffMemberId, email))
+			throw new EmailAlreadyExistsException(email);
+
+		if (await _staffMemberRepository.PhoneExistsForOtherWithoutCompanyIdAsync(staffMemberId, phone))
+			throw new PhoneAlreadyExistsException(phone);
 	}
 }

@@ -1,0 +1,30 @@
+﻿using Schedule.Domain.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace Schedule.Contracts.Dtos.Requests;
+
+internal class RegisterRequest
+{
+	public RegisterRequest(
+	StaffRole role,
+	string email,
+	string password,
+	string firstName,
+	string lastName,
+	string phone)
+	{
+		Role = role;
+		Email = email;
+		Password = password;
+		FirstName = firstName;
+		LastName = lastName;
+		Phone = phone;
+	}
+
+	[Required] public StaffRole Role { get; }
+	[Required][EmailAddress] public string Email { get; }
+	[Required] public string Password { get; }
+	[Required][MaxLength(40)] public string FirstName { get; }
+	[Required][MaxLength(40)] public string LastName { get; }
+	[Required][Phone] public string Phone { get; }
+}

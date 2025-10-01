@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Contracts.Dtos.Requests;
@@ -9,6 +10,7 @@ namespace PlannerNet.Controllers;
 
 [ApiController]
 [Route("api/[controller]/{companyId:guid}")]
+[Authorize(Roles = "Manager")]
 public class ParticipantController : ControllerBase
 {
 	private readonly IParticipantService _participantService;

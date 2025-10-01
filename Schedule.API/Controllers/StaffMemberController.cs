@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.Interfaces.Services;
 using Schedule.Contracts.Dtos.Requests;
@@ -9,6 +10,7 @@ namespace PlannerNet.Controllers;
 
 [ApiController]
 [Route("api/[controller]/{companyId:guid}")]
+[Authorize(Roles = "Manager")]
 public class StaffMemberController : ControllerBase
 {
 	private readonly IStaffMemberService _staffMemberService;
@@ -63,7 +65,7 @@ public class StaffMemberController : ControllerBase
 	{
 		StaffMember staffMember = _mapper.Map<StaffMember>(request);
 		staffMember.AddCompany(companyId);
-		Guid staffMemberId = await _staffMemberService.CreateAsync(staffMember, companyId);
+		Guid staffMemberId = await _staffMemberService.CreateAsync(staffMember);
 		return CreatedAtAction(nameof(Create), staffMemberId);
 	}
 

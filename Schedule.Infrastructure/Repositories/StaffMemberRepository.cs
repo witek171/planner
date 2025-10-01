@@ -36,7 +36,7 @@ public class StaffMemberRepository : IStaffMemberRepository
 		object result = (await command.ExecuteScalarAsync())!;
 		Guid staffId = (Guid)result;
 
-		foreach (var staffCompany in staffMember.StaffCompanies)
+		foreach (StaffMemberCompany staffCompany in staffMember.StaffCompanies)
 		{
 			const string staffCompanySql = @"INSERT INTO StaffCompanies (Id, StaffId, CompanyId, CreatedAt) VALUES (@Id, @StaffId, @CompanyId, @CreatedAt)";
 			await using SqlCommand staffCompanyCommand = new(staffCompanySql, connection);
@@ -183,6 +183,33 @@ public class StaffMemberRepository : IStaffMemberRepository
 		return staffMember;
 	}
 
+	public async Task<StaffMember?> GetByEmailAsync(string email)
+	{
+		const string sql = @"
+			SELECT s.Id as StaffMemberId, s.Role, s.Email, s.Password, s.FirstName, s.LastName, s.Phone, s.CreatedAt, s.IsDeleted
+			FROM Staff s
+			WHERE s.Email = @Email AND s.IsDeleted = 0";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Email", email);
+		await using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+		StaffMember? staffMember = null;
+		if (await reader.ReadAsync())
+		{
+			staffMember = DbMapper.MapStaffMember(reader);
+		}
+		reader.Close();
+
+		if (staffMember != null)
+		{
+			staffMember = await AttachStaffCompaniesAsync(staffMember, connection);
+		}
+		return staffMember;
+	}
+
 	private async Task<StaffMember> AttachStaffCompaniesAsync(StaffMember staffMember, SqlConnection connection)
 	{
 		const string sql = @"SELECT Id, StaffId, CompanyId, CreatedAt FROM StaffCompanies WHERE StaffId = @StaffId";
@@ -281,6 +308,46 @@ public class StaffMemberRepository : IStaffMemberRepository
 
 		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@CompanyId", companyId);
+		command.Parameters.AddWithValue("@Phone", phone);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
+
+	public async Task<bool> EmailExistsForOtherWithoutCompanyIdAsync(Guid staffMemberId, string email)
+	{
+		const string sql = @"
+			SELECT 1 
+			FROM Staff s
+			WHERE s.Email = @Email 
+			AND s.Id <> @StaffMemberId
+			AND s.isDeleted = 0";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
+		command.Parameters.AddWithValue("@Email", email);
+		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
+
+		object? result = await command.ExecuteScalarAsync();
+		return result != null;
+	}
+
+	public async Task<bool> PhoneExistsForOtherWithoutCompanyIdAsync(Guid staffMemberId, string phone)
+	{
+		const string sql = @"
+			SELECT 1 
+			FROM Staff s
+			WHERE s.Phone = @Phone 
+			AND s.Id <> @StaffMemberId
+			AND s.isDeleted = 0";
+
+		await using SqlConnection connection = new(_connectionString);
+		await connection.OpenAsync();
+
+		await using SqlCommand command = new(sql, connection);
 		command.Parameters.AddWithValue("@Phone", phone);
 		command.Parameters.AddWithValue("@StaffMemberId", staffMemberId);
 

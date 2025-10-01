@@ -193,6 +193,40 @@ DECLARE @Manager9Id UNIQUEIDENTIFIER = NEWID();
 DECLARE @Manager10Id UNIQUEIDENTIFIER = NEWID();
 
 -- =============================================
+-- CompanyConfig - konfiguracja dla firm
+-- =============================================
+
+INSERT INTO CompanyConfigs (CompanyId, BreakTimeStaff, BreakTimeParticipants)
+VALUES
+	-- SportFit Group (firma główna + oddziały)
+	(@MainCompanyId, 15, 10),
+	(@Branch1Id, 10, 5),
+	(@Branch2Id, 12, 6),
+	(@Branch3Id, 10, 5),
+	(@Branch4Id, 15, 7),
+	(@Branch5Id, 10, 5),
+
+	-- FitZone Network (firma główna + oddziały)
+	(@FitZoneMainId, 20, 15),
+	(@FitZone1Id, 10, 5),
+	(@FitZone2Id, 12, 6),
+	(@FitZone3Id, 15, 8),
+
+	-- AquaFit Centers (firma główna + oddziały)
+	(@AquaFitMainId, 20, 10),
+	(@AquaFit1Id, 10, 5),
+	(@AquaFit2Id, 12, 6),
+
+	-- PowerGym Chain (firma główna + oddziały)
+	(@PowerGymMainId, 15, 10),
+	(@PowerGym1Id, 10, 5),
+	(@PowerGym2Id, 12, 6),
+
+	-- FlexYoga Studios (firma główna + oddział)
+	(@FlexYogaMainId, 15, 10),
+	(@FlexYoga1Id, 10, 5);
+
+-- =============================================
 -- Wstawiamy personel (bez CompanyId)
 -- =============================================
 INSERT INTO Staff (Id, Role, Email, Password, FirstName, LastName, Phone)
@@ -200,7 +234,8 @@ VALUES
 	-- Pracownicy recepcji
 	(@StaffRec1Id, 'ReceptionEmployee', 'kowalska@sportfit.pl', 'password123', 'Anna', 'Kowalska', '+48700100101'),
 	(@StaffRec2Id, 'ReceptionEmployee', 'nowak@sportfit.pl', 'password123', 'Barbara', 'Nowak', '+48700100102'),
-	(@StaffRec3Id, 'ReceptionEmployee', 'wisniewska@sportfit.pl', 'password123', 'Celina', 'Wiśniewska', '+48700100103'),
+	(@StaffRec3Id, 'ReceptionEmployee', 'wisniewska@sportfit.pl', 'password123', 'Celina', 'Wiśniewska',
+	 '+48700100103'),
 	(@StaffRec4Id, 'ReceptionEmployee', 'kaminska@sportfit.pl', 'password123', 'Diana', 'Kamińska', '+48700100104'),
 	(@StaffRec5Id, 'ReceptionEmployee', 'lewandowska@sportfit.pl', 'password123', 'Ewa', 'Lewandowska', '+48700100105'),
 	(@StaffRec6Id, 'ReceptionEmployee', 'zielinska@fitzone.pl', 'password123', 'Fatima', 'Zielińska', '+48700100106'),

@@ -7,6 +7,8 @@
 node_modules/
 dist/
 
+Schedule.API/Properties/launchSettings.json
+
 # Compiled Java class files
 *.class
 
@@ -83,3 +85,5 @@ artifacts/
 
 # Others
 TestResults/
+/Schedule.API/Data/private.key
+/Schedule.API/Data/private.key

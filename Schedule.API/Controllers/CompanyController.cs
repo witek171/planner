@@ -1,0 +1,151 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Schedule.Application.Interfaces.Services;
+using Schedule.Contracts.Dtos.Requests;
+using Schedule.Contracts.Dtos.Responses;
+using Schedule.Domain.Models;
+
+namespace PlannerNet.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Roles = "Manager")]
+public class CompanyController : ControllerBase
+{
+	private readonly ICompanyService _companyService;
+	private readonly ICompanyConfigService _companyConfigService;
+	private readonly IMapper _mapper;
+
+	public CompanyController(
+		ICompanyService companyService,
+		ICompanyConfigService companyConfigService,
+		IMapper mapper)
+	{
+		_companyService = companyService;
+		_companyConfigService = companyConfigService;
+		_mapper = mapper;
+	}
+
+	[HttpPost]
+	public async Task<ActionResult<Guid>> Create([FromBody] CompanyRequest request)
+	{
+		Company company = _mapper.Map<Company>(request);
+
+		Guid companyId = await _companyService.CreateAsync(company);
+		return CreatedAtAction(nameof(Create), companyId);
+	}
+
+	[HttpPut("{companyId:guid}")]
+	public async Task<ActionResult> Put(
+		Guid companyId,
+		[FromBody] CompanyRequest request)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		_mapper.Map(request, company);
+
+		await _companyService.PutAsync(company);
+		return NoContent();
+	}
+
+	[HttpDelete("{companyId:guid}")]
+	public async Task<ActionResult> DeleteById(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		await _companyService.DeleteByIdAsync(companyId);
+		return NoContent();
+	}
+
+	[HttpGet("byId")]
+	public async Task<ActionResult<CompanyResponse>> GetById([FromQuery] Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		CompanyResponse response = _mapper.Map<CompanyResponse>(company);
+		return Ok(response);
+	}
+
+	[HttpPut("{companyId:guid}/markAsReception")]
+	public async Task<ActionResult> MarkAsReception(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		await _companyService.MarkAsReceptionAsync(company);
+		return NoContent();
+	}
+
+	[HttpPut("{companyId:guid}/unmarkAsReception")]
+	public async Task<ActionResult> UnmarkAsReception(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		await _companyService.UnmarkAsReceptionAsync(company);
+		return NoContent();
+	}
+
+	[HttpPost("{companyId:guid}/relation")]
+	public async Task<ActionResult> AddToParent(
+		Guid companyId,
+		[FromBody] Guid parentCompanyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		Company? parentCompany = await _companyService.GetByIdAsync(parentCompanyId);
+		if (company == null || parentCompany == null)
+			return NotFound();
+
+		await _companyService.AddRelationAsync(companyId, parentCompanyId);
+		return Ok();
+	}
+
+	[HttpDelete("{companyId:guid}/relation")]
+	public async Task<ActionResult> RemoveRelations(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		await _companyService.RemoveRelationsAsync(companyId);
+		return NoContent();
+	}
+
+	[HttpGet("{companyId:guid}/relation")]
+	public async Task<ActionResult> GetRelations(Guid companyId)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		List<Company> companies = await _companyService.GetAllRelationsAsync(companyId);
+
+		List<CompanyResponse> responses = _mapper.Map<List<CompanyResponse>>(companies);
+		return Ok(responses);
+	}
+
+	[HttpPut("{companyId:guid}/breakTimes")]
+	public async Task<IActionResult> UpdateCompanyBreakTimes(
+		Guid companyId,
+		[FromBody] UpdateCompanyBreakTimesRequest request)
+	{
+		Company? company = await _companyService.GetByIdAsync(companyId);
+		if (company == null)
+			return NotFound();
+
+		CompanyConfig companyConfig = await _companyConfigService.GetByIdAsync(companyId);
+		_mapper.Map(request, companyConfig);
+
+		await _companyConfigService.UpdateBreakTimesAsync(companyConfig);
+		return NoContent();
+	}
+}

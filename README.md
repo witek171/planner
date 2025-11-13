@@ -1,57 +1,94 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+# Planner API
 
-When you're done, you can delete the content in this README and update the file with details for others getting started
-with your repository.
-
-*We recommend that you open this README in another tab as you perform the tasks below. You
-can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in
-a new tab to avoid leaving Bitbucket.*
+A universal backend API designed for reservation systems, staff management, and client scheduling.
 
 ---
 
-## Edit a file
+## About The Project
 
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
+This project provides a comprehensive and flexible backend solution designed to power scheduling and management applications for a wide variety of service-based businesses. Its universal architecture makes it suitable for organizations like:
 
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and
-   you’ll see the change you just made.
-6. Go back to the **Source** page.
+- Sports clubs: managing class schedules, booking courts or facilities, and assigning trainers.
 
----
+- Medical clinics: scheduling patient appointments, managing doctor availability, and handling patient records.
 
-## Create a file
+- Wellness centers: booking spa treatments, yoga classes, or consultations.
 
-Next, you’ll add a new file to this repository.
+- Any business that relies on managing appointments, staff availability, and client reservations.
 
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
-
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the *
-*Commits**, **Branches**, and **Settings** pages.
+The API is built to handle complex relationships between companies (or locations), staff members, available services (events), and clients (participants), providing a robust foundation for a custom-tailored front-end application.
 
 ---
 
-## Clone a repository
+## Features
 
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to
-work on your files locally. If you don't yet have
-SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line,
-see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
+The system currently supports the following core functionalities:
 
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then
-   click **Clone**.
-4. Open the directory you just created to see your repository’s files.
+Authentication:
+- Staff registration and login.
 
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You
-can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you
-can [add, commit,](https://confluence.atlassian.com/x/8QhODQ)
-and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+Company & Staff Management:
+
+- CRUD operations for companies/locations, including hierarchy management (e.g., main office and receptions).
+
+- CRUD operations for staff members, assignment to companies, and specialization management.
+
+- Defining staff availability schedules.
+
+Reservation & Event Management:
+
+- Defining event templates (EventTypes) and creating specific instances in the schedule (EventSchedules).
+
+- Creating reservations and assigning multiple participants.
+
+- Managing the payment status of reservations.
+
+- CRUD operations for participant (client) data.
+
+---
+
+## Roadmap
+
+- Full implementation of Email/SMS notifications (based on the Notifications table).
+
+- Expansion of the internal messaging module (based on the Messages table).
+
+- Integration with an online payment gateway.
+
+- A dedicated client-facing panel for managing reservations.
+
+- Reporting and statistics module.
+
+---
+
+## Technology & Libraries
+
+- .NET 8
+
+- ASP.NET Core: For building the RESTful API.
+
+- ADO.NET: For direct database communication and executing raw SQL queries (using Microsoft.Data.SqlClient).
+
+- Swashbuckle (Swagger): For API documentation generation.
+
+- TimePeriodLibrary.NET: Used for handling time-period logic, such as in availability schedules.
+
+- JSON Web Token.
+  
+- Microsoft SQL Server.
+
+---
+
+## Database Schema
+
+<p align="center">
+  <img width="3788" height="4428" alt="Image" src="https://github.com/user-attachments/assets/9c77c331-5dff-4c0e-8169-4e37f0dfeba3" />
+</p>
+
+---
+
+## Endpoints
+
+<p align="center">
+  <img width="1907" height="827" alt="Image" src="https://github.com/user-attachments/assets/a6622f5e-0b0b-4f9f-9654-c71412041a70" />
+</p>

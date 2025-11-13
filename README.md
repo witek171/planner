@@ -75,6 +75,10 @@ Reservation & Event Management:
 
 - JSON Web Token.
   
+- AutoMapper.
+  
+- BCrypt.Net.
+
 - Microsoft SQL Server.
 
 ---

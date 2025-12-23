@@ -89,10 +89,3 @@ Reservation & Event Management:
   <img width="3788" height="4428" alt="Image" src="https://github.com/user-attachments/assets/9c77c331-5dff-4c0e-8169-4e37f0dfeba3" />
 </p>
 
----
-
-## Endpoints
-
-<p align="center">
-  <img width="1907" height="827" alt="Image" src="https://github.com/user-attachments/assets/a6622f5e-0b0b-4f9f-9654-c71412041a70" />
-</p>

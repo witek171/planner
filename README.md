@@ -2,7 +2,7 @@
 
 A universal backend API designed for reservation systems, staff management, and client scheduling.
 
-
+---
 ## About The Project
 
 This project provides a comprehensive and flexible backend solution designed to power scheduling and management applications for a wide variety of service-based businesses. Its universal architecture makes it suitable for organizations like:
@@ -17,7 +17,7 @@ This project provides a comprehensive and flexible backend solution designed to 
 
 The API is built to handle complex relationships between companies (or locations), staff members, available services (events), and clients (participants), providing a robust foundation for a custom-tailored front-end application.
 
-
+---
 ## Features
 
 The system currently supports the following core functionalities:
@@ -43,7 +43,7 @@ Reservation & Event Management:
 
 - CRUD operations for participant (client) data.
 
-
+---
 ## Roadmap
 
 - Full implementation of Email/SMS notifications (based on the Notifications table).
@@ -56,7 +56,7 @@ Reservation & Event Management:
 
 - Reporting and statistics module.
 
-
+---
 ## Technology & Libraries
 
 - .NET 8
@@ -77,19 +77,19 @@ Reservation & Event Management:
 
 - Microsoft SQL Server.
 
-
+---
 ## Database Schema
 
 <p align="center">
   <img width="3788" height="4428" alt="Image" src="https://github.com/user-attachments/assets/9c77c331-5dff-4c0e-8169-4e37f0dfeba3" />
 </p>
 
-
+---
 ## Quick Start
 
 ### Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+ [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 
 1. **Clone the repository:**
    ```bash
@@ -103,13 +103,13 @@ Reservation & Event Management:
    ```
 
 4. **Open Swagger:**
-   - API: http://localhost:5000/swagger
+    API: http://localhost:5000/swagger
 
  ### What happens automatically:
-✅ SQL Server starts up (port 1433)
-✅ Database is created and populated with sample data 
-✅ RSA keys are generated
-✅ API is ready to use (port 5000)
+- SQL Server starts up (port 1433)
+- Database is created and populated with sample data 
+- RSA keys are generated
+- API is ready to use (port 5000)
 
  ### Stop services:
 ```bash

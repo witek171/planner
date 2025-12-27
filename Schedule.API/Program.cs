@@ -25,13 +25,12 @@ public class Program
 		builder.Services.AddAutoMapper(typeof(MappingProfile));
 		builder.Services.AddEndpointsApiExplorer();
 
-		//Swagger + Bearer auth
 		builder.Services.AddSwaggerGen(c =>
 		{
-			c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+			c.SwaggerDoc("v1", new OpenApiInfo { Title = "Planner API", Version = "v1" });
 			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 			{
-				Description = "Wpisz token w formacie: {token}",
+				Description = "Enter the token in the format: {token}",
 				Name = "Authorization",
 				In = ParameterLocation.Header,
 				Type = SecuritySchemeType.Http,
@@ -58,9 +57,31 @@ public class Program
 			});
 		});
 
-		// JWT Authentication
 		RSA rsa = RSA.Create();
-		rsa.ImportFromPem(File.ReadAllText("./data/public.key"));
+
+		string[] possiblePaths =
+		{
+			"/app/data/public.key",
+			"./Data/public.key",
+			"./data/public.key"
+		};
+
+		string? publicKeyContent = null;
+		foreach (string path in possiblePaths)
+		{
+			if (File.Exists(path))
+			{
+				publicKeyContent = File.ReadAllText(path);
+				Console.WriteLine($"Key used from: {path}");
+				break;
+			}
+		}
+
+		if (publicKeyContent == null)
+			throw new FileNotFoundException(
+				"Public key not found! Please check whether the keys have been generated.");
+
+		rsa.ImportFromPem(publicKeyContent);
 
 		builder.Services.AddAuthentication("Bearer")
 			.AddJwtBearer(options =>
@@ -77,11 +98,10 @@ public class Program
 					ValidateIssuerSigningKey = true,
 					IssuerSigningKey = new RsaSecurityKey(rsa)
 				};
-            });
+			});
 
 		builder.Services.AddAuthorization();
 
-		// Repositories
 		builder.Services.AddScoped<IParticipantRepository>(provider =>
 			new ParticipantRepository(EnvironmentService.SqlConnectionString));
 		builder.Services.AddScoped<IStaffMemberRepository>(provider =>
@@ -107,7 +127,6 @@ public class Program
 		builder.Services.AddScoped<ICompanyConfigRepository>(provider =>
 			new CompanyConfigRepository(EnvironmentService.SqlConnectionString));
 
-		// Services
 		builder.Services.AddScoped<IHealthCheckService>(provider =>
 		{
 			IHealthCheckUtils healthCheckUtils = provider.GetRequiredService<IHealthCheckUtils>();
@@ -138,15 +157,15 @@ public class Program
 
 		WebApplication app = builder.Build();
 
-		// Configure the HTTP request pipeline.
-		if (app.Environment.IsDevelopment())
+		app.UseMiddleware<GlobalExceptionMiddleware>();
+		app.UseSwagger();
+		app.UseSwaggerUI(c =>
 		{
-			app.UseMiddleware<GlobalExceptionMiddleware>();
-			app.UseSwagger();
-			app.UseSwaggerUI();
-		}
-		else
-			app.UseMiddleware<GlobalExceptionMiddleware>();
+			c.SwaggerEndpoint("/swagger/v1/swagger.json", "Planner API V1");
+			c.RoutePrefix = "swagger";
+		});
+
+		app.MapGet("/", () => Results.Redirect("/swagger"));
 
 		app.UseHttpsRedirection();
 

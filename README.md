@@ -103,7 +103,10 @@ Reservation & Event Management:
    ```
 
 4. **Open Swagger:**
-    API: http://localhost:5000/swagger
+    API:
+   ```bash
+   http://localhost:5000/swagger
+   ```
 
  ### What happens automatically:
 - SQL Server starts up (port 1433)
